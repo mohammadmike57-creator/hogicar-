@@ -42,6 +42,7 @@ const AutomaticIcon = ({ className = "w-4 h-4 text-slate-500" }: { className?: s
 );
 import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
 import { getRatingDescription, getRatingColor, getRatingTextColor, getCarRatings, normalizeRatingScore } from '../utils/ratings';
+import { RatingBadge } from '../components/RatingBadge';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
@@ -894,7 +895,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                       <div className="mt-2 flex items-center gap-2">
                         {supplierMark}
                         {!car.isHogicarChoiceBranded && (
-                          <span className={`${getRatingColor(car.supplier.rating)} rounded px-1.5 py-0.5 text-xs font-bold text-white`}>{normalizeRatingScore(car.supplier.rating).toFixed(1)}</span>
+                          <RatingBadge rating={car.supplier.rating} size="sm" tileOnly />
                         )}
                       </div>
                     </div>

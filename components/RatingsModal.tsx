@@ -9,7 +9,7 @@ import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
 import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 import RotateCcw from 'lucide-react/dist/esm/icons/rotate-ccw';
 import { CarRatings } from '../types';
-import { getRatingColor, getRatingDescription, getRatingTextColor } from '../utils/ratings';
+import { RatingBadge, reviewCountText } from './RatingBadge';
 
 interface RatingsModalProps {
   open: boolean;
@@ -96,16 +96,12 @@ export const RatingsModal: React.FC<RatingsModalProps> = ({ open, onClose, ratin
           </button>
         </div>
 
-        <div className="flex items-center gap-4 px-5 pt-5">
-          <span className={`${getRatingColor(rating)} inline-flex h-14 min-w-[3.5rem] items-center justify-center rounded-lg rounded-bl-none px-2 text-2xl font-bold text-white`}>
-            {rating.toFixed(1)}
-          </span>
-          <div>
-            <p className={`text-lg font-bold ${getRatingTextColor(rating)}`}>{getRatingDescription(rating)}</p>
-            <p className="text-sm text-slate-500">
-              {reviewCount && reviewCount > 0 ? `Based on ${reviewCount.toLocaleString()} reviews` : 'Based on recent customer reviews'}
-            </p>
-          </div>
+        <div className="px-5 pt-5">
+          <RatingBadge
+            rating={rating}
+            size="lg"
+            fallbackText={reviewCount && reviewCount > 0 ? `Based on ${reviewCountText(reviewCount)}` : 'Based on recent customer reviews'}
+          />
         </div>
 
         <ul className="space-y-4 px-5 py-5">

@@ -36,6 +36,7 @@ import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
 import { Car as CarType, Supplier, CarRatings } from '../types';
 import { RatingsModal } from './RatingsModal';
 import { getRatingDescription, getRatingTextColor, getRatingColor, normalizeRatingScore, formatCategoryName, getCarRatings } from '../utils/ratings';
+import { RatingBadge } from './RatingBadge';
 import { Link } from 'react-router-dom';
 import { calculatePrice } from '../utils/bookingUtils';
 import { useCurrency } from '../contexts/CurrencyContext';
@@ -484,15 +485,9 @@ const CarCard: React.FC<CarCardProps> = ({
       onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowRatings(true); }}
       aria-haspopup="dialog"
       aria-label={`${car.supplier.name} rating ${ratingToDisplay.toFixed(1)}, show details`}
-      className="inline-flex items-center gap-2 rounded-md text-left hover:opacity-90"
+      className="inline-flex items-center rounded-lg text-left transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
     >
-      <span className={`${getRatingColor(ratingToDisplay)} inline-flex h-7 min-w-[2.25rem] items-center justify-center rounded-md rounded-bl-none px-1.5 text-sm font-bold text-white`}>
-        {ratingToDisplay.toFixed(1)}
-      </span>
-      <span className="leading-tight">
-        <span className={`block text-sm font-semibold ${getRatingTextColor(ratingToDisplay)}`}>{getRatingDescription(ratingToDisplay)}</span>
-        <span className="block text-xs text-slate-500 underline-offset-2 hover:underline">{reviewCount ? `${Number(reviewCount).toLocaleString()} reviews` : 'See ratings'}</span>
-      </span>
+      <RatingBadge rating={ratingToDisplay} reviewCount={reviewCount} size="sm" fallbackText="See ratings" />
     </button>
   );
 

@@ -28,7 +28,7 @@ export const getRatingDescription = (rating: number): string => {
     if (score >= 7.0) return 'Very good';
     if (score >= 6.0) return 'Good';
     if (score >= 5.0) return 'Average';
-    if (score >= 3.5) return 'Below Average';
+    if (score >= 3.5) return 'Below average';
     return 'Poor';
 };
 

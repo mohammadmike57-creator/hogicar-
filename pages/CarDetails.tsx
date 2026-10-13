@@ -60,6 +60,7 @@ import PlaneTakeoff from 'lucide-react/dist/esm/icons/plane-takeoff';
 import { Car, CommissionType, Supplier, PromoCode, Extra, CarCategory } from '../types';
 import { RatingsModal } from '../components/RatingsModal';
 import { getRatingDescription, getRatingColor, getRatingTextColor, formatCategoryName, getCarRatings, normalizeRatingScore } from '../utils/ratings';
+import { RatingBadge, reviewCountText } from '../components/RatingBadge';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
@@ -736,7 +737,7 @@ const CarDetails: React.FC = () => {
   const ratingButton = (
     <button
       type="button"
-      className="relative inline-flex items-center gap-2 rounded-lg text-left"
+      className="relative inline-flex items-center gap-2 rounded-lg text-left transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -745,13 +746,7 @@ const CarDetails: React.FC = () => {
       aria-haspopup="dialog"
       aria-label="Show rating details"
     >
-      <span className={`${getRatingColor(ratingToDisplay)} inline-flex h-8 min-w-[2.5rem] items-center justify-center rounded-md rounded-bl-none px-1.5 text-sm font-bold text-white`}>
-        {ratingToDisplay.toFixed(1)}
-      </span>
-      <span className="leading-tight">
-        <span className={`block text-sm font-semibold ${getRatingTextColor(ratingToDisplay)}`}>{getRatingDescription(ratingToDisplay)}</span>
-        {(car.supplier.reviewCount ?? (car.supplier as any).ratingReviewCount) ? <span className="block text-xs text-slate-500">{Number(car.supplier.reviewCount ?? (car.supplier as any).ratingReviewCount).toLocaleString()} reviews</span> : <span className="block text-xs text-slate-500">Customer rating</span>}
-      </span>
+      <RatingBadge rating={ratingToDisplay} reviewCount={car.supplier.reviewCount ?? (car.supplier as any).ratingReviewCount} size="md" />
       <Info className="h-3.5 w-3.5 text-slate-400" />
     </button>
   );
