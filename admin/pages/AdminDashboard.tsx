@@ -47,6 +47,7 @@ import PowerOff from 'lucide-react/dist/esm/icons/power-off';
 import Key from 'lucide-react/dist/esm/icons/key';
 import Code from 'lucide-react/dist/esm/icons/code';
 import Mail from 'lucide-react/dist/esm/icons/mail';
+import Send from 'lucide-react/dist/esm/icons/send';
 import CheckSquare from 'lucide-react/dist/esm/icons/check-square';
 import XSquare from 'lucide-react/dist/esm/icons/x-square';
 import Clock from 'lucide-react/dist/esm/icons/clock';
@@ -105,6 +106,7 @@ const DistributionAdmin = React.lazy(() => import('../components/distribution/Di
 const RewardsAdmin = React.lazy(() => import('../components/RewardsAdmin'));
 const BannersAdmin = React.lazy(() => import('../components/BannersAdmin'));
 const EmailCampaignsAdmin = React.lazy(() => import('../components/EmailCampaignsAdmin'));
+const MailAdmin = React.lazy(() => import('../components/MailAdmin'));
 import ChangeDecisionModal from '../../components/manage/ChangeDecisionModal';
 import { changeStatusOf } from '../../utils/changeRequest';
 import { API_BASE_URL } from '../../lib/config';
@@ -304,6 +306,7 @@ const SECTION_META: Record<string, { title: string; description: string; group: 
   affiliatenetworks: { title: 'Affiliate networks', description: 'Awin and other affiliate networks: tracking, conversions and reconciliation.', group: 'Commercial' },
   distribution: { title: 'Distribution network', description: 'Skyscanner, KAYAK and partner channels: onboarding, inventory, pricing, deeplinks and monitoring.', group: 'Commercial' },
   rewards: { title: 'Rewards', description: 'HogiCar Rewards members, points and reward codes.', group: 'Commercial' },
+  mail: { title: 'Mail', description: 'Write emails with your signature and attachments.', group: 'Commercial' },
   emailcampaigns: { title: 'Email campaigns', description: 'Send discounts and promotions to customers by email.', group: 'Commercial' },
   push: { title: 'Push notifications', description: 'Messages sent to app users.', group: 'Commercial' },
   homepage: { title: 'Homepage', description: 'Hero, sections and images on the homepage.', group: 'Website' },
@@ -320,7 +323,7 @@ const SECTION_META: Record<string, { title: string; description: string; group: 
 };
 
 type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fleet' | 
-                'carlibrary' | 'apipartners' | 'affiliates' | 'affiliatenetworks' | 'distribution' | 'rewards' | 'emailcampaigns' | 'banners' | 'cms' | 'seo' | 'seoaudit' |
+                'carlibrary' | 'apipartners' | 'affiliates' | 'affiliatenetworks' | 'distribution' | 'rewards' | 'mail' | 'emailcampaigns' | 'banners' | 'cms' | 'seo' | 'seoaudit' |
                 'homepage' | 'sitesettings' | 'promotions' | 'globallocations' | 
                 'homepagelogos' | 'searchinglogos' | 'externalsuppliers' | 'blog' | 'sitemap' | 'push';
 
@@ -615,7 +618,7 @@ const useResponsiveTables = (root: React.RefObject<HTMLElement | null>, key: unk
   }, [root, key]);
 };
 
-const OWN_HERO_SECTIONS = new Set<string>(['suppliers', 'fleet', 'externalsuppliers', 'blog', 'seo']);
+const OWN_HERO_SECTIONS = new Set<string>(['suppliers', 'fleet', 'externalsuppliers', 'blog', 'seo', 'mail']);
 
 // ==================== Sidebar ====================
 const NAV_ITEMS: { section: Section; icon: any }[] = [
@@ -632,6 +635,7 @@ const NAV_ITEMS: { section: Section; icon: any }[] = [
   { section: 'affiliatenetworks', icon: Waypoints },
   { section: 'distribution', icon: RadioTower },
   { section: 'rewards', icon: Gift },
+  { section: 'mail', icon: Send },
   { section: 'emailcampaigns', icon: Mail },
   { section: 'push', icon: Bell },
   { section: 'homepage', icon: ImageIcon },
@@ -4969,6 +4973,11 @@ export const AdminDashboard: React.FC = () => {
       case 'banners': return (
         <React.Suspense fallback={<div className="space-y-4"><div className="h-48 animate-pulse rounded-3xl bg-slate-200/70" /><div className="h-64 animate-pulse rounded-2xl bg-white ring-1 ring-slate-200" /></div>}>
           <BannersAdmin />
+        </React.Suspense>
+      );
+      case 'mail': return (
+        <React.Suspense fallback={<div className="space-y-4"><div className="h-48 animate-pulse rounded-3xl bg-slate-200/70" /><div className="h-64 animate-pulse rounded-2xl bg-white ring-1 ring-slate-200" /></div>}>
+          <MailAdmin />
         </React.Suspense>
       );
       case 'emailcampaigns': return (
