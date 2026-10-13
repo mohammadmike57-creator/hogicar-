@@ -746,8 +746,7 @@ const CarDetails: React.FC = () => {
       aria-haspopup="dialog"
       aria-label="Show rating details"
     >
-      <RatingBadge rating={ratingToDisplay} reviewCount={car.supplier.reviewCount ?? (car.supplier as any).ratingReviewCount} size="md" />
-      <Info className="h-3.5 w-3.5 text-slate-400" />
+      <RatingBadge rating={ratingToDisplay} reviewCount={car.supplier.reviewCount ?? (car.supplier as any).ratingReviewCount} size="md" showInfo inline />
     </button>
   );
 

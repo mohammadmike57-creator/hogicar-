@@ -100,6 +100,7 @@ export const RatingsModal: React.FC<RatingsModalProps> = ({ open, onClose, ratin
           <RatingBadge
             rating={rating}
             size="lg"
+            inline
             fallbackText={reviewCount && reviewCount > 0 ? `Based on ${reviewCountText(reviewCount)}` : 'Based on recent customer reviews'}
           />
         </div>

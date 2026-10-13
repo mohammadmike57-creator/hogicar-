@@ -487,7 +487,7 @@ const CarCard: React.FC<CarCardProps> = ({
       aria-label={`${car.supplier.name} rating ${ratingToDisplay.toFixed(1)}, show details`}
       className="inline-flex items-center rounded-lg text-left transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
     >
-      <RatingBadge rating={ratingToDisplay} reviewCount={reviewCount} size="sm" fallbackText="See ratings" />
+      <RatingBadge rating={ratingToDisplay} reviewCount={reviewCount} size="sm" fallbackText="See ratings" showInfo inline />
     </button>
   );
 

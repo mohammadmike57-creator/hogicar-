@@ -1,4 +1,6 @@
 import * as React from 'react';
+import Star from 'lucide-react/dist/esm/icons/star';
+import Info from 'lucide-react/dist/esm/icons/info';
 import { getRatingDescription, normalizeRatingScore } from '../utils/ratings';
 
 type Size = 'sm' | 'md' | 'lg';
@@ -7,74 +9,56 @@ interface RatingBadgeProps {
   rating: number;
   reviewCount?: number | null;
   size?: Size;
-  /** Score tile only, no words next to it. */
+  /** Score box only, no words under it. */
   tileOnly?: boolean;
-  /** Text under the label when there is no review count. */
+  /** Text under the label when there is no rating count. */
   fallbackText?: string;
-  /** Adds a "See details" hint next to the review count. */
-  showDetailsHint?: boolean;
+  /** Small info icon after the label (the badge opens the breakdown). */
+  showInfo?: boolean;
+  /** Words beside the box instead of under it. */
+  inline?: boolean;
 }
 
-const tileTone = (score: number) => {
-  if (score >= 8.5) return 'bg-[#0b3d6e]';
-  if (score >= 7.0) return 'bg-[#0f6b4f]';
-  if (score >= 6.0) return 'bg-[#4d7c0f]';
-  if (score >= 5.0) return 'bg-[#b45309]';
-  if (score >= 3.5) return 'bg-[#c2410c]';
-  return 'bg-[#b91c1c]';
+const box: Record<Size, string> = {
+  sm: 'h-9 gap-1 rounded-[10px] px-2.5 text-[17px]',
+  md: 'h-11 gap-1.5 rounded-xl px-3 text-xl',
+  lg: 'h-16 gap-2 rounded-2xl px-4 text-[28px]',
 };
-
-const tileSize: Record<Size, string> = {
-  sm: 'h-7 min-w-[2.25rem] rounded-md px-1.5 text-[13px]',
-  md: 'h-9 min-w-[2.75rem] rounded-lg px-2 text-[15px]',
-  lg: 'h-14 min-w-[4rem] rounded-xl px-3 text-2xl',
-};
-
-const labelSize: Record<Size, string> = {
-  sm: 'text-[13px]',
-  md: 'text-sm',
-  lg: 'text-lg',
-};
-
-const subSize: Record<Size, string> = {
-  sm: 'text-[11px]',
-  md: 'text-xs',
-  lg: 'text-sm',
-};
+const star: Record<Size, string> = { sm: 'h-4 w-4', md: 'h-5 w-5', lg: 'h-7 w-7' };
+const label: Record<Size, string> = { sm: 'text-sm', md: 'text-[15px]', lg: 'text-lg' };
+const sub: Record<Size, string> = { sm: 'text-xs', md: 'text-[13px]', lg: 'text-sm' };
 
 export const reviewCountText = (count?: number | null) => {
   const n = Number(count || 0);
   if (!n) return '';
-  return `${n.toLocaleString()} ${n === 1 ? 'review' : 'reviews'}`;
+  return `${n.toLocaleString()} ${n === 1 ? 'rating' : 'ratings'}`;
 };
 
-/** Supplier score (out of 10) with its word and review count. */
-export const RatingBadge: React.FC<RatingBadgeProps> = ({ rating, reviewCount, size = 'md', tileOnly, fallbackText = 'Customer rating', showDetailsHint }) => {
+/** Supplier score (out of 10): outlined box with a star, the word and the number of ratings. */
+export const RatingBadge: React.FC<RatingBadgeProps> = ({ rating, reviewCount, size = 'md', tileOnly, fallbackText = 'Customer rating', showInfo, inline }) => {
   const score = normalizeRatingScore(rating);
-  const tile = (
+  const scoreBox = (
     <span
-      className={`${tileTone(score)} ${tileSize[size]} inline-flex shrink-0 items-center justify-center font-bold tabular-nums leading-none tracking-tight text-white shadow-[inset_0_-1px_0_rgba(0,0,0,0.18)]`}
-      aria-hidden={tileOnly ? undefined : true}
+      className={`${box[size]} inline-flex shrink-0 items-center justify-center border border-slate-300/80 bg-white font-bold tabular-nums leading-none tracking-tight text-slate-900 shadow-[0_1px_2px_rgba(15,23,42,0.06)]`}
       title={tileOnly ? `${score.toFixed(1)} out of 10 · ${getRatingDescription(score)}` : undefined}
     >
       {score.toFixed(1)}
+      <Star className={`${star[size]} fill-[#f5b301] text-[#f5b301]`} aria-hidden="true" />
     </span>
   );
-  if (tileOnly) return tile;
+  if (tileOnly) return scoreBox;
 
   const count = reviewCountText(reviewCount);
   return (
-    <span className="inline-flex items-center gap-2.5">
-      {tile}
+    <span className={inline ? 'inline-flex items-center gap-3' : 'inline-flex flex-col items-start gap-2'}>
+      {scoreBox}
       <span className="leading-tight">
-        <span className={`block font-semibold text-slate-900 ${labelSize[size]}`}>
+        <span className={`flex items-center gap-1.5 font-semibold text-slate-900 ${label[size]}`}>
           {getRatingDescription(score)}
           <span className="sr-only">, {score.toFixed(1)} out of 10</span>
+          {showInfo && <Info className="h-4 w-4 text-accent" aria-hidden="true" />}
         </span>
-        <span className={`mt-0.5 block text-slate-500 ${subSize[size]}`}>
-          {count || fallbackText}
-          {showDetailsHint && <span className="text-accent"> · See details</span>}
-        </span>
+        <span className={`mt-0.5 block text-slate-500 ${sub[size]}`}>{count || fallbackText}</span>
       </span>
     </span>
   );
