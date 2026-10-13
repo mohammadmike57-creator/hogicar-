@@ -44,12 +44,15 @@ export const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         location: '',
         locations: [],
         contactEmail: 'contact@api.supplier',
-        gracePeriodHours: 1,
+        // Only what the supplier actually set; missing values show as "not listed".
+        gracePeriodHours: Number((apiCar.supplier as any)?.gracePeriodHours ?? 0),
         minBookingLeadTime: 2,
-        termsAndConditions: "Standard terms apply.",
+        termsAndConditions: (apiCar.supplier as any)?.termsAndConditions || '',
+        address: (apiCar.supplier as any)?.address || undefined,
+        phone: (apiCar.supplier as any)?.phone || undefined,
         connectionType: 'api',
-        includesCDW: true,
-        includesTP: true,
+        includesCDW: (apiCar.supplier as any)?.includesCDW === true,
+        includesTP: (apiCar.supplier as any)?.includesTP === true,
         enableSocialProof: false,
         pickupType: apiCar.supplier?.pickupType as any || apiCar.pickupType as any || PickupType.IN_TERMINAL
     };
@@ -102,7 +105,7 @@ export const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         rateTiers: [apiRateTier],
         extras: [],
         locationDetail: apiCar.locationDetail || 'In Terminal',
-        unlimitedMileage: apiCar.unlimitedMileage || true,
+        unlimitedMileage: apiCar.unlimitedMileage !== false,
         tags: ["Online Deal"],
         detailedRatings: mappedSupplier.detailedRatings,
         hasFinalPriceFromApi: hasFinalPrice,

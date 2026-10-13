@@ -61,6 +61,7 @@ import { Car, CommissionType, Supplier, PromoCode, Extra, CarCategory } from '..
 import { RatingsModal } from '../components/RatingsModal';
 import { getRatingDescription, getRatingColor, getRatingTextColor, formatCategoryName, getCarRatings, normalizeRatingScore } from '../utils/ratings';
 import { RatingBadge, reviewCountText } from '../components/RatingBadge';
+import { RentalConditionsModal, ConditionsChip } from '../components/RentalConditions';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
@@ -134,153 +135,6 @@ const VisaIcon = () => (
 );
 const MastercardIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="38" height="24" viewBox="0 0 38 24" fill="none" className="rounded shadow-sm"><rect width="38" height="24" fill="white" rx="3"/><circle cx="13" cy="12" r="7" fill="#EA001B"/><circle cx="25" cy="12" r="7" fill="#F79E1B"/><path d="M20.5 12a7.002 7.002 0 01-7.5-6.96A7.002 7.002 0 0013 19a7.002 7.002 0 007.5-6.96A7.002 7.002 0 0120.5 12z" fill="#FF5F00"/></svg> );
 const AmexIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="38" height="24" viewBox="0 0 38 24" fill="none" className="rounded shadow-sm"><rect width="38" height="24" fill="#006FCF" rx="3"/><rect x="4" y="4" width="30" height="16" rx="1" fill="none" stroke="white" strokeWidth="1.5"/><text x="19" y="15.5" textAnchor="middle" fontFamily="sans-serif" fontSize="7" fontWeight="bold" fill="white">AMEX</text></svg> );
-
-// Rental Conditions Modal
-const RentalConditionsModal = ({ car, supplier, onClose }: { car: Car; supplier: Supplier; onClose: () => void }) => {
-  const { convertPrice, getCurrencySymbol } = useCurrency();
-  const workingHours = supplier.workingHours ? Object.entries(supplier.workingHours) : [];
-  const gracePeriodInfo = supplier.gracePeriodDays ? `${supplier.gracePeriodDays} day(s)` : `${supplier.gracePeriodHours} hour(s)`;
-  const depositText = car.deposit > 0 ? `${getCurrencySymbol()}${convertPrice(car.deposit).toFixed(2)}` : 'No deposit listed';
-  const excessAmount = car.excess;
-  const excessText = excessAmount > 0 ? `${getCurrencySymbol()}${convertPrice(excessAmount).toFixed(2)}` : 'See supplier terms';
-  const supplierLogo = supplier.logo || (supplier as any).logoUrl;
-  const pickupTypeLabel =
-    supplier.pickupType === 'IN_TERMINAL' ? 'In terminal' :
-    supplier.pickupType === 'MEET_AND_GREET' ? 'Meet & greet' :
-    supplier.pickupType === 'SHUTTLE_BUS' ? 'Shuttle bus' :
-    car.locationDetail || 'Location details at pickup';
-  const paymentTypeLabel =
-    supplier.commissionType === 'FULL_PREPAID' ? 'Full prepayment online' :
-    supplier.commissionType === 'PARTIAL_PREPAID' ? 'Partial payment online' :
-    'Pay at rental desk';
-  const supplierRatingDisplay = parseFloat(normalizeRatingScore(supplier.rating).toFixed(1));
-
-  const PolicyRow = ({ label, value, tone = 'default' }: { label: string; value: React.ReactNode; tone?: 'default' | 'good' | 'warn' }) => (
-    <div className="flex items-start justify-between gap-3 border-b border-slate-100 py-2.5 last:border-b-0">
-      <span className="text-xs font-bold text-slate-500">{label}</span>
-      <span className={`text-right text-xs font-black ${tone === 'good' ? 'text-accent' : tone === 'warn' ? 'text-amber-700' : 'text-slate-900'}`}>{value}</span>
-    </div>
-  );
-
-  const ConditionCard = ({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) => (
-    <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <h4 className="mb-3 flex items-center gap-2 text-sm font-black text-slate-900">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10 text-accent">{icon}</span>
-        {title}
-      </h4>
-      {children}
-    </section>
-  );
-
-  return (
-    <div className="fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-      <div className="bg-slate-50 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col font-sans overflow-hidden" onClick={(e) => e.stopPropagation()}>
-        <div className="flex justify-between items-start gap-4 p-4 sm:p-5 border-b border-slate-200 bg-white">
-          <div className="flex min-w-0 items-center gap-4">
-            {(car as any).isHogicarChoiceBranded ? (
-              <>
-                <div className="w-14 h-14 bg-slate-900 rounded-xl flex shrink-0 items-center justify-center shadow-lg border border-amber-500/30">
-                  <Award className="w-8 h-8 text-amber-400" />
-                </div>
-                <div className="min-w-0">
-                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-600">Rental conditions</p>
-                   <h3 className="text-lg font-black text-slate-950 truncate">Hogicar verified fleet</h3>
-                   <p className="text-xs text-amber-600 font-bold uppercase tracking-wider">Hogicar Exclusive Verified Fleet</p>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="flex h-14 w-28 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 shadow-sm">
-                  {supplierLogo === 'HOGICAR_CHOICE_LOGO' ? (
-                    <Logo className="h-8 w-auto max-w-[150px]" />
-                  ) : supplierLogo ? (
-                    <img src={supplierLogo} alt={supplier.name} className="max-h-10 max-w-full object-contain" />
-                  ) : (
-                    <Building className="h-7 w-7 text-slate-400" />
-                  )}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-accent">Rental conditions</p>
-                  <h3 className="text-lg font-black text-slate-950 truncate">{supplier.name}</h3>
-                  <p className="text-xs font-bold text-slate-500 truncate">{car.displayName || `${car.make} ${car.model}`}</p>
-                </div>
-              </>
-            )}
-          </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full text-slate-500 shrink-0"><X className="w-5 h-5"/></button>
-        </div>
-        <div className="p-4 sm:p-5 overflow-y-auto custom-scrollbar">
-          <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <div className="rounded-xl border border-slate-200 bg-white p-3"><p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Deposit</p><p className="mt-1 text-sm font-black text-slate-950">{depositText}</p></div>
-            <div className="rounded-xl border border-slate-200 bg-white p-3"><p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Excess</p><p className="mt-1 text-sm font-black text-slate-950">{excessText}</p></div>
-            <div className="rounded-xl border border-slate-200 bg-white p-3"><p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Mileage</p><p className="mt-1 text-sm font-black text-slate-950">{car.unlimitedMileage ? 'Unlimited' : 'Limited'}</p></div>
-            <div className="rounded-xl border border-slate-200 bg-white p-3"><p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Pickup</p><p className="mt-1 flex items-center gap-1.5 text-sm font-black text-slate-950"><PickupTypeIcon type={supplier.pickupType} size="xs" />{pickupTypeLabel}</p></div>
-          </div>
-
-          <div className="grid gap-4 lg:grid-cols-[1.45fr_0.9fr]">
-            <div className="space-y-4">
-              <ConditionCard icon={<CreditCardIcon className="h-4 w-4" />} title="Payment, deposit and card rules">
-                <PolicyRow label="Payment type" value={paymentTypeLabel} />
-                <PolicyRow label="Security deposit" value={depositText} tone={car.deposit > 0 ? 'warn' : 'default'} />
-                <PolicyRow label="Accepted cards" value={<span className="inline-flex items-center gap-1.5"><VisaIcon /><MastercardIcon /><AmexIcon /></span>} />
-                <PolicyRow label="Card holder" value="Main driver's name required" />
-                <p className="mt-3 rounded-lg bg-amber-50 p-3 text-xs font-semibold leading-relaxed text-amber-800">A physical credit card may be required at the rental desk. Prepaid, virtual, or third-party cards may be refused by the supplier.</p>
-              </ConditionCard>
-
-              <ConditionCard icon={<Users className="h-4 w-4" />} title="Required at pick-up">
-                <div className="grid gap-2 sm:grid-cols-3">
-                  <div className="rounded-lg border border-slate-100 bg-slate-50 p-3"><Shield className="mb-2 h-4 w-4 text-accent" /><p className="text-xs font-black text-slate-900">Driving license</p><p className="mt-1 text-[11px] font-semibold leading-relaxed text-slate-500">Held for at least 1 year. International permit may be required.</p></div>
-                  <div className="rounded-lg border border-slate-100 bg-slate-50 p-3"><Users className="mb-2 h-4 w-4 text-accent" /><p className="text-xs font-black text-slate-900">Passport or ID</p><p className="mt-1 text-[11px] font-semibold leading-relaxed text-slate-500">A valid photo ID matching the main driver details.</p></div>
-                  <div className="rounded-lg border border-slate-100 bg-slate-50 p-3"><CreditCardIcon className="mb-2 h-4 w-4 text-accent" /><p className="text-xs font-black text-slate-900">Credit card</p><p className="mt-1 text-[11px] font-semibold leading-relaxed text-slate-500">Must have enough available funds for the deposit.</p></div>
-                </div>
-              </ConditionCard>
-
-              <ConditionCard icon={<Shield className="h-4 w-4" />} title="Insurance and protection">
-                <PolicyRow label="Collision Damage Waiver" value={supplier.includesCDW ? 'Included' : 'See supplier terms'} tone={supplier.includesCDW ? 'good' : 'default'} />
-                <PolicyRow label="Theft Protection" value={supplier.includesTP ? 'Included' : 'See supplier terms'} tone={supplier.includesTP ? 'good' : 'default'} />
-                <PolicyRow label="Damage excess" value={excessText} />
-                <PolicyRow label="One-way fee" value={supplier.oneWayFee ? `${getCurrencySymbol()}${convertPrice(supplier.oneWayFee).toFixed(2)}` : 'Not listed'} />
-              </ConditionCard>
-
-              <ConditionCard icon={<Fuel className="h-4 w-4" />} title="Mileage, fuel and vehicle policy">
-                <PolicyRow label="Mileage" value={car.unlimitedMileage ? 'Unlimited mileage' : 'Limited mileage'} tone={car.unlimitedMileage ? 'good' : 'default'} />
-                <PolicyRow label="Fuel policy" value={car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to full' : car.fuelPolicy.replace(/_/g, ' ')} />
-                <PolicyRow label="Transmission" value={car.transmission === 'AUTOMATIC' ? 'Automatic' : 'Manual'} />
-                <PolicyRow label="Vehicle class" value={`${formatCategoryName(car.category)} or similar`} />
-              </ConditionCard>
-            </div>
-
-            <aside className="space-y-4">
-              <ConditionCard icon={<Building className="h-4 w-4" />} title="Supplier and location">
-                <PolicyRow label="Supplier" value={supplier.name} />
-                <PolicyRow label="Rating" value={`${supplierRatingDisplay.toFixed(1)}/10 - ${getRatingDescription(supplierRatingDisplay)}`} tone={supplierRatingDisplay >= 8 ? 'good' : supplierRatingDisplay >= 6 ? 'default' : 'warn'} />
-                <PolicyRow label="Pickup type" value={<span className="inline-flex items-center gap-1.5"><PickupTypeIcon type={supplier.pickupType} size="xs" />{pickupTypeLabel}</span>} />
-                {supplier.address && <div className="mt-3 flex items-start gap-2 rounded-lg bg-slate-50 p-3"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" /><p className="text-xs font-semibold leading-relaxed text-slate-600">{supplier.address}</p></div>}
-              </ConditionCard>
-
-              <ConditionCard icon={<Clock className="h-4 w-4" />} title="Pickup and return rules">
-                <PolicyRow label="Booking mode" value={supplier.bookingMode === 'FREE_SALE' ? 'Instant confirmation' : 'On request'} tone={supplier.bookingMode === 'FREE_SALE' ? 'good' : 'default'} />
-                <PolicyRow label="Lead time" value={supplier.minBookingLeadTime ? `${supplier.minBookingLeadTime} hour(s)` : 'Not listed'} />
-                <PolicyRow label="Late return grace" value={gracePeriodInfo} />
-                {workingHours.length > 0 && <div className="mt-3 rounded-lg border border-slate-100 bg-slate-50 p-3"><p className="mb-2 text-[10px] font-black uppercase tracking-widest text-slate-400">Opening hours</p>{workingHours.map(([day, hours]) => <div key={day} className="flex justify-between gap-3 text-xs"><span className="capitalize font-semibold text-slate-500">{day}</span><span className="text-right font-black text-slate-800">{hours}</span></div>)}</div>}
-              </ConditionCard>
-            </aside>
-          </div>
-
-          <ConditionCard icon={<FileText className="h-4 w-4" />} title="Supplier rental terms">
-            <div className="max-h-48 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-4 custom-scrollbar">
-              <p className="whitespace-pre-line text-xs font-semibold leading-relaxed text-slate-600">{supplier.termsAndConditions || 'No additional supplier terms have been provided for this vehicle. Standard rental desk policies may still apply at pickup.'}</p>
-            </div>
-          </ConditionCard>
-        </div>
-        <div className="p-4 bg-white border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <p className="text-xs font-semibold text-slate-500">Final acceptance depends on presenting the required documents and card at pickup.</p>
-          <button onClick={onClose} className="bg-accent text-white px-6 py-3 rounded-xl font-black text-sm hover:bg-accent-700 shadow-sm transition-transform active:scale-95">Got it</button>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 // ==================== Main Component ====================
 
@@ -934,7 +788,10 @@ const CarDetails: React.FC = () => {
 
               {/* Important information */}
               <section className="order-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:order-none">
-                <h2 className="text-lg font-bold text-slate-900">Important information</h2>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <h2 className="text-lg font-bold text-slate-900">Important information</h2>
+                  <ConditionsChip car={car} onClick={() => setIsConditionsModalOpen(true)} />
+                </div>
                 <dl className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-slate-200 bg-slate-200 sm:grid-cols-4">
                   {[
                     { label: 'Security deposit', value: depositDisplay },
