@@ -42,7 +42,7 @@ export const DetailedRatingsTooltip: React.FC<DetailedRatingsTooltipProps> = ({ 
         { key: 'cleanliness', label: 'Car cleanliness', icon: Sparkles },
     ];
 
-    const reviewText = reviewCount && reviewCount > 0 ? `${reviewCount} customer ratings` : 'recent customer ratings';
+    const reviewText = 'recent customer ratings';
 
     let alignClass = 'right-0';
     let arrowClass = 'right-4';
