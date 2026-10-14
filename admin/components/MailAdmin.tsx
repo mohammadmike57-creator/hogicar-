@@ -16,6 +16,8 @@ import Upload from 'lucide-react/dist/esm/icons/upload';
 import Eye from 'lucide-react/dist/esm/icons/eye';
 import Inbox from 'lucide-react/dist/esm/icons/inbox';
 import { adminAxios, API_BASE_URL } from '../../api';
+import InboxPanel, { InboxMessage, InboxStatus } from './mail/InboxPanel';
+import Reply from 'lucide-react/dist/esm/icons/reply';
 import { Hero, heroPrimary, heroButton, Drawer, ErrorBanner, Spinner, Toast, useToast, errorOf, num, ago, inputCls, Field, Toggle, Segmented } from './commercialUi';
 
 const BASE = `${API_BASE_URL}/api/admin/mail`;
@@ -172,7 +174,10 @@ const SentDrawer: React.FC<{ mail: SentMail; onClose: () => void; onReuse: (m: S
 };
 
 export const MailAdmin: React.FC = () => {
-  const [tab, setTab] = React.useState<'compose' | 'sent'>('compose');
+  const [tab, setTab] = React.useState<'inbox' | 'compose' | 'sent'>('inbox');
+  const [inboxStatus, setInboxStatus] = React.useState<InboxStatus | null>(null);
+  const [replyTo, setReplyTo] = React.useState<{ id: number; label: string } | null>(null);
+  const [inboxKey, setInboxKey] = React.useState(0);
   const [settings, setSettings] = React.useState<Settings | null>(null);
   const [fromOptions, setFromOptions] = React.useState<string[]>([]);
   const [limits, setLimits] = React.useState({ maxFiles: 10, maxTotalBytes: 20 * 1048576 });
@@ -237,7 +242,7 @@ export const MailAdmin: React.FC = () => {
 
   const bad = [...to, ...cc, ...bcc].filter(a => !EMAIL.test(a));
   const canSend = to.length > 0 && bad.length === 0 && subject.trim() && (body.trim() || files.length) && !sending;
-  const reset = () => { setTo([]); setCc([]); setBcc([]); setShowCc(false); setSubject(''); setBody(''); setFiles([]); setWithSig(true); setSendErr(''); };
+  const reset = () => { setReplyTo(null); setTo([]); setCc([]); setBcc([]); setShowCc(false); setSubject(''); setBody(''); setFiles([]); setWithSig(true); setSendErr(''); };
 
   const send = async () => {
     if (!canSend) return;
@@ -251,11 +256,13 @@ export const MailAdmin: React.FC = () => {
     fd.append('body', body);
     fd.append('withSignature', String(withSig));
     files.forEach(f => fd.append('files', f, f.name));
+    if (replyTo) fd.append('replyTo', String(replyTo.id));
     try {
       await adminAxios.post(`${BASE}/send`, fd);
       show(`Sent to ${to.length + cc.length + bcc.length === 1 ? to[0] : `${to.length + cc.length + bcc.length} people`}.`);
       reset();
       loadSent();
+      setInboxKey(k => k + 1);
     } catch (e) {
       setSendErr(errorOf(e, 'The email could not be sent.'));
       loadSent();
@@ -271,6 +278,20 @@ export const MailAdmin: React.FC = () => {
     setSubject(m.subject); setBody(m.body || ''); setWithSig(m.withSignature !== false); setFrom(m.fromAddress || from); setFiles([]);
   };
 
+  const replyFrom = (m: InboxMessage) => {
+    reset();
+    setReplyTo({ id: m.id, label: m.fromName || m.fromAddress || '' });
+    setTo(m.fromAddress ? [m.fromAddress] : []);
+    const subj = m.subject || '';
+    setSubject(/^re:/i.test(subj) ? subj : `Re: ${subj}${m.contactRef && !subj.includes(m.contactRef) ? ` [${m.contactRef}]` : ''}`);
+    const first = (m.fromName || '').trim().split(/\s+/)[0];
+    const quoted = (m.bodyText || (m.bodyHtml || '').replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<br\s*\/?>/gi, '\n').replace(/<\/p>/gi, '\n\n').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/[ \t]+/g, ' '))
+      .trim().split('\n').slice(0, 40).map(l => `> ${l.trim()}`).join('\n');
+    const date = new Date(m.receivedAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+    setBody(`Dear ${first || 'Sir or Madam'},\n\nThank you for your message.\n\n\n\nKind regards,\n\n\nOn ${date}, ${m.fromName || m.fromAddress} wrote:\n${quoted}`);
+    setTab('compose');
+  };
+
   const sigReady = !!settings && !!(settings.signatureName || settings.signatureTitle || settings.signaturePhone);
 
   return (
@@ -278,15 +299,15 @@ export const MailAdmin: React.FC = () => {
       <Hero
         eyebrow="Mail"
         eyebrowIcon={Mail}
-        title="Write an email"
-        subtitle="Send emails to customers, suppliers and partners from your Hogicar address, with your signature and attachments."
+        title="Mail"
+        subtitle="Read and answer emails and Contact page requests, and write new emails with your signature and attachments."
         actions={<>
           <button onClick={() => { setTab('compose'); reset(); }} className={heroPrimary}><PenLine className="h-4 w-4" /> New email</button>
           <button onClick={() => setShowSig(true)} disabled={!settings} className={heroButton}><Signature className="h-4 w-4" /> Signature</button>
         </>}
         kpis={[
-          { label: 'Sent', value: num(counts.sent), Icon: MailCheck },
-          { label: 'Not sent', value: num(counts.failed), Icon: MailX },
+          { label: 'Unread', value: num(inboxStatus?.unread), Icon: Mail, note: inboxStatus?.openContact ? `${inboxStatus.openContact} contact request${inboxStatus.openContact === 1 ? '' : 's'} to answer` : undefined },
+          { label: 'Sent', value: num(counts.sent), Icon: MailCheck, note: counts.failed ? `${counts.failed} not sent` : undefined },
           { label: 'Sending from', value: from ? from.split('@')[0] : '…', Icon: AtSign, note: from || undefined },
           { label: 'Signature', value: sigReady ? 'Ready' : 'Not set', Icon: Signature, note: sigReady ? settings?.signatureName || undefined : 'Add your name and phone' },
         ]}
@@ -295,9 +316,11 @@ export const MailAdmin: React.FC = () => {
 
       {loadErr && <ErrorBanner text={loadErr} onRetry={loadSettings} />}
 
-      <Segmented value={tab} onChange={setTab} layoutId="mail-tab" items={[{ key: 'compose', label: 'Compose' }, { key: 'sent', label: 'Sent', count: counts.sent + counts.failed }]} />
+      <Segmented value={tab} onChange={setTab} layoutId="mail-tab" items={[{ key: 'inbox', label: 'Inbox', count: inboxStatus?.unread, dot: !!inboxStatus?.unread }, { key: 'compose', label: replyTo ? 'Reply' : 'Compose' }, { key: 'sent', label: 'Sent', count: counts.sent + counts.failed }]} />
 
-      {tab === 'compose' ? (
+      {tab === 'inbox' ? (
+        <InboxPanel onReply={replyFrom} onStatus={setInboxStatus} refreshKey={inboxKey} />
+      ) : tab === 'compose' ? (
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
           <section
             className={`overflow-hidden rounded-2xl bg-white shadow-sm ring-1 transition ${dragging ? 'ring-2 ring-[#007ac2]' : 'ring-slate-200'}`}
@@ -305,6 +328,12 @@ export const MailAdmin: React.FC = () => {
             onDragLeave={() => setDragging(false)}
             onDrop={e => { e.preventDefault(); setDragging(false); addFiles(e.dataTransfer.files); }}
           >
+            {replyTo && (
+              <div className="flex items-center justify-between gap-3 border-b border-sky-100 bg-sky-50 px-4 py-2.5 text-sm text-sky-900">
+                <span className="flex min-w-0 items-center gap-2"><Reply className="h-4 w-4 shrink-0" /><span className="truncate">Replying to <span className="font-semibold">{replyTo.label}</span> · stays in the same conversation</span></span>
+                <button type="button" onClick={() => setReplyTo(null)} className="shrink-0 rounded-lg px-2 py-1 text-xs font-semibold hover:bg-sky-100">New email instead</button>
+              </div>
+            )}
             <div className="flex items-center gap-3 border-b border-slate-200 px-4 py-2.5">
               <span className="w-14 shrink-0 text-sm text-slate-500">From</span>
               <select value={from} onChange={e => setFrom(e.target.value)} className="min-w-0 flex-1 cursor-pointer border-0 bg-transparent py-1.5 text-sm font-medium text-slate-900 outline-none">
