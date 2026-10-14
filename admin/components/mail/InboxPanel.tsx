@@ -14,11 +14,55 @@ import CheckCircle from 'lucide-react/dist/esm/icons/circle-check';
 import AlertTriangle from 'lucide-react/dist/esm/icons/triangle-alert';
 import Phone from 'lucide-react/dist/esm/icons/phone';
 import Ticket from 'lucide-react/dist/esm/icons/ticket';
+import Check from 'lucide-react/dist/esm/icons/check';
+import ExternalLink from 'lucide-react/dist/esm/icons/external-link';
 import { adminAxios, API_BASE_URL } from '../../../api';
 import { Drawer, Spinner, errorOf, ago } from '../commercialUi';
 import { boxLabel, folderLabel, type Folder } from './MailNav';
 
 const BASE = `${API_BASE_URL}/api/admin/mail`;
+const CONTACT = `${API_BASE_URL}/api/admin/contact-messages`;
+
+const STAGES = [
+  { key: 'NEW', label: 'Received' },
+  { key: 'IN_PROGRESS', label: 'In review' },
+  { key: 'REPLIED', label: 'Answered' },
+  { key: 'CLOSED', label: 'Resolved' },
+];
+
+/** What the customer sees on their tracking page; changing it here updates their page. */
+const RequestStatus: React.FC<{ reference: string; onChanged: () => void }> = ({ reference, onChanged }) => {
+  const [info, setInfo] = React.useState<{ id: number; status: string; trackUrl: string } | null>(null);
+  const [busy, setBusy] = React.useState(false);
+  React.useEffect(() => { adminAxios.get(`${CONTACT}/by-ref/${encodeURIComponent(reference)}`).then(r => setInfo(r.data)).catch(() => setInfo(null)); }, [reference]);
+  if (!info) return null;
+  const set = async (status: string) => {
+    if (status === info.status) return;
+    setBusy(true);
+    try { await adminAxios.patch(`${CONTACT}/${info.id}`, { status }); setInfo({ ...info, status }); onChanged(); } finally { setBusy(false); }
+  };
+  const current = STAGES.findIndex(s => s.key === info.status);
+  return (
+    <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Status the customer sees</p>
+        <a href={info.trackUrl.replace(/^https?:\/\/[^/]+/, '')} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-[#007ac2] hover:underline">Tracking page <ExternalLink className="h-3 w-3" /></a>
+      </div>
+      <div className="mt-3 grid grid-cols-4 gap-1 rounded-xl bg-slate-100 p-1" role="radiogroup" aria-label="Request status">
+        {STAGES.map((s, i) => {
+          const active = s.key === info.status;
+          return (
+            <button key={s.key} role="radio" aria-checked={active} disabled={busy} onClick={() => set(s.key)}
+              className={`flex h-9 items-center justify-center gap-1 rounded-lg px-1 text-xs font-semibold transition sm:text-[13px] ${active ? 'bg-[#0f2b4d] text-white shadow-sm' : i < current ? 'text-slate-700 hover:bg-white' : 'text-slate-500 hover:bg-white hover:text-slate-800'}`}>
+              {i < current && <Check className="h-3.5 w-3.5" />}{s.label}
+            </button>
+          );
+        })}
+      </div>
+      <p className="mt-2 text-xs text-slate-500">Replying from here sets it to Answered and shows your reply on their page.</p>
+    </div>
+  );
+};
 
 export type InboxRow = {
   id: number; source: 'EMAIL' | 'CONTACT'; mailbox?: string; fromName?: string; fromAddress?: string; subject?: string; snippet?: string;
@@ -123,6 +167,7 @@ const Reader: React.FC<{ id: number; onClose: () => void; onReply: (m: InboxMess
               {m.bookingRef && <span className="inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200"><Ticket className="h-4 w-4 text-slate-400" />Booking {m.bookingRef}</span>}
             </div>
           )}
+          {contact && m.contactRef && <RequestStatus reference={m.contactRef} onChanged={onChanged} />}
           {data!.attachments.length > 0 && (
             <div className="grid gap-2 sm:grid-cols-2">
               {data!.attachments.map(a => (

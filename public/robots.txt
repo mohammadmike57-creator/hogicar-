@@ -19,6 +19,7 @@ Disallow: /book/
 Disallow: /confirmation
 Disallow: /voucher
 Disallow: /my-bookings
+Disallow: /contact/track
 Disallow: /resume/
 Disallow: /go/
 Disallow: /feedback/

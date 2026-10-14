@@ -21,6 +21,7 @@ import Building2 from 'lucide-react/dist/esm/icons/building-2';
 import Newspaper from 'lucide-react/dist/esm/icons/newspaper';
 import MessageSquare from 'lucide-react/dist/esm/icons/message-square';
 import HelpCircle from 'lucide-react/dist/esm/icons/help-circle';
+import Search from 'lucide-react/dist/esm/icons/search';
 import SEOMetadata from '../components/SEOMetadata';
 import { API_BASE_URL, CONTACT_EMAIL, PUBLIC_BASE_URL } from '../lib/config';
 import { HELP_ARTICLES, articleUrl } from '../content/helpCenter';
@@ -98,6 +99,7 @@ const Contact: React.FC = () => {
   const [status, setStatus] = React.useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [reference, setReference] = React.useState<string | null>(null);
+  const [trackToken, setTrackToken] = React.useState<string | null>(null);
   const startedAt = React.useRef(Date.now());
   const formRef = React.useRef<HTMLFormElement>(null);
 
@@ -145,6 +147,7 @@ const Contact: React.FC = () => {
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data.ok === false) throw new Error(data.message || 'We couldn’t send your message. Please try again.');
       setReference(data.reference || null);
+      setTrackToken(data.token || null);
       setStatus('sent');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
@@ -182,7 +185,7 @@ const Contact: React.FC = () => {
     <div className="min-h-screen bg-slate-50 pb-16">
       <SEOMetadata
         title={isAbout ? 'About & Contact HogiCar' : 'Contact HogiCar | Customer & Business Enquiries'}
-        description={`Get help with a car rental booking, payments or partnerships. Email ${CONTACT_EMAIL} or send us a message – we usually reply within one business day.`}
+        description={`Get help with a car rental booking, payments or partnerships. Email ${CONTACT_EMAIL} or send us a message and track your request online.`}
         canonicalUrl={`${PUBLIC_BASE_URL}/contact`}
         structuredData={structuredData}
       />
@@ -197,7 +200,7 @@ const Contact: React.FC = () => {
           </p>
           <h1 className="mt-4 max-w-3xl text-4xl font-extrabold tracking-tight sm:text-5xl">How can we help?</h1>
           <p className="mt-3 max-w-2xl text-base text-white/80 sm:text-lg">
-            Questions about a booking, a payment or working with HogiCar – our team reads every message and usually replies within one business day.
+            Questions about a booking, a payment or working with HogiCar – our team reads every message, and you can track your request online.
           </p>
           <div className="mt-6 inline-flex items-center gap-1 rounded-2xl bg-white/10 py-1 pl-4 pr-1 ring-1 ring-white/15 backdrop-blur">
             <a href={`mailto:${CONTACT_EMAIL}`} className="text-[15px] font-semibold text-white hover:underline">{CONTACT_EMAIL}</a>
@@ -208,9 +211,10 @@ const Contact: React.FC = () => {
 
       <div className="relative mx-auto -mt-14 max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* Self-service shortcuts */}
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { to: '/my-bookings', icon: CalendarCog, title: 'Manage your booking', text: 'View, change or cancel instantly' },
+            { to: '/contact/track', icon: Search, title: 'Track a request', text: 'Status and replies to your message' },
             { to: '/help', icon: LifeBuoy, title: 'Help Center', text: 'Answers to common questions' },
             { to: '/contact?topic=PARTNERSHIP', icon: Briefcase, title: 'Business enquiries', text: 'Partnerships, API & suppliers' },
           ].map(c => (
@@ -248,7 +252,7 @@ const Contact: React.FC = () => {
                   {[
                     ['Received', 'Your message is with our team.'],
                     ['Reviewed', 'We check your booking or request.'],
-                    ['Reply', 'Usually within one business day.'],
+                    ['Reply', 'We reply by email as soon as possible.'],
                   ].map(([t, d], i) => (
                     <li key={t} className="rounded-2xl border border-slate-200 p-4">
                       <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${i === 0 ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600'}`}>{i + 1}</span>
@@ -259,7 +263,9 @@ const Contact: React.FC = () => {
                 </ol>
                 <div className="mt-8 flex flex-wrap justify-center gap-3">
                   <button type="button" onClick={reset} className="h-11 rounded-full border border-slate-300 px-5 text-sm font-semibold text-slate-700 hover:border-slate-400">Send another message</button>
-                  <Link to="/my-bookings" className="inline-flex h-11 items-center rounded-full bg-accent px-5 text-sm font-semibold text-white hover:bg-accent-700">Manage booking</Link>
+                  {reference
+                    ? <Link to={`/contact/track?ref=${reference}${trackToken ? `&t=${trackToken}` : ''}`} className="inline-flex h-11 items-center gap-2 rounded-full bg-accent px-5 text-sm font-semibold text-white hover:bg-accent-700">Track your request <ArrowRight className="h-4 w-4" /></Link>
+                    : <Link to="/my-bookings" className="inline-flex h-11 items-center rounded-full bg-accent px-5 text-sm font-semibold text-white hover:bg-accent-700">Manage booking</Link>}
                 </div>
               </div>
             ) : (
@@ -366,7 +372,7 @@ const Contact: React.FC = () => {
                 <CopyEmail />
               </div>
               <ul className="mt-5 space-y-3 text-sm text-slate-600">
-                <li className="flex gap-3"><Clock className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" /><span>We usually reply within <strong className="text-slate-800">one business day</strong>.</span></li>
+                <li className="flex gap-3"><Clock className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" /><span>Follow your request any time on <Link to="/contact/track" className="font-semibold text-accent hover:underline">Track a request</Link>.</span></li>
                 <li className="flex gap-3"><MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" /><span>We answer in English and Arabic.</span></li>
                 <li className="flex gap-3"><CarFront className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" /><span>At the rental desk? Call the rental company – their number is on your voucher.</span></li>
               </ul>

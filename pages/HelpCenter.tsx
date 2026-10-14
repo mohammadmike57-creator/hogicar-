@@ -187,7 +187,7 @@ const ContactCta: React.FC<{ topic?: string }> = ({ topic }) => (
     <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h2 className="text-xl font-bold">Still need help?</h2>
-        <p className="mt-1 max-w-lg text-sm text-white/75">Our team usually replies within one business day. Include your booking reference so we can help faster.</p>
+        <p className="mt-1 max-w-lg text-sm text-white/75">Our team reads every message. Include your booking reference so we can help faster, and track your request online.</p>
       </div>
       <div className="flex flex-wrap gap-2">
         <Link to={topic ? `/contact?topic=${topic}` : '/contact'} className="inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-[#003580] hover:bg-blue-50">
@@ -324,7 +324,7 @@ const HelpHome: React.FC = () => {
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-50 text-accent"><Mail className="h-5 w-5" /></span>
               <span>
                 <span className="block font-bold text-slate-900">Contact our team</span>
-                <span className="mt-0.5 block text-sm text-slate-500">{CONTACT_EMAIL} · usually within one business day.</span>
+                <span className="mt-0.5 block text-sm text-slate-500">{CONTACT_EMAIL} · track your request online.</span>
               </span>
             </Link>
           </aside>
