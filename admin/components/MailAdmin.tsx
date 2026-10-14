@@ -145,7 +145,7 @@ const SignatureDrawer: React.FC<{ settings: Settings; fromOptions: string[]; onC
         <Field label="Send from" hint="Replies come back to this address.">
           <select className={inputCls} value={s.fromAddress} onChange={set('fromAddress')}>{fromOptions.map(f => <option key={f} value={f}>{f}</option>)}</select>
         </Field>
-        <Toggle checked={s.signatureLogo} onChange={v => setS(p => ({ ...p, signatureLogo: v }))} label="HOGICAR letterhead" hint="Logo and navy-orange line at the top of every email. Turn off for a plain letter." />
+        <Toggle checked={s.signatureLogo} onChange={v => setS(p => ({ ...p, signatureLogo: v }))} label="Brand line" hint="A thin navy-orange line at the top of every email. Turn off for a plain letter." />
       </div>
     </Drawer>
   );
