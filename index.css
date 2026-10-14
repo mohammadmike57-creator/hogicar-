@@ -206,11 +206,13 @@ html, body {
   .voucher-doc { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 
-/* Supplier portal on phones: 16px form text stops iOS Safari zooming into fields */
-@media (max-width: 639px) {
-  .supplier-portal input:not([type="checkbox"]):not([type="radio"]),
-  .supplier-portal select,
-  .supplier-portal textarea { font-size: 16px; }
+/* On phones every text field is at least 16px: below that iOS Safari zooms the page in when you tap to type
+   (website, admin and supplier portal alike). */
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+  select,
+  textarea,
+  [contenteditable="true"] { font-size: 16px !important; }
 }
 .supplier-portal { -webkit-tap-highlight-color: transparent; }
 

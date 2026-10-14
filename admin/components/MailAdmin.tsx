@@ -23,7 +23,7 @@ const EMAIL = /^[^@\s<>,;]+@[^@\s<>,;]+\.[^@\s<>,;]+$/;
 
 type Settings = {
   fromAddress: string; senderName: string; signatureName: string; signatureTitle: string; signaturePhone: string;
-  signatureEmail: string; signatureWebsite: string; signatureNote: string; signatureLogo: boolean;
+  signatureEmail: string; signatureWebsite: string; signatureNote: string; signatureAddress?: string; signatureLogo: boolean;
 };
 type SentMail = {
   id: number; fromAddress: string; to: string; cc?: string; bcc?: string; subject: string; body?: string; attachments?: string;
@@ -70,7 +70,7 @@ const Recipients: React.FC<{ label: string; value: string[]; onChange: (v: strin
           type="email"
           inputMode="email"
           placeholder={value.length ? '' : 'name@company.com'}
-          className="min-w-[10rem] flex-1 border-0 bg-transparent py-1.5 text-sm text-slate-900 outline-none placeholder:text-slate-400"
+          className="min-w-[7rem] flex-1 border-0 bg-transparent py-1.5 text-sm text-slate-900 outline-none placeholder:text-slate-400"
           aria-label={label}
         />
       </div>
@@ -114,8 +114,8 @@ const SignatureDrawer: React.FC<{ settings: Settings; fromOptions: string[]; onC
     <Drawer eyebrow="Email signature" title="Your signature" onClose={onClose} busy={busy} width="max-w-[680px]"
       footer={
         <div className="flex items-center justify-between gap-3">
-          <p className="text-xs text-slate-500">Added to the end of every email you send from here.</p>
-          <div className="flex gap-2">
+          <p className="hidden text-xs text-slate-500 sm:block">Added to the end of every email you send from here.</p>
+          <div className="flex w-full justify-end gap-2 sm:w-auto">
             <button onClick={onClose} disabled={busy} className="h-11 rounded-xl px-4 text-sm font-semibold text-slate-600 hover:bg-slate-100">Cancel</button>
             <button onClick={save} disabled={busy} className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#0b2545] px-5 text-sm font-semibold text-white hover:bg-[#123c69] disabled:opacity-60">{busy ? <Spinner light /> : <MailCheck className="h-4 w-4" />} Save signature</button>
           </div>
@@ -125,7 +125,7 @@ const SignatureDrawer: React.FC<{ settings: Settings; fromOptions: string[]; onC
         {err && <ErrorBanner text={err} onRetry={save} />}
         <section className="overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200">
           <p className="flex items-center gap-1.5 border-b border-slate-100 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><Eye className="h-3.5 w-3.5" /> Preview</p>
-          {html ? <MailFrame html={html} minHeight={190} title="Signature preview" /> : <div className="h-[190px] animate-pulse bg-slate-50" />}
+          {html ? <MailFrame html={html} minHeight={420} title="Signature preview" /> : <div className="h-[420px] animate-pulse bg-slate-50" />}
         </section>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Full name"><input className={inputCls} value={s.signatureName} onChange={set('signatureName')} placeholder="Mohammad Ahmad" /></Field>
@@ -133,15 +133,16 @@ const SignatureDrawer: React.FC<{ settings: Settings; fromOptions: string[]; onC
           <Field label="Phone"><input className={inputCls} value={s.signaturePhone} onChange={set('signaturePhone')} placeholder="+962 7 9000 0000" inputMode="tel" /></Field>
           <Field label="Email"><input className={inputCls} value={s.signatureEmail} onChange={set('signatureEmail')} placeholder="business@hogicar.com" inputMode="email" /></Field>
           <Field label="Website"><input className={inputCls} value={s.signatureWebsite} onChange={set('signatureWebsite')} placeholder="www.hogicar.com" /></Field>
-          <Field label="Sender name" hint="Shown as the sender in the inbox."><input className={inputCls} value={s.senderName} onChange={set('senderName')} placeholder="Hogicar" /></Field>
+          <Field label="Office address" hint="Optional."><input className={inputCls} value={s.signatureAddress || ''} onChange={set('signatureAddress')} placeholder="Amman, Jordan" /></Field>
         </div>
+        <Field label="Sender name" hint="Shown as the sender in the inbox, e.g. “Mohammad Mike | Hogicar”."><input className={inputCls} value={s.senderName} onChange={set('senderName')} placeholder="Hogicar" /></Field>
         <Field label="Small print" hint="Optional, e.g. a confidentiality note. Shown in small grey text under the signature.">
           <textarea className={`${inputCls} min-h-[80px] py-2.5`} value={s.signatureNote} onChange={set('signatureNote')} maxLength={500} />
         </Field>
         <Field label="Send from" hint="Replies come back to this address.">
           <select className={inputCls} value={s.fromAddress} onChange={set('fromAddress')}>{fromOptions.map(f => <option key={f} value={f}>{f}</option>)}</select>
         </Field>
-        <Toggle checked={s.signatureLogo} onChange={v => setS(p => ({ ...p, signatureLogo: v }))} label="Show the HOGICAR logo" hint="The logo sits to the left of your details, with an orange line." />
+        <Toggle checked={s.signatureLogo} onChange={v => setS(p => ({ ...p, signatureLogo: v }))} label="HOGICAR letterhead" hint="Logo and navy-orange line at the top of every email. Turn off for a plain letter." />
       </div>
     </Drawer>
   );
