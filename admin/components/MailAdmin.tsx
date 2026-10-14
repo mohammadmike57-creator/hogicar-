@@ -176,7 +176,8 @@ const SentDrawer: React.FC<{ mail: SentMail; onClose: () => void; onReuse: (m: S
 export const MailAdmin: React.FC = () => {
   const [tab, setTab] = React.useState<'inbox' | 'compose' | 'sent'>('inbox');
   const [inboxStatus, setInboxStatus] = React.useState<InboxStatus | null>(null);
-  const [replyTo, setReplyTo] = React.useState<{ id: number; label: string } | null>(null);
+  const [replyTo, setReplyTo] = React.useState<{ id: number; label: string; original: string; when: string } | null>(null);
+  const [showOriginal, setShowOriginal] = React.useState(false);
   const [inboxKey, setInboxKey] = React.useState(0);
   const [settings, setSettings] = React.useState<Settings | null>(null);
   const [fromOptions, setFromOptions] = React.useState<string[]>([]);
@@ -225,10 +226,10 @@ export const MailAdmin: React.FC = () => {
   React.useEffect(() => {
     if (tab !== 'compose') return;
     const t = window.setTimeout(() => {
-      adminAxios.post(`${BASE}/preview`, { body, withSignature: withSig }).then(r => setPreview(r.data.html)).catch(() => {});
+      adminAxios.post(`${BASE}/preview`, { body, withSignature: withSig, replyTo: replyTo?.id }).then(r => setPreview(r.data.html)).catch(() => {});
     }, 300);
     return () => window.clearTimeout(t);
-  }, [body, withSig, settings, tab]);
+  }, [body, withSig, settings, tab, replyTo]);
 
   const totalBytes = files.reduce((n, f) => n + f.size, 0);
   const addFiles = (list: FileList | File[] | null) => {
@@ -280,15 +281,15 @@ export const MailAdmin: React.FC = () => {
 
   const replyFrom = (m: InboxMessage) => {
     reset();
-    setReplyTo({ id: m.id, label: m.fromName || m.fromAddress || '' });
+    const original = (m.bodyText || (m.bodyHtml || '').replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<br\s*\/?>/gi, '\n').replace(/<\/p>/gi, '\n\n').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/[ \t]+/g, ' ')).trim();
+    setReplyTo({ id: m.id, label: m.fromName || m.fromAddress || '', original, when: new Date(m.receivedAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) });
+    setShowOriginal(false);
     setTo(m.fromAddress ? [m.fromAddress] : []);
+    // Answer from the address the message arrived at.
+    const arrived = (m.mailbox || '').toLowerCase();
+    if (arrived && fromOptions.includes(arrived)) setFrom(arrived);
     const subj = m.subject || '';
     setSubject(/^re:/i.test(subj) ? subj : `Re: ${subj}${m.contactRef && !subj.includes(m.contactRef) ? ` [${m.contactRef}]` : ''}`);
-    const first = (m.fromName || '').trim().split(/\s+/)[0];
-    const quoted = (m.bodyText || (m.bodyHtml || '').replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<br\s*\/?>/gi, '\n').replace(/<\/p>/gi, '\n\n').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/[ \t]+/g, ' '))
-      .trim().split('\n').slice(0, 40).map(l => `> ${l.trim()}`).join('\n');
-    const date = new Date(m.receivedAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
-    setBody(`Dear ${first || 'Sir or Madam'},\n\nThank you for your message.\n\n\n\nKind regards,\n\n\nOn ${date}, ${m.fromName || m.fromAddress} wrote:\n${quoted}`);
     setTab('compose');
   };
 
@@ -349,10 +350,18 @@ export const MailAdmin: React.FC = () => {
             <textarea
               value={body}
               onChange={e => setBody(e.target.value)}
-              placeholder={'Dear …,\n\nWrite your message here.\n\nKind regards,'}
+              placeholder={replyTo ? 'Write your reply…' : 'Write your message…'}
               className="block min-h-[300px] w-full resize-y border-0 px-4 py-4 text-[15px] leading-relaxed text-slate-900 outline-none placeholder:text-slate-400"
             />
-            <p className="px-4 pb-2 text-xs text-slate-400">Tip: an empty line starts a new paragraph, **text** makes it bold and links become clickable.</p>
+            {replyTo && replyTo.original && (
+              <div className="mx-4 mb-3 overflow-hidden rounded-xl bg-slate-50 ring-1 ring-slate-200">
+                <button type="button" onClick={() => setShowOriginal(v => !v)} className="flex w-full items-center justify-between gap-3 px-3.5 py-2.5 text-left text-xs text-slate-500 hover:text-slate-700">
+                  <span className="truncate">Original message from <span className="font-semibold text-slate-700">{replyTo.label}</span> · {replyTo.when} · added under your signature</span>
+                  <span className="shrink-0 font-semibold text-[#007ac2]">{showOriginal ? 'Hide' : 'Show'}</span>
+                </button>
+                {showOriginal && <p className="max-h-56 overflow-y-auto whitespace-pre-wrap border-l-[3px] border-slate-300 mx-3.5 mb-3 pl-3 text-sm leading-relaxed text-slate-600">{replyTo.original}</p>}
+              </div>
+            )}
 
             {files.length > 0 && (
               <ul className="grid gap-2 border-t border-slate-100 px-4 py-3 sm:grid-cols-2">
