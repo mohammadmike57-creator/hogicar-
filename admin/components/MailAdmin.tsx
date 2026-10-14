@@ -17,8 +17,9 @@ import Eye from 'lucide-react/dist/esm/icons/eye';
 import Inbox from 'lucide-react/dist/esm/icons/inbox';
 import { adminAxios, API_BASE_URL } from '../../api';
 import InboxPanel, { InboxMessage, InboxStatus } from './mail/InboxPanel';
+import MailNav, { MailView } from './mail/MailNav';
 import Reply from 'lucide-react/dist/esm/icons/reply';
-import { Hero, heroPrimary, heroButton, Drawer, ErrorBanner, Spinner, Toast, useToast, errorOf, num, ago, inputCls, Field, Toggle, Segmented } from './commercialUi';
+import { Hero, heroPrimary, heroButton, Drawer, ErrorBanner, Spinner, Toast, useToast, errorOf, num, ago, inputCls, Field, Toggle } from './commercialUi';
 
 const BASE = `${API_BASE_URL}/api/admin/mail`;
 const EMAIL = /^[^@\s<>,;]+@[^@\s<>,;]+\.[^@\s<>,;]+$/;
@@ -174,7 +175,11 @@ const SentDrawer: React.FC<{ mail: SentMail; onClose: () => void; onReuse: (m: S
 };
 
 export const MailAdmin: React.FC = () => {
-  const [tab, setTab] = React.useState<'inbox' | 'compose' | 'sent'>('inbox');
+  const [view, setView] = React.useState<MailView>({ kind: 'inbox', box: 'all', folder: 'all' });
+  const lastInbox = React.useRef<MailView>({ kind: 'inbox', box: 'all', folder: 'all' });
+  const tab = view.kind;
+  const go = (v: MailView) => { if (v.kind === 'inbox') lastInbox.current = v; setView(v); };
+  const setTab = (t: 'inbox' | 'compose' | 'sent') => go(t === 'inbox' ? lastInbox.current : { kind: t });
   const [inboxStatus, setInboxStatus] = React.useState<InboxStatus | null>(null);
   const [replyTo, setReplyTo] = React.useState<{ id: number; label: string; original: string; when: string } | null>(null);
   const [showOriginal, setShowOriginal] = React.useState(false);
@@ -261,9 +266,11 @@ export const MailAdmin: React.FC = () => {
     try {
       await adminAxios.post(`${BASE}/send`, fd);
       show(`Sent to ${to.length + cc.length + bcc.length === 1 ? to[0] : `${to.length + cc.length + bcc.length} people`}.`);
+      const wasReply = !!replyTo;
       reset();
       loadSent();
       setInboxKey(k => k + 1);
+      if (wasReply) setTab('inbox');
     } catch (e) {
       setSendErr(errorOf(e, 'The email could not be sent.'));
       loadSent();
@@ -317,12 +324,16 @@ export const MailAdmin: React.FC = () => {
 
       {loadErr && <ErrorBanner text={loadErr} onRetry={loadSettings} />}
 
-      <Segmented value={tab} onChange={setTab} layoutId="mail-tab" items={[{ key: 'inbox', label: 'Inbox', count: inboxStatus?.unread, dot: !!inboxStatus?.unread }, { key: 'compose', label: replyTo ? 'Reply' : 'Compose' }, { key: 'sent', label: 'Sent', count: counts.sent + counts.failed }]} />
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[264px_minmax(0,1fr)]">
+        <MailNav view={view} status={inboxStatus} sentCount={counts.sent + counts.failed} onView={go}
+          onCompose={() => { if (view.kind !== 'compose') { reset(); setTab('compose'); } }} onSignature={() => setShowSig(true)}
+          composeLabel={replyTo ? 'Replying…' : 'Writing…'} />
+        <div className="min-w-0">
 
       {tab === 'inbox' ? (
-        <InboxPanel onReply={replyFrom} onStatus={setInboxStatus} refreshKey={inboxKey} />
+        <InboxPanel box={view.kind === 'inbox' ? view.box : 'all'} folder={view.kind === 'inbox' ? view.folder : 'all'} onReply={replyFrom} onStatus={setInboxStatus} refreshKey={inboxKey} />
       ) : tab === 'compose' ? (
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+        <div className="grid gap-5 2xl:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
           <section
             className={`overflow-hidden rounded-2xl bg-white shadow-sm ring-1 transition ${dragging ? 'ring-2 ring-[#007ac2]' : 'ring-slate-200'}`}
             onDragOver={e => { e.preventDefault(); setDragging(true); }}
@@ -403,7 +414,7 @@ export const MailAdmin: React.FC = () => {
             </div>
           </section>
 
-          <section className="h-fit overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 xl:sticky xl:top-4">
+          <section className="h-fit overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 2xl:sticky 2xl:top-4">
             <div className="border-b border-slate-100 px-5 py-4">
               <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"><Eye className="h-3.5 w-3.5" /> What they will see</p>
               <p className="mt-2 truncate text-base font-semibold text-slate-900">{subject || <span className="font-normal text-slate-400">No subject yet</span>}</p>
@@ -448,6 +459,8 @@ export const MailAdmin: React.FC = () => {
           )}
         </section>
       )}
+        </div>
+      </div>
 
       <AnimatePresence>
         {showSig && settings && <SignatureDrawer settings={settings} fromOptions={fromOptions} onClose={() => setShowSig(false)} onSaved={s => { setSettings(s); setFrom(s.fromAddress); setShowSig(false); show('Signature saved.'); }} />}
