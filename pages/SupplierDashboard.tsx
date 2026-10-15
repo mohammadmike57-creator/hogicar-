@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import LayoutDashboard from 'lucide-react/dist/esm/icons/layout-dashboard';
 import Car from 'lucide-react/dist/esm/icons/car';
 import Calendar from 'lucide-react/dist/esm/icons/calendar';
+import CalendarPlus from 'lucide-react/dist/esm/icons/calendar-plus';
 import DollarSign from 'lucide-react/dist/esm/icons/dollar-sign';
 import User from 'lucide-react/dist/esm/icons/user';
 import Users from 'lucide-react/dist/esm/icons/users';
@@ -1946,6 +1947,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
     const [uploadFile, setUploadFile] = useState<File | null>(null);
     const [uploadsKey, setUploadsKey] = useState(0);
     const [lastUploadId, setLastUploadId] = useState<number | null>(null);
+    const [seasonsAdded, setSeasonsAdded] = useState<string[]>([]);
     const [isSaving, setIsSaving] = useState(false);
     const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState<string>('');
@@ -2037,6 +2039,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
         setIsSaving(true);
         try {
             const res = await supplierApi.importRates(uploadFile);
+            setSeasonsAdded(Array.isArray(res?.data?.seasonsAdded) ? res.data.seasonsAdded : []);
             setUploadFile(null);
             fetchConfig();
             setUploadsKey(k => k + 1);
@@ -2414,6 +2417,16 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
                             </button>
                         </div>
                     </div>
+                    {seasonsAdded.length > 0 && (
+                        <div role="status" className="mb-3 flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+                            <CalendarPlus className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
+                            <div className="min-w-0 flex-1">
+                                <p className="font-semibold">{seasonsAdded.length === 1 ? 'New season added automatically' : `${seasonsAdded.length} new seasons added automatically`}</p>
+                                <p className="mt-0.5 text-emerald-800">{seasonsAdded.join(' · ')}. They're now in your seasons, in your next template and in manual pricing.</p>
+                            </div>
+                            <button type="button" onClick={() => setSeasonsAdded([])} className="shrink-0 rounded-lg px-2 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-100">Close</button>
+                        </div>
+                    )}
                     <RateUploadsSection refreshKey={uploadsKey} autoOpenId={lastUploadId} />
                     <HistorySection
                         history={history}

@@ -9,6 +9,9 @@ import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import Pencil from 'lucide-react/dist/esm/icons/pencil';
 import Calendar from 'lucide-react/dist/esm/icons/calendar';
+import Plus from 'lucide-react/dist/esm/icons/plus';
+import Copy from 'lucide-react/dist/esm/icons/copy';
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
 import { supplierApi } from '../../api';
 
 type Period = { name: string; startDate: string; endDate: string; currency?: string };
@@ -21,6 +24,8 @@ type CarRow = { carId: number; sipp?: string; vehicle: string; location?: string
 type Season = {
   name: string; startDate: string; endDate: string; currency: string; lengths: Length[]; rows: CarRow[];
   minRate: number | null; maxRate: number | null; carsPriced: number; carsTotal: number;
+  /** Made with "Add season" and not saved yet. */
+  draft?: boolean;
 };
 type Detail = { id: number; fileName: string; uploadedAt: string; ok: boolean; message?: string; hasFile: boolean; seasons: Season[] };
 
@@ -121,10 +126,13 @@ export const RateUploadModal = ({ uploadId, onClose }: { uploadId: number | null
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState('');
+  const [adding, setAdding] = useState(false);
+  const [newSeason, setNewSeason] = useState({ name: '', startDate: '', endDate: '', copy: true });
+  const [addError, setAddError] = useState('');
 
   useEffect(() => {
     if (uploadId == null) return;
-    setDetail(null); setError(''); setActive(0); setEdits({}); setNotice('');
+    setDetail(null); setError(''); setActive(0); setEdits({}); setNotice(''); setAdding(false);
     supplierApi.getRateUpload(uploadId)
       .then(r => setDetail(r.data))
       .catch(() => setError('This sheet could not be loaded. Please try again.'));
@@ -156,15 +164,55 @@ export const RateUploadModal = ({ uploadId, onClose }: { uploadId: number | null
   }, [edits, season, active]);
   const invalid = useMemo(() => (Object.entries(edits) as [string, string][]).some(([k, v]) => k.startsWith(`${active}|`) && v.trim() !== '' && (isNaN(Number(v.replace(',', '.'))) || Number(v.replace(',', '.')) <= 0)), [edits, active]);
 
+  /** Opens a new season tab with the same cars and rental lengths, and (optionally) the same prices to start from. */
+  const openAdd = () => {
+    if (!season) return;
+    const next = new Date(`${season.endDate}T00:00:00`); next.setDate(next.getDate() + 1);
+    const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const end = new Date(next); end.setMonth(end.getMonth() + 3); end.setDate(end.getDate() - 1);
+    setNewSeason({ name: '', startDate: isNaN(next.getTime()) ? '' : iso(next), endDate: isNaN(end.getTime()) ? '' : iso(end), copy: true });
+    setAddError(''); setAdding(true);
+  };
+  const overlap = useMemo(() => {
+    if (!detail || !newSeason.startDate || !newSeason.endDate) return null;
+    return detail.seasons.find(s => !(newSeason.endDate < s.startDate || newSeason.startDate > s.endDate)) || null;
+  }, [detail, newSeason]);
+  const createSeason = () => {
+    if (!detail || !season) return;
+    const name = newSeason.name.trim();
+    if (!name) { setAddError('Give the season a name, for example “Summer 2027”.'); return; }
+    if (!newSeason.startDate || !newSeason.endDate) { setAddError('Choose the start and end dates.'); return; }
+    if (newSeason.endDate < newSeason.startDate) { setAddError('The end date is before the start date.'); return; }
+    if (detail.seasons.some(s => s.startDate === newSeason.startDate && s.endDate === newSeason.endDate)) { setAddError('A season with these dates already exists.'); return; }
+    const index = detail.seasons.length;
+    const draft: Season = {
+      name, startDate: newSeason.startDate, endDate: newSeason.endDate, currency: season.currency, lengths: season.lengths,
+      rows: season.rows.map(r => ({ ...r, prices: {} })), minRate: null, maxRate: null, carsPriced: 0, carsTotal: season.carsTotal, draft: true,
+    };
+    const copied: Record<string, string> = {};
+    if (newSeason.copy) for (const r of season.rows) for (const [len, v] of Object.entries(r.prices || {})) if (v != null) copied[`${index}|${r.carId}|${len}`] = String(Number(v).toFixed(2));
+    setDetail(d => d ? { ...d, seasons: [...d.seasons, draft] } : d);
+    setEdits(e => ({ ...e, ...copied }));
+    setActive(index); setAdding(false); setNotice('');
+  };
+  const dropDraft = () => {
+    if (!season?.draft) return;
+    setEdits(e => Object.fromEntries(Object.entries(e).filter(([k]) => !k.startsWith(`${active}|`))));
+    setDetail(d => d ? { ...d, seasons: d.seasons.filter((_, i) => i !== active) } : d);
+    setActive(0); setNotice('');
+  };
+
   const save = async () => {
     if (!season || changes.length === 0 || invalid) return;
     setSaving(true); setNotice('');
     try {
-      const r = await supplierApi.saveLiveRates({ name: season.name, startDate: season.startDate, endDate: season.endDate, currency: season.currency, cells: changes });
+      const r = await supplierApi.saveLiveRates({ name: season.name, startDate: season.startDate, endDate: season.endDate, currency: season.currency, cells: changes, uploadId: detail?.id });
       const updated: Season = r.data;
       setDetail(d => d ? { ...d, seasons: d.seasons.map((s, i) => (i === active ? { ...updated, name: s.name } : s)) } : d);
       setEdits(e => Object.fromEntries(Object.entries(e).filter(([k]) => !k.startsWith(`${active}|`))));
-      setNotice(`Saved. ${changes.length} price${changes.length === 1 ? '' : 's'} updated and live on HogiCar now.`);
+      setNotice(season.draft
+        ? `Saved. “${season.name}” is live on HogiCar with ${changes.length} price${changes.length === 1 ? '' : 's'} and added to your seasons.`
+        : `Saved. ${changes.length} price${changes.length === 1 ? '' : 's'} updated and live on HogiCar now.`);
     } catch (e: any) {
       setNotice(e?.response?.data?.message || 'Could not save. Please check the prices and try again.');
     } finally {
@@ -221,14 +269,54 @@ export const RateUploadModal = ({ uploadId, onClose }: { uploadId: number | null
               )}
               {detail && detail.ok && season && (
                 <div className="px-5 py-4">
-                  {detail.seasons.length > 1 && (
-                    <div className="-mx-1 mb-4 flex gap-1.5 overflow-x-auto px-1 pb-1">
-                      {detail.seasons.map((s, i) => (
-                        <button key={`${s.name}-${s.startDate}`} type="button" onClick={() => { setActive(i); setNotice(''); }}
-                          className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${i === active ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
-                          {s.name}
-                        </button>
-                      ))}
+                  <div className="-mx-1 mb-4 flex items-center gap-1.5 overflow-x-auto px-1 pb-1">
+                    {detail.seasons.map((s, i) => (
+                      <button key={`${s.name}-${s.startDate}`} type="button" onClick={() => { setActive(i); setNotice(''); setAdding(false); }}
+                        className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${i === active ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+                        {s.draft && <span className={`h-1.5 w-1.5 rounded-full ${i === active ? 'bg-amber-300' : 'bg-amber-500'}`} />}{s.name}
+                      </button>
+                    ))}
+                    {season.lengths.length > 0 && !detail.seasons.some(s => s.draft) && (
+                      <button type="button" onClick={openAdd}
+                        className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border border-dashed px-3.5 py-1.5 text-sm font-semibold transition-colors ${adding ? 'border-accent bg-accent-50 text-accent' : 'border-slate-300 text-slate-600 hover:border-accent hover:text-accent'}`}>
+                        <Plus className="h-4 w-4" /> Add season
+                      </button>
+                    )}
+                  </div>
+
+                  {adding && (
+                    <div className="mb-4 rounded-xl border border-accent/30 bg-accent-50/40 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-900">New season</p>
+                          <p className="text-xs text-slate-500">Opens a new tab with the same cars and rental lengths as “{season.name}”.</p>
+                        </div>
+                        <button type="button" onClick={() => setAdding(false)} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white" aria-label="Cancel"><X className="h-4 w-4" /></button>
+                      </div>
+                      <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
+                        <label className="text-xs font-semibold text-slate-700">Season name
+                          <input value={newSeason.name} onChange={e => { setNewSeason(n => ({ ...n, name: e.target.value })); setAddError(''); }} placeholder="e.g. Summer 2027" autoFocus
+                            className="mt-1 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-[16px] font-normal text-slate-900 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 sm:text-sm" />
+                        </label>
+                        <label className="text-xs font-semibold text-slate-700">From
+                          <input type="date" value={newSeason.startDate} onChange={e => { setNewSeason(n => ({ ...n, startDate: e.target.value })); setAddError(''); }}
+                            className="mt-1 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-[16px] font-normal text-slate-900 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 sm:text-sm" />
+                        </label>
+                        <label className="text-xs font-semibold text-slate-700">To
+                          <input type="date" value={newSeason.endDate} onChange={e => { setNewSeason(n => ({ ...n, endDate: e.target.value })); setAddError(''); }}
+                            className="mt-1 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-[16px] font-normal text-slate-900 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 sm:text-sm" />
+                        </label>
+                      </div>
+                      <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm text-slate-700">
+                        <input type="checkbox" checked={newSeason.copy} onChange={e => setNewSeason(n => ({ ...n, copy: e.target.checked }))} className="h-4 w-4 rounded border-slate-300 text-accent" />
+                        <Copy className="h-4 w-4 text-slate-400" /> Start with the prices of “{season.name}”
+                      </label>
+                      {overlap && <p className="mt-2 flex items-center gap-1.5 text-xs text-amber-700"><AlertTriangle className="h-3.5 w-3.5" /> These dates overlap “{overlap.name}” ({fmtDate(overlap.startDate)} – {fmtDate(overlap.endDate)}).</p>}
+                      {addError && <p className="mt-2 text-xs font-medium text-rose-600">{addError}</p>}
+                      <div className="mt-3 flex justify-end gap-2">
+                        <button type="button" onClick={() => setAdding(false)} className="h-10 rounded-lg px-4 text-sm font-medium text-slate-600 hover:bg-white">Cancel</button>
+                        <button type="button" onClick={createSeason} className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-slate-900 px-4 text-sm font-semibold text-white hover:bg-slate-800"><Plus className="h-4 w-4" /> Open new season</button>
+                      </div>
                     </div>
                   )}
 
@@ -255,10 +343,17 @@ export const RateUploadModal = ({ uploadId, onClose }: { uploadId: number | null
                     </div>
                   </div>
 
+                  {season.draft ? (
+                  <p className="mt-4 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900 ring-1 ring-amber-200">
+                    <Pencil className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600" />
+                    New season, not live yet. Check the prices ({season.currency} per day), change any you like, then press Save to put “{season.name}” live. It is also added to your seasons.
+                  </p>
+                  ) : (
                   <p className="mt-4 flex items-start gap-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
                     <Pencil className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
                     These are the prices live on HogiCar now (daily price, {season.currency}). Change any price and press Save; clear a price to stop offering that length. The uploaded file itself isn't changed.
                   </p>
+                  )}
 
                   {season.lengths.length === 0 ? (
                     <p className="py-10 text-center text-sm text-slate-500">No prices are live for this season any more. A newer upload or a manual change may have replaced them.</p>
@@ -319,11 +414,11 @@ export const RateUploadModal = ({ uploadId, onClose }: { uploadId: number | null
                       <Download className="h-4 w-4" /> File
                     </button>
                   )}
-                  <button type="button" disabled={!changes.length || saving} onClick={() => { setEdits(e => Object.fromEntries(Object.entries(e).filter(([k]) => !k.startsWith(`${active}|`)))); setNotice(''); }}
-                    className="h-10 flex-1 rounded-lg border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 sm:flex-none">Discard</button>
+                  <button type="button" disabled={(!changes.length && !season.draft) || saving} onClick={() => { if (season.draft) { dropDraft(); return; } setEdits(e => Object.fromEntries(Object.entries(e).filter(([k]) => !k.startsWith(`${active}|`)))); setNotice(''); }}
+                    className="h-10 flex-1 rounded-lg border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 sm:flex-none">{season.draft ? 'Remove season' : 'Discard'}</button>
                   <button type="button" disabled={!changes.length || invalid || saving} onClick={save}
                     className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-accent px-5 text-sm font-semibold text-white hover:bg-accent-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">
-                    {saving && <RefreshCw className="h-4 w-4 animate-spin" />} Save changes
+                    {saving && <RefreshCw className="h-4 w-4 animate-spin" />} {season.draft ? 'Save season' : 'Save changes'}
                   </button>
                 </div>
               </div>
