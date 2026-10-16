@@ -8,6 +8,7 @@ import Pencil from 'lucide-react/dist/esm/icons/pencil';
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import Copy from 'lucide-react/dist/esm/icons/copy';
 import Users from 'lucide-react/dist/esm/icons/users';
+import UserRound from 'lucide-react/dist/esm/icons/user-round';
 import UserCheck from 'lucide-react/dist/esm/icons/user-check';
 import UserX from 'lucide-react/dist/esm/icons/user-x';
 import Ticket from 'lucide-react/dist/esm/icons/ticket';
@@ -68,6 +69,8 @@ type Campaign = {
   id?: number; name: string; template?: TemplateKey; subject?: string | null; eyebrow?: string | null; headline?: string | null; intro?: string | null;
   ctaLabel?: string | null; ctaUrl?: string | null; heroImageUrl?: string | null; promoCodeIds?: string | null; bannerIds?: string | null;
   showSteps?: boolean; showRewards?: boolean; audience: Audience; locationCodes?: string | null; selectedEmails?: string | null;
+  /** Greet by name: only possible when the email goes to one person. */
+  showName?: boolean | null; recipientName?: string | null;
   status?: 'DRAFT' | 'SENDING' | 'SENT'; timesSent?: number; totalSent?: number; totalFailed?: number; lastRecipients?: number | null;
   lastSentAt?: string | null; createdAt?: string;
 };
@@ -306,7 +309,7 @@ const CampaignEditor = ({ initial, summary, options, onClose, onSaved, notify }:
   const [c, setC] = React.useState<Campaign>({ ...EMPTY, ...initial });
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState('');
-  const [preview, setPreview] = React.useState<{ subject: string; html: string; recipients: number } | null>(null);
+  const [preview, setPreview] = React.useState<{ subject: string; html: string; recipients: number; personal?: boolean; knownName?: string | null } | null>(null);
   const [previewError, setPreviewError] = React.useState('');
   const [device, setDevice] = React.useState<'desktop' | 'mobile'>('desktop');
   const [testEmail, setTestEmail] = React.useState('');
@@ -330,6 +333,13 @@ const CampaignEditor = ({ initial, summary, options, onClose, onSaved, notify }:
     return () => window.clearTimeout(t);
   }, [c]);
 
+  // Emailing one person: greet them by name by default, starting from the name we have for them.
+  React.useEffect(() => {
+    if (!preview?.personal) return;
+    setC(prev => prev.showName == null ? { ...prev, showName: true, recipientName: prev.recipientName || preview.knownName || '' } : prev);
+  }, [preview?.personal, preview?.knownName]);
+  const personal = !!preview?.personal;
+
   const save = async (sendNow: boolean) => {
     if (!c.name.trim()) { setError('Give the campaign a name.'); return; }
     setBusy(true); setError('');
@@ -347,7 +357,7 @@ const CampaignEditor = ({ initial, summary, options, onClose, onSaved, notify }:
     finally { setTesting(false); }
   };
 
-  const tokens = '{firstName} = their first name · {place} = where they searched · {code} = your first code';
+  const tokens = '{firstName} = the name (only for an email to one person with the name switched on; left out otherwise) · {place} = where they searched · {code} = your first code';
 
   return (
     <Drawer eyebrow={c.id ? 'Edit campaign' : 'New campaign'} title={c.name || 'Untitled campaign'} onClose={onClose} busy={busy} width="max-w-[1240px]"
@@ -463,6 +473,29 @@ const CampaignEditor = ({ initial, summary, options, onClose, onSaved, notify }:
                 <input className={inputCls} value={c.locationCodes || ''} onChange={e => set('locationCodes', e.target.value.toUpperCase())} placeholder="All places" />
               </Field>
             )}
+            <div className="mt-4 rounded-xl p-4 ring-1 ring-slate-200">
+              <p className="flex items-center gap-2 text-sm font-semibold text-slate-900"><UserRound className="h-4 w-4 text-slate-400" /> Name in the email</p>
+              {personal ? (
+                <>
+                  <label className="mt-3 flex cursor-pointer items-center justify-between gap-3">
+                    <span className="text-sm text-slate-700">Greet this person by name</span>
+                    <span className="relative inline-flex">
+                      <input type="checkbox" className="peer sr-only" checked={!!c.showName} onChange={e => set('showName', e.target.checked)} />
+                      <span className="h-6 w-11 rounded-full bg-slate-300 transition peer-checked:bg-[#007ac2]" />
+                      <span className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition peer-checked:translate-x-5" />
+                    </span>
+                  </label>
+                  {c.showName && (
+                    <Field label="Name" hint={preview?.knownName ? `From your contacts: ${preview.knownName}. Change it if you like, e.g. “Dr. Lina” or “Mr. Haddad”.` : 'We don’t have a name for this address. Type how you’d like to greet them.'} className="mt-3">
+                      <input className={inputCls} value={c.recipientName || ''} maxLength={80} onChange={e => set('recipientName', e.target.value)} placeholder={preview?.knownName || 'e.g. Lina'} />
+                    </Field>
+                  )}
+                  {!c.showName && <p className="mt-2 text-xs text-slate-500">The email is sent without a name, e.g. “Hello,” instead of “Dear Lina,”.</p>}
+                </>
+              ) : (
+                <p className="mt-2 text-xs leading-relaxed text-slate-500">This email goes to several people, so <strong className="font-semibold text-slate-700">no name is shown</strong>. Wording with {'{firstName}'} reads naturally without it. To greet someone by name, choose “Chosen addresses” and enter one address.</p>
+              )}
+            </div>
             <p className="mt-4 flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm text-white"><Users className="h-4 w-4" /> Goes to <strong className="tabular-nums">{preview ? num(preview.recipients) : '…'}</strong> {preview?.recipients === 1 ? 'person' : 'people'} right now</p>
           </section>
         </div>
@@ -491,7 +524,7 @@ const CampaignEditor = ({ initial, summary, options, onClose, onSaved, notify }:
                   className="h-[70vh] rounded-lg bg-white shadow-sm transition-[width]" style={{ width: device === 'mobile' ? 380 : '100%' }} />
               ) : <div className="flex h-[70vh] w-full items-center justify-center"><Spinner /></div>}
             </div>
-            <p className="px-4 py-3 text-xs text-slate-500">Shown for a sample guest who searched Queen Alia International Airport. Each person sees their own name and place.</p>
+            <p className="px-4 py-3 text-xs text-slate-500">{personal ? (c.showName && (c.recipientName || preview?.knownName) ? `Exactly as ${c.recipientName || preview?.knownName} will get it.` : 'Exactly as this person will get it, without a name.') : 'Exactly as everyone will get it: no name. The pick-up place is each person’s own.'}</p>
           </div>
         </div>
       </div>
