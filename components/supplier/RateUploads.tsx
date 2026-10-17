@@ -37,6 +37,23 @@ const fmtWhen = (d: string) => {
   const x = new Date(d);
   return isNaN(x.getTime()) ? d : x.toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
+const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+/** The date `n` days after a yyyy-mm-dd date, or '' when it isn't a date. */
+const addDays = (d: string, n: number) => {
+  const x = new Date(`${d}T00:00:00`);
+  if (isNaN(x.getTime())) return '';
+  x.setDate(x.getDate() + n);
+  return iso(x);
+};
+/** The last day of a period of `months` months starting on `d` (1 Apr + 3 months → 30 Jun). */
+const addMonths = (d: string, months: number) => {
+  const x = new Date(`${d}T00:00:00`);
+  if (isNaN(x.getTime())) return '';
+  x.setMonth(x.getMonth() + months);
+  x.setDate(x.getDate() - 1);
+  return iso(x);
+};
+const daysBetween = (a: string, b: string) => Math.round((new Date(`${b}T00:00:00`).getTime() - new Date(`${a}T00:00:00`).getTime()) / 86400000) + 1;
 const money = (v: number | null | undefined) => (v == null ? '—' : Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
 const saveBlob = (blob: Blob, name: string) => {
@@ -128,6 +145,9 @@ export const RateUploadModal = ({ uploadId, onClose }: { uploadId: number | null
   const [notice, setNotice] = useState('');
   const [adding, setAdding] = useState(false);
   const [newSeason, setNewSeason] = useState({ name: '', startDate: '', endDate: '', copy: true });
+  /** The season the new one follows on from (the one that ends last), and whether its start date is still the automatic one. */
+  const [after, setAfter] = useState<Season | null>(null);
+  const [editStart, setEditStart] = useState(false);
   const [addError, setAddError] = useState('');
 
   useEffect(() => {
@@ -164,13 +184,16 @@ export const RateUploadModal = ({ uploadId, onClose }: { uploadId: number | null
   }, [edits, season, active]);
   const invalid = useMemo(() => (Object.entries(edits) as [string, string][]).some(([k, v]) => k.startsWith(`${active}|`) && v.trim() !== '' && (isNaN(Number(v.replace(',', '.'))) || Number(v.replace(',', '.')) <= 0)), [edits, active]);
 
-  /** Opens a new season tab with the same cars and rental lengths, and (optionally) the same prices to start from. */
+  /**
+   * Opens a new season tab with the same cars and rental lengths, and (optionally) the same prices to start from.
+   * It starts the day after the last season ends (e.g. last season ends on the 20th, the new one starts on the 21st).
+   */
   const openAdd = () => {
-    if (!season) return;
-    const next = new Date(`${season.endDate}T00:00:00`); next.setDate(next.getDate() + 1);
-    const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    const end = new Date(next); end.setMonth(end.getMonth() + 3); end.setDate(end.getDate() - 1);
-    setNewSeason({ name: '', startDate: isNaN(next.getTime()) ? '' : iso(next), endDate: isNaN(end.getTime()) ? '' : iso(end), copy: true });
+    if (!season || !detail) return;
+    const last = detail.seasons.reduce<Season | null>((a, s) => (!a || s.endDate > a.endDate ? s : a), null) || season;
+    const next = addDays(last.endDate, 1);
+    setNewSeason({ name: '', startDate: next, endDate: next ? addMonths(next, 3) : '', copy: true });
+    setAfter(last); setEditStart(false);
     setAddError(''); setAdding(true);
   };
   const overlap = useMemo(() => {
@@ -298,15 +321,40 @@ export const RateUploadModal = ({ uploadId, onClose }: { uploadId: number | null
                           <input value={newSeason.name} onChange={e => { setNewSeason(n => ({ ...n, name: e.target.value })); setAddError(''); }} placeholder="e.g. Summer 2027" autoFocus
                             className="mt-1 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-[16px] font-normal text-slate-900 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 sm:text-sm" />
                         </label>
-                        <label className="text-xs font-semibold text-slate-700">From
-                          <input type="date" value={newSeason.startDate} onChange={e => { setNewSeason(n => ({ ...n, startDate: e.target.value })); setAddError(''); }}
-                            className="mt-1 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-[16px] font-normal text-slate-900 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 sm:text-sm" />
-                        </label>
+                        {editStart || !after || !newSeason.startDate ? (
+                          <label className="text-xs font-semibold text-slate-700">From
+                            <input type="date" value={newSeason.startDate} onChange={e => { setNewSeason(n => ({ ...n, startDate: e.target.value })); setAddError(''); }}
+                              className="mt-1 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-[16px] font-normal text-slate-900 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 sm:text-sm" />
+                          </label>
+                        ) : (
+                          <div className="text-xs font-semibold text-slate-700">
+                            <span className="flex items-center justify-between gap-2">From
+                              <button type="button" onClick={() => setEditStart(true)} className="font-semibold text-accent hover:underline">Change</button>
+                            </span>
+                            <div className="mt-1 flex h-10 items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 text-sm font-semibold text-emerald-800" title={`The day after “${after.name}” ends`}>
+                              <Calendar className="h-4 w-4 shrink-0 text-emerald-600" />
+                              <span className="truncate">{fmtDate(newSeason.startDate)}</span>
+                              <span className="ml-auto shrink-0 rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 ring-1 ring-emerald-200">Auto</span>
+                            </div>
+                          </div>
+                        )}
                         <label className="text-xs font-semibold text-slate-700">To
                           <input type="date" value={newSeason.endDate} onChange={e => { setNewSeason(n => ({ ...n, endDate: e.target.value })); setAddError(''); }}
                             className="mt-1 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-[16px] font-normal text-slate-900 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 sm:text-sm" />
                         </label>
                       </div>
+                      {after && newSeason.startDate && (
+                        <p className="mt-2 flex items-start gap-1.5 text-xs text-slate-600">
+                          <CheckCircle className="mt-px h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                          <span>
+                          {newSeason.startDate === addDays(after.endDate, 1)
+                            ? <>Starts the day after “{after.name}” ends ({fmtDate(after.endDate)}), so there's no gap between seasons.</>
+                            : <>Starts {fmtDate(newSeason.startDate)}. “{after.name}” ends {fmtDate(after.endDate)}.{' '}
+                                <button type="button" onClick={() => { setNewSeason(n => ({ ...n, startDate: addDays(after.endDate, 1) })); setEditStart(false); }} className="font-semibold text-accent hover:underline">Use {fmtDate(addDays(after.endDate, 1))}</button></>}
+                          {newSeason.endDate >= newSeason.startDate && newSeason.endDate && <span className="whitespace-nowrap text-slate-400"> · {daysBetween(newSeason.startDate, newSeason.endDate)} days</span>}
+                          </span>
+                        </p>
+                      )}
                       <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm text-slate-700">
                         <input type="checkbox" checked={newSeason.copy} onChange={e => setNewSeason(n => ({ ...n, copy: e.target.checked }))} className="h-4 w-4 rounded border-slate-300 text-accent" />
                         <Copy className="h-4 w-4 text-slate-400" /> Start with the prices of “{season.name}”
