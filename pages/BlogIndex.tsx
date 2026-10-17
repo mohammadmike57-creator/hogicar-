@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
 import ArrowUpRight from 'lucide-react/dist/esm/icons/arrow-up-right';
 import SearchIcon from 'lucide-react/dist/esm/icons/search';
@@ -54,6 +54,8 @@ const CategoryChip: React.FC<{ name?: string; light?: boolean }> = ({ name, ligh
 
 const BlogIndex: React.FC = () => {
   const { categorySlug, tag, author } = useParams<{ categorySlug?: string; tag?: string; author?: string }>();
+  // /ar/blog is the Arabic blog: Arabic articles and wording only (otherwise it is a copy of /blog).
+  const arabic = useLocation().pathname.startsWith('/ar/');
   const [articles, setArticles] = React.useState<BlogArticle[]>([]);
   const [categories, setCategories] = React.useState<{ id: number; name: string; slug: string }[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -68,7 +70,7 @@ const BlogIndex: React.FC = () => {
     ? (activeCategory?.name || titleCase(categorySlug))
     : tag ? `Guides tagged “${titleCase(tag)}”`
     : author ? `Guides by ${decodeURIComponent(author)}`
-    : 'Travel guides for the road ahead';
+    : arabic ? 'أدلة السفر وتأجير السيارات' : 'Travel guides for the road ahead';
 
   React.useEffect(() => { setPage(0); setActiveSearch(''); setSearchQuery(''); }, [categorySlug, tag, author]);
 
@@ -93,6 +95,7 @@ const BlogIndex: React.FC = () => {
           if (categorySlug) params.set('category', categorySlug);
           if (tag) params.set('tag', tag);
           if (author) params.set('author', decodeURIComponent(author));
+          if (!categorySlug && !tag && !author) params.set('lang', arabic ? 'ar' : 'en');
           url = `${api.baseUrl}/api/public/blog/articles?${params}`;
         }
         const data = await (await fetch(url)).json();
@@ -127,10 +130,11 @@ const BlogIndex: React.FC = () => {
   const grid = featured ? articles.slice(1) : articles;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white" dir={arabic ? 'rtl' : undefined} lang={arabic ? 'ar' : undefined}>
       <SEOMetadata
-        title={categorySlug ? `${heading} | Hogicar Travel Guides` : 'Car Rental Travel Guides & Driving Tips | Hogicar Blog'}
-        description="Destination guides, driving tips, airport pick-up advice and road trip ideas to help you plan your trip and choose the right rental car."
+        title={categorySlug ? `${heading} | Hogicar Travel Guides` : arabic ? 'أدلة السفر وتأجير السيارات | مدونة هوجيكار' : 'Car Rental Travel Guides & Driving Tips | Hogicar Blog'}
+        description={arabic ? 'أدلة الوجهات ونصائح القيادة والاستلام من المطار وأفكار الرحلات من مدونة هوجيكار.' : 'Destination guides, driving tips, airport pick-up advice and road trip ideas to help you plan your trip and choose the right rental car.'}
+        noIndex={!!(categorySlug || tag || author)}
       />
 
       {/* Header */}
@@ -157,7 +161,7 @@ const BlogIndex: React.FC = () => {
             {heading}
           </h1>
           <p className="mt-4 max-w-2xl text-base md:text-lg leading-relaxed text-white/75">
-            Practical advice on driving routes, airport pick-up, parking and choosing the right car, written to help you plan with confidence.
+            {arabic ? 'نصائح عملية عن طرق القيادة والاستلام من المطار والاصطفاف واختيار السيارة المناسبة، لتخطط لرحلتك بثقة.' : 'Practical advice on driving routes, airport pick-up, parking and choosing the right car, written to help you plan with confidence.'}
           </p>
 
           <form onSubmit={submitSearch} role="search" className="mt-8 flex max-w-xl items-center gap-2 rounded-2xl bg-white p-1.5 shadow-xl shadow-black/20">

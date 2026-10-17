@@ -273,7 +273,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
     relatedBlogs: seoConfig?.showSeoContent ?? true,
     popularDestinations: seoConfig?.showRelatedDestinations ?? true,
     featuredCars: seoConfig?.showFeaturedCars ?? true,
-    cta: true
+    // Landing pages keep their own content; the newsletter box is the same everywhere, so only the homepage shows it.
+    cta: !seoConfig
   };
 
   const customStyles = {
@@ -926,7 +927,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
 
       {/* ===== What you need at pick-up ===== */}
       <React.Suspense fallback={<div className="h-96 bg-white" />}>
-        <PickupRequirements />
+        {(!isCustomLanding || sections.benefits) && <PickupRequirements />}
       </React.Suspense>
 
       {/* ===== Customer reviews ===== */}
@@ -962,7 +963,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
           <FAQSection
             faqs={faqs}
             title="Frequently asked questions"
-            subtitle={`Everything you need to know about renting in ${displayH1.replace('Car Rental in ', '')}.`}
+            subtitle={`Everything you need to know about renting a car in ${seoConfig?.destinationName || displayH1.replace(/^.*\b(?:Rental|Hire) in /, '')}.`}
           />
         </React.Suspense>
       )}
@@ -1013,7 +1014,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
               <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
                 <div className="max-w-xl">
                   <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Get exclusive car rental deals</h2>
-                  <p className="mt-2 text-white/80 sm:text-lg">Join 10,000+ travellers who receive our best offers by email.</p>
+                  <p className="mt-2 text-white/80 sm:text-lg">Be the first to hear about our offers and travel tips by email.</p>
                 </div>
                 <form className="flex w-full max-w-md flex-col gap-2 sm:flex-row">
                   <label htmlFor="newsletter-email" className="sr-only">Email address</label>
