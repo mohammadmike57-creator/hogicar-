@@ -155,13 +155,17 @@ export const RentalVoucher: React.FC<{ booking: VoucherBooking; audience?: Vouch
   const fuelLabel = fuel ? (String(fuel).toUpperCase() === 'FULL_TO_FULL' ? 'Full to full' : titleCase(fuel)) : undefined;
   const extras = pick(b, 'extrasSummary') ? String(b.extrasSummary).split(';').map((x: string) => x.trim()).filter(Boolean) : [];
 
+  // Air conditioning: the booking's own value, otherwise the 4th SIPP letter (R, D, H, E, L, A, M, V, U = air conditioning).
+  const sipp = String(pick(b, 'carSippCode') || '').toUpperCase();
+  const airCon = b.carAirConditioning != null ? b.carAirConditioning !== false : sipp.length === 4 ? 'RDHELAMVU'.includes(sipp[3]) : undefined;
   const specs = [
     pick(b, 'carPassengers') && { Icon: Users, label: `${b.carPassengers} seats` },
     pick(b, 'carBags') && { Icon: Briefcase, label: `${b.carBags} bags` },
     pick(b, 'carTransmission') && { Icon: Settings2, label: titleCase(b.carTransmission) },
-    b.carAirConditioning !== false && { Icon: Snowflake, label: 'Air conditioning' },
+    airCon === true && { Icon: Snowflake, label: 'Air conditioning' },
     fuelLabel && { Icon: Fuel, label: `Fuel: ${fuelLabel}` },
-    { Icon: Gauge, label: b.carUnlimitedMileage === false ? 'Limited mileage' : 'Unlimited mileage' },
+    // Only what the booking says; nothing is assumed.
+    b.carUnlimitedMileage != null && { Icon: Gauge, label: b.carUnlimitedMileage === false ? 'Limited mileage' : 'Unlimited mileage' },
   ].filter(Boolean) as { Icon: React.ElementType; label: string }[];
 
   const ends = [
@@ -281,7 +285,7 @@ export const RentalVoucher: React.FC<{ booking: VoucherBooking; audience?: Vouch
               <Field label="Email" value={pick(b, 'email', 'customerEmail')} />
               <Field label="Phone" value={pick(b, 'phone', 'customerPhone')} />
               <Field label="Flight number" value={pick(b, 'flightNumber')} />
-              <Field label="Nationality" value={pick(b, 'nationality')} />
+              {pick(b, 'nationality') && <Field label="Nationality" value={pick(b, 'nationality')} />}
               <Field label="Rental days" value={rentalDays ? String(rentalDays) : undefined} />
             </dl>
           </section>
