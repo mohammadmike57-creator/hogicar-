@@ -99,6 +99,8 @@ import { VoucherModal } from '../../components/RentalVoucher';
 import PromotionsAdmin from '../components/PromotionsAdmin';
 import AffiliatesAdmin from '../components/AffiliatesAdmin';
 import IntegrationsAdmin from '../components/IntegrationsAdmin';
+import LocationsAdmin from '../components/LocationsAdmin';
+import CarLibraryAdmin from '../components/CarLibraryAdmin';
 import { SuppliersBoard, FleetBoard } from '../components/suppliersFleetUi';
 import { SeoBoard } from '../components/seoPagesUi';
 const AffiliateNetworksAdmin = React.lazy(() => import('../components/affiliateNetworks/AffiliateNetworksAdmin'));
@@ -406,136 +408,6 @@ const SelectField = ({ label, options, error, ...props }: any) => (
 const TextAreaField = ({ label, ...props }: any) => (
   <div className="space-y-1.5">{label && <label className="block text-xs font-medium text-slate-600">{label}</label>}<textarea {...props} className={fieldClass()} /></div>
 );
-
-const GlobalLocationsContent = () => {
-  const [locations, setLocations] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState("");
-  const [form, setForm] = useState<any>({ iataCode: "", name: "", municipality: "", countryCode: "", type: "city" });
-  const [saving, setSaving] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
-
-  const load = async (keyword = "") => {
-    setLoading(true);
-    try {
-      const url = `/api/admin/locations${keyword ? `?keyword=${encodeURIComponent(keyword)}` : ""}`;
-      const res = await adminFetch(url);
-      setLocations(Array.isArray(res) ? res : []);
-    } catch (e: any) {
-      console.error(e);
-      alert("Failed to load locations: " + e.message);
-    } finally { setLoading(false); }
-  };
-
-  useEffect(() => {
-    const timer = setTimeout(() => load(filter), 500);
-    return () => clearTimeout(timer);
-  }, [filter]);
-
-  const filtered = useMemo(() => {
-    if (!Array.isArray(locations)) return [];
-    const q = filter.toLowerCase().trim();
-    if (!q) return locations;
-    return locations.filter((l: any) =>
-      (l.iataCode && l.iataCode.toLowerCase().includes(q)) ||
-      (l.name && l.name.toLowerCase().includes(q)) ||
-      (l.municipality && l.municipality.toLowerCase().includes(q))
-    );
-  }, [locations, filter]);
-
-  const resetForm = () => { setForm({ iataCode: "", name: "", municipality: "", countryCode: "", type: "city" }); setEditingId(null); };
-
-  const handleSave = async () => {
-    if ((!form.iataCode && form.type === "Airport") || !form.name) { alert("IATA code (for Airport) and Name are required"); return; }
-    setSaving(true);
-    try {
-      if (editingId) {
-        await adminFetch(`/api/admin/locations/${editingId}`, { method: "PUT", body: JSON.stringify(form) });
-      } else {
-        await adminFetch("/api/admin/locations", { method: "POST", body: JSON.stringify(form) });
-      }
-      await load();
-      resetForm();
-    } catch (e: any) { alert("Save failed: " + e.message); }
-    finally { setSaving(false); }
-  };
-
-  const handleEdit = (loc: any) => { setEditingId(loc.id); setForm({ iataCode: loc.iataCode, name: loc.name, municipality: loc.municipality, countryCode: loc.countryCode, type: loc.type || "city" }); };
-  const handleDelete = async (id: number) => {
-    if (!confirm("Delete this location?")) return;
-    try {
-      await adminFetch(`/api/admin/locations/${id}`, { method: "DELETE" });
-      await load();
-    } catch (e: any) { alert("Delete failed: " + e.message); }
-  };
-
-  return (
-    <div className="bg-white rounded-3xl p-6 shadow-xl border border-gray-100">
-      <SectionHeader title="Global Locations" subtitle="Manage searchable locations (airports & cities)" icon={Globe} action={null} />
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="relative flex-1">
-              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input value={filter} onChange={e => setFilter(e.target.value)} placeholder="Search by code, city or name..." className="w-full pl-9 pr-3 py-2 border rounded-card" />
-            </div>
-            <button onClick={() => load(filter)} className="px-3 py-2 rounded-card bg-slate-900 text-white font-bold text-xs flex items-center gap-2 disabled:opacity-50" disabled={loading}>
-              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} /> Refresh
-            </button>
-          </div>
-          <div className="overflow-auto rounded-card border">
-            <table className="min-w-full text-sm">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="text-left p-3 font-bold">Code</th>
-                  <th className="text-left p-3 font-bold">Name</th>
-                  <th className="text-left p-3 font-bold">City</th>
-                  <th className="text-left p-3 font-bold">Type</th>
-                  <th className="text-left p-3 font-bold">Country</th>
-                  <th className="text-right p-3 font-bold">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((l: any) => (
-                  <tr key={l.id} className="border-t">
-                    <td className="p-3 font-mono text-xs">{l.iataCode || "-"}</td>
-                    <td className="p-3">{l.name}</td>
-                    <td className="p-3">{l.municipality}</td>
-                    <td className="p-3"><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${l.type === "Airport" ? "bg-blue-50 text-[#007ac2]" : "bg-slate-100 text-slate-600"}`}>{l.type || "City"}</span></td>
-                    <td className="p-3">{l.countryCode}</td>
-                    <td className="p-3 text-right">
-                      <button onClick={() => handleEdit(l)} className="px-3 py-1.5 text-xs rounded-card bg-blue-50 text-blue-800 font-bold mr-2"><Edit className="w-3 h-3 inline mr-1"/> Edit</button>
-                      <button onClick={() => handleDelete(l.id)} className="px-3 py-1.5 text-xs rounded-card bg-red-50 text-red-700 font-bold"><Trash2 className="w-3 h-3 inline mr-1"/> Delete</button>
-                    </td>
-                  </tr>
-                ))}
-                {!filtered.length && (
-                  <tr>
-                    <td colSpan="6" className="p-6 text-center text-gray-400">No locations</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div className="bg-slate-50/50 rounded-card p-4 border">
-          <h3 className="font-extrabold mb-3 text-slate-900">{editingId ? "Edit Location" : "Add New Location"}</h3>
-          <div className="space-y-3">
-            <SelectField label="Type" value={form.type} onChange={(e: any) => setForm({ ...form, type: e.target.value })} options={[{value: "Airport", label: "Airport"}, {value: "city", label: "Down Town / City"}]} />
-            <InputField label="IATA/Code" value={form.iataCode} onChange={(e: any) => setForm({ ...form, iataCode: e.target.value })} placeholder={form.type === "Airport" ? "e.g. AMM" : "Optional (e.g. AMMAN_DT)"} />
-            <InputField label="Name" value={form.name} onChange={(e: any) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Queen Alia Airport or Amman Down Town" />
-            <InputField label="City" value={form.municipality} onChange={(e: any) => setForm({ ...form, municipality: e.target.value })} />
-            <InputField label="Country Code" value={form.countryCode} onChange={(e: any) => setForm({ ...form, countryCode: e.target.value })} />
-            <div className="flex gap-2 pt-2">
-              <button onClick={handleSave} disabled={saving} className="flex-1 px-4 py-2 rounded-card bg-[#007ac2] text-white font-bold text-sm disabled:opacity-50"><Save className="w-4 h-4 inline mr-1" /> Save</button>
-              <button onClick={resetForm} className="px-4 py-2 rounded-card bg-white border font-bold text-sm">Reset</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const Badge = ({ status }: { status: string }) => {
   const styles: any = {
@@ -2121,98 +1993,6 @@ const formatEnum = (val: string) => {
   return val.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
 };
 
-// ==================== Car Library ====================
-const CarLibraryContent = ({ library, onEdit, onDelete }: any) => {
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const filteredLibrary = useMemo(() => {
-    if (!searchQuery.trim()) return library;
-    const q = searchQuery.toLowerCase().trim();
-    return (library || []).filter((m: any) => 
-      (m.make && m.make.toLowerCase().includes(q)) || 
-      (m.model && m.model.toLowerCase().includes(q)) ||
-      (m.category && m.category.toLowerCase().includes(q)) ||
-      (m.type && m.type.toLowerCase().includes(q))
-    );
-  }, [library, searchQuery]);
-
-  return (
-    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-      <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30">
-        <div className="flex-1">
-            <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Global Car Library</h2>
-            <p className="text-sm text-gray-500 font-medium mb-4">Define models available for all supply partners</p>
-            
-            <div className="relative max-w-md">
-                <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
-                <input 
-                    type="text" 
-                    placeholder="Search by make or model..." 
-                    className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-card text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
-            </div>
-        </div>
-        <button onClick={() => onEdit(null)} className="bg-[#007ac2] text-white px-6 py-2.5 rounded-card font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-800 transition-all flex items-center gap-2">
-            <PlusCircle className="w-5 h-5" />
-            Add New Model
-        </button>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-slate-50/50">
-              <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Visual</th>
-              <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Vehicle Details</th>
-              <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Year</th>
-              <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Category</th>
-              <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Body Type</th>
-              <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-50">
-            {Array.isArray(filteredLibrary) && filteredLibrary.map((m: any) => (
-              <tr key={m.id} className="hover:bg-blue-50/30 transition-colors group">
-                <td className="px-8 py-4">
-                  <div className="w-16 h-10 rounded-card bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center p-1 group-hover:border-blue-200 transition-colors">
-                    <img src={getImageUrl(m.image || m.imageUrl)} className="max-w-full max-h-full object-contain" alt={m.model} width="400" height="250" referrerPolicy="no-referrer" loading="lazy" />
-                  </div>
-                </td>
-                <td className="px-8 py-4">
-                  <div className="text-[13px] font-extrabold text-slate-900">{m.make}</div>
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{m.model}</div>
-                </td>
-                <td className="px-8 py-4 text-xs font-extrabold text-slate-500">{m.year}</td>
-                <td className="px-8 py-4">
-                  <span className="px-2 py-1 text-[9px] font-extrabold uppercase tracking-widest bg-blue-50 text-[#007ac2] rounded-card border border-blue-100/50">
-                    {formatEnum(m.category)}
-                  </span>
-                </td>
-                <td className="px-8 py-4">
-                  <span className="px-2 py-1 text-[9px] font-extrabold uppercase tracking-widest bg-blue-50 text-[#007ac2] rounded-card border border-blue-100/50">
-                    {formatEnum(m.type)}
-                  </span>
-                </td>
-                <td className="px-8 py-4 text-right">
-                  <div className="flex justify-end gap-2">
-                    <button onClick={() => onEdit(m)} className="p-2 bg-white border border-slate-100 rounded-card text-slate-400 hover:text-[#007ac2] hover:border-blue-100 transition-all shadow-sm">
-                      <Edit className="w-3.5 h-3.5" />
-                    </button>
-                    <button onClick={() => onDelete(m.id)} className="p-2 bg-white border border-slate-100 rounded-card text-slate-400 hover:text-red-600 hover:border-red-100 transition-all shadow-sm">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-};
-
 // ==================== Suppliers Content ====================
 const SuppliersContent = (props: any) => <SuppliersBoard {...props} />;
 
@@ -3471,181 +3251,6 @@ const SEOEditorModal = ({ config, isOpen, onClose, onSave, locations }: any) => 
     </Modal>
   );
 };
-const EditCarModelModal = ({ carModel, isOpen, onClose, onSave }: any) => {
-  const [model, setModel] = useState<any>({ 
-    make: '', 
-    model: '', 
-    year: new Date().getFullYear(), 
-    category: 'ECONOMY', 
-    type: 'SEDAN', 
-    imageUrl: '', 
-    passengers: 5, 
-    bags: 3, 
-    doors: 4 
-  });
-  const [targetWidth, setTargetWidth] = useState(7680);
-  const [targetHeight, setTargetHeight] = useState(4320);
-
-  useEffect(() => { 
-    if (carModel) {
-      setModel({
-        ...carModel,
-        imageUrl: carModel.imageUrl || carModel.image || ''
-      });
-    } else {
-      setModel({
-        make: '', 
-        model: '', 
-        year: new Date().getFullYear(), 
-        category: 'ECONOMY', 
-        type: 'SEDAN', 
-        imageUrl: '', 
-        passengers: 5, 
-        bags: 3, 
-        doors: 4
-      });
-    }
-  }, [carModel, isOpen]);
-
-  const handleChange = (field: string, val: any) => setModel({ ...model, [field]: val });
-
-  const handleSave = () => { 
-    if (!model.make || !model.model || !model.imageUrl) return alert("Required fields: Make, Model, and Image URL are required."); 
-    onSave(model); 
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} title={carModel ? 'Edit Car Model' : 'Add New Car Model'}>
-      <div className="grid grid-cols-2 gap-4">
-        <InputField label="Make" placeholder="e.g. Toyota" value={model.make} onChange={(e: any) => handleChange('make', e.target.value)} />
-        <InputField label="Model" placeholder="e.g. Corolla" value={model.model} onChange={(e: any) => handleChange('model', e.target.value)} />
-        <InputField label="Year" type="number" value={model.year} onChange={(e: any) => handleChange('year', parseInt(e.target.value))} />
-        <SelectField 
-          label="Category" 
-          value={model.category} 
-          onChange={(e: any) => handleChange('category', e.target.value)} 
-          options={Object.values(CarCategory).map(v => ({ value: v, label: formatEnum(v) }))} 
-        />
-        <SelectField 
-          label="Body Type" 
-          value={model.type} 
-          onChange={(e: any) => handleChange('type', e.target.value)} 
-          options={Object.values(VehicleType).map(v => ({ value: v, label: formatEnum(v) }))} 
-        />
-        <InputField label="Passengers" type="number" value={model.passengers} onChange={(e: any) => handleChange('passengers', parseInt(e.target.value))} />
-        <InputField label="Bags (Large)" type="number" value={model.bags} onChange={(e: any) => handleChange('bags', parseInt(e.target.value))} />
-        <InputField label="Doors" type="number" value={model.doors} onChange={(e: any) => handleChange('doors', parseInt(e.target.value))} />
-      </div>
-
-      <div className="mt-6 p-4 bg-gray-50 rounded-card border border-gray-100">
-        <label className="block text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-3">Vehicle Representation (Image)</label>
-        <div className="flex gap-4 items-start">
-          <div className="w-40 h-28 rounded-card bg-white border border-gray-200 shadow-sm overflow-hidden flex items-center justify-center p-2 shrink-0">
-            {model.imageUrl ? (
-              <img src={getImageUrl(model.imageUrl)} className="max-w-full max-h-full object-contain" alt="Preview" width="400" height="250" referrerPolicy="no-referrer" />
-            ) : (
-              <ImageIcon className="w-8 h-8 text-gray-200" />
-            )}
-          </div>
-          <div className="flex-grow space-y-4">
-            <div className="space-y-1.5">
-                <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Upload Photo (Target: {targetWidth}x{targetHeight})</label>
-                <div className="grid grid-cols-2 gap-2 mb-2">
-                    <div className="space-y-1">
-                        <div className="flex justify-between items-center">
-                            <label className="text-[9px] text-gray-400 uppercase font-bold">Max Width</label>
-                            <span className="text-[7px] bg-blue-100 text-[#007ac2] px-1 rounded font-extrabold">8K</span>
-                        </div>
-                        <input 
-                            type="number" 
-                            value={targetWidth} 
-                            onChange={(e) => setTargetWidth(parseInt(e.target.value) || 7680)}
-                            className="w-full px-2 py-1 text-[10px] border rounded bg-white font-bold"
-                        />
-                    </div>
-                    <div className="space-y-1">
-                        <label className="text-[9px] text-gray-400 uppercase font-bold">Max Height</label>
-                        <input 
-                            type="number" 
-                            value={targetHeight} 
-                            onChange={(e) => setTargetHeight(parseInt(e.target.value) || 4320)}
-                            className="w-full px-2 py-1 text-[10px] border rounded bg-white font-bold"
-                        />
-                    </div>
-                </div>
-                <div className="flex gap-2">
-                    <input 
-                        type="file" 
-                        accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
-                        id="car-model-image-upload"
-                        onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                                try {
-                                    const resized = await resizeImage(file, targetWidth, targetHeight, { removeBackground: true });
-                                    handleChange('imageUrl', resized);
-                                } catch (err) {
-                                    console.error("Failed to resize car image", err);
-                                    const reader = new FileReader();
-                                    reader.onloadend = () => {
-                                        handleChange('imageUrl', reader.result as string);
-                                    };
-                                    reader.readAsDataURL(file);
-                                }
-                            }
-                        }}
-                        className="hidden"
-                    />
-                    <label 
-                        htmlFor="car-model-image-upload"
-                        className="flex-grow flex items-center justify-center gap-2 px-4 py-2 bg-white text-[#007ac2] rounded-card border border-blue-100 font-bold text-xs cursor-pointer hover:bg-blue-50 transition-colors shadow-sm"
-                    >
-                        <PlusCircle className="w-4 h-4" />
-                        Choose File
-                    </label>
-                    {model.imageUrl && (
-                        <button 
-                            type="button" 
-                            onClick={() => handleChange('imageUrl', '')}
-                            className="p-2 text-red-500 hover:bg-red-50 rounded-card border border-red-100 transition-all bg-white shadow-sm"
-                            title="Clear image"
-                        >
-                            <Trash2 className="w-4 h-4" />
-                        </button>
-                    )}
-                </div>
-            </div>
-            
-            <InputField 
-                label="Or Direct Image URL" 
-                placeholder="https://..." 
-                value={model.imageUrl || ''} 
-                onChange={(e: any) => handleChange('imageUrl', e.target.value)} 
-                helperText={model.imageUrl?.startsWith('data:') ? 'Currently using a locally uploaded image' : 'Enter a direct link to an image'}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-100">
-        <button 
-          onClick={onClose}
-          className="px-6 py-2.5 rounded-card font-bold text-sm text-gray-500 hover:bg-gray-50 transition-all"
-        >
-          Cancel
-        </button>
-        <button 
-          onClick={handleSave} 
-          className="bg-[#007ac2] text-white px-8 py-2.5 rounded-card font-bold text-sm shadow-xl shadow-blue-200 hover:bg-blue-800 transition-all"
-        >
-          {carModel ? 'Save Changes' : 'Create Model'}
-        </button>
-      </div>
-    </Modal>
-  );
-};
 const AdminPromotionModal = ({ car, isOpen, onClose, onSave, onDeleteTier }: any) => {
   const [choice, setChoice] = useState(car?.hogicarChoice || false);
   const [promo, setPromo] = useState(car?.hogicarPromotion || 0);
@@ -4460,8 +4065,6 @@ export const AdminDashboard: React.FC = () => {
   const [loadingSeo, setLoadingSeo] = useState(false);
   const [locations, setLocations] = useState<any[]>([]);
   const [loadingLocations, setLoadingLocations] = useState(false);
-  const [isCarModelModalOpen, setIsCarModelModalOpen] = useState(false);
-  const [editingCarModel, setEditingCarModel] = useState<any>(null);
   const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
   const [managingPromosForCar, setManagingPromosForCar] = useState<any>(null);
   const [homepageContent, setHomepageContent] = useState(MOCK_HOMEPAGE_CONTENT);
@@ -4823,51 +4426,6 @@ export const AdminDashboard: React.FC = () => {
     } 
   };
   const handleSaveApiConnection = (updated: Supplier) => { handleSaveSupplier(updated); setIsApiModalOpen(false); setEditingSupplier(null); };
-  const handleSaveCarModel = async (model: any) => {
-    try {
-        const payload = {
-            id: model.id ? parseInt(String(model.id).split(':')[0]) : undefined,
-            make: model.make,
-            model: model.model,
-            year: model.year,
-            category: model.category,
-            type: model.type,
-            imageUrl: model.imageUrl || model.image, // Prefer updated imageUrl
-            passengers: model.passengers,
-            bags: model.bags,
-            doors: model.doors
-        };
-
-        if (!model.id) {
-            await adminFetch('/api/admin/car-models', {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            });
-        } else {
-            const cleanId = parseInt(String(model.id).split(':')[0]);
-            await adminFetch(`/api/admin/car-models/${cleanId}`, {
-                method: 'PUT',
-                body: JSON.stringify(payload)
-            });
-        }
-        await fetchCarLibrary();
-        setIsCarModelModalOpen(false);
-        setEditingCarModel(null);
-    } catch (e: any) {
-        alert(`Failed to save car model: ${e.message}`);
-    }
-  };
-
-  const handleDeleteCarModel = async (id: any) => { 
-    if (!confirm('Are you sure you want to delete this car model?')) return;
-    try {
-        const cleanId = parseInt(String(id).split(':')[0]);
-        await adminFetch(`/api/admin/car-models/${cleanId}`, { method: 'DELETE' });
-        await fetchCarLibrary();
-    } catch (e: any) {
-        alert(`Delete failed: ${e.message}`);
-    }
-  };
   const handleSavePromotion = (carId: string, newTier: RateTier) => { const idx = MOCK_CARS.findIndex(c => c.id === carId); if (idx > -1) MOCK_CARS[idx].rateTiers.push(newTier); setIsPromotionModalOpen(false); setManagingPromosForCar(null); };
   const handleDeleteTier = (carId: string, tierId: string) => { const idx = MOCK_CARS.findIndex(c => c.id === carId); if (idx > -1) MOCK_CARS[idx].rateTiers = MOCK_CARS[idx].rateTiers.filter(t => t.id !== tierId); setManagingPromosForCar({...MOCK_CARS[idx]}); };
   const handleRejectApplication = async (id: string) => {
@@ -4965,7 +4523,7 @@ export const AdminDashboard: React.FC = () => {
       case 'supplierrequests': return <SupplierRequestsContent apps={supplierApps} onApprove={handleApproveApplication} onReject={handleRejectApplication} onRefresh={fetchSupplierApps} />;
       case 'bookings': return <BookingsContent bookings={bookings} onRefresh={() => fetchBookings(selectedSupplierId)} />;
       case 'fleet': return <FleetContent cars={fleet} loading={loadingFleet} onRefresh={() => fetchFleet(selectedSupplierId)} setManagingPromosForCar={setManagingPromosForCar} setIsPromotionModalOpen={setIsPromotionModalOpen} />;
-      case 'carlibrary': return <CarLibraryContent library={carLibrary} onEdit={(m: any) => { setEditingCarModel(m); setIsCarModelModalOpen(true); }} onDelete={handleDeleteCarModel} />;
+      case 'carlibrary': return <CarLibraryAdmin library={carLibrary} loading={loadingCarLibrary} onRefresh={fetchCarLibrary} prepareImage={f => resizeImage(f, 7680, 4320, { removeBackground: true })} />;
       case 'apipartners': return <ApiPartnersContent />;
       case 'affiliates': return <AffiliatesContent />;
       case 'affiliatenetworks': return <AffiliateNetworksContent />;
@@ -5003,7 +4561,7 @@ export const AdminDashboard: React.FC = () => {
         return <HomepageContentSection content={homepageContent} categoryImages={categoryImages} onSave={handleSaveHomepage} isSaving={savingHomepageEditor} />;
       case 'sitesettings': return <SiteSettingsContent />;
       case 'promotions': return <PromotionsContent />;
-      case 'globallocations': return <GlobalLocationsContent />;
+      case 'globallocations': return <LocationsAdmin />;
       case 'homepagelogos': return <HomepageLogosContent />;
       case 'searchinglogos': return <SearchingLogosContent />;
       case 'externalsuppliers': return <ExternalSuppliersPage />;
@@ -5017,7 +4575,6 @@ export const AdminDashboard: React.FC = () => {
       {editingSupplier && isApiModalOpen && <ApiConnectionModal supplier={editingSupplier} isOpen={isApiModalOpen} onClose={() => setIsApiModalOpen(false)} onSave={handleSaveApiConnection} />}
       {isPageEditorOpen && <PageEditorModal page={editingPage} isOpen={isPageEditorOpen} onClose={() => setIsPageEditorOpen(false)} onSave={handleSavePage} />}
       {isSeoEditorOpen && <SEOEditorModal config={editingSeoConfig} isOpen={isSeoEditorOpen} onClose={() => setIsSeoEditorOpen(false)} onSave={handleSaveSeoConfig} locations={locations} />}
-      {isCarModelModalOpen && <EditCarModelModal carModel={editingCarModel} isOpen={isCarModelModalOpen} onClose={() => setIsCarModelModalOpen(false)} onSave={handleSaveCarModel} />}
       {managingPromosForCar && <AdminPromotionModal car={managingPromosForCar} isOpen={isPromotionModalOpen} onClose={() => setIsPromotionModalOpen(false)} onSave={handleSavePromotion} onDeleteTier={handleDeleteTier} />}
       
       <AnimatePresence>
