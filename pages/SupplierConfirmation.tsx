@@ -8,7 +8,7 @@ import {
   Download, ExternalLink, Globe, Award
 } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
-import { api } from '../api';
+import { api, API_BASE_URL } from '../api';
 import { Logo } from '../components/Logo';
 import { useCurrency } from '../contexts/CurrencyContext';
 
@@ -69,12 +69,17 @@ const SupplierConfirmation: React.FC = () => {
         loadData();
     }, [bookingId, token]);
 
+    // Printing uses the A4 PDF (booking request or confirmed booking), the same document as the email attachment.
+    const pdfViewUrl = token ? `${API_BASE_URL}/api/supplier/confirmation/pdf?token=${encodeURIComponent(token)}` : '';
+    const printDocument = React.useCallback(() => {
+        if (!pdfViewUrl) { window.print(); return; }
+        const w = window.open(pdfViewUrl, '_blank', 'noopener');
+        if (!w) window.location.assign(pdfViewUrl);
+    }, [pdfViewUrl]);
+
     React.useEffect(() => {
-        if (!isLoading && booking && shouldAutoPrint) {
-            const timer = window.setTimeout(() => window.print(), 800);
-            return () => window.clearTimeout(timer);
-        }
-    }, [isLoading, booking, shouldAutoPrint]);
+        if (!isLoading && booking && shouldAutoPrint && pdfViewUrl) window.location.assign(pdfViewUrl);
+    }, [isLoading, booking, shouldAutoPrint, pdfViewUrl]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -169,7 +174,7 @@ const SupplierConfirmation: React.FC = () => {
                         <span className="text-sm font-bold uppercase tracking-widest text-slate-500">Rental Request</span>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button onClick={() => window.print()} className="flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400">
+                        <button onClick={printDocument} className="flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400">
                             <Printer className="h-4 w-4" />
                             Print
                         </button>
@@ -345,7 +350,7 @@ const SupplierConfirmation: React.FC = () => {
                                     </div>
                                     <h3 className="text-xl font-black text-[#123C69] dark:text-white">Confirmed</h3>
                                     <p className="mt-2 text-sm text-slate-500">Booking finalized with ID: <strong>{booking.supplierConfirmationNumber}</strong></p>
-                                    <button onClick={() => window.print()} className="mt-6 w-full rounded-xl bg-slate-100 py-3 text-sm font-bold text-slate-700 hover:bg-slate-200">
+                                    <button onClick={printDocument} className="mt-6 w-full rounded-xl bg-slate-100 py-3 text-sm font-bold text-slate-700 hover:bg-slate-200">
                                         Print Voucher
                                     </button>
                                 </div>

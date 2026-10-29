@@ -63,13 +63,21 @@ const Voucher: React.FC = () => {
     return () => { alive = false; };
   }, [searchParams, navigate]);
 
-  // "Print reservation" links in emails open the voucher with ?print=1.
+  // Printing uses the A4 PDF voucher, so the printed copy is always the same professional document.
+  const pdfViewUrl = booking ? `${API_BASE_URL}/api/vouchers/${encodeURIComponent(booking.bookingRef || searchParams.get('bookingRef') || '')}/pdf?inline=true` : '';
+  const printVoucher = React.useCallback(() => {
+    if (!pdfViewUrl) { window.print(); return; }
+    const w = window.open(pdfViewUrl, '_blank', 'noopener');
+    if (!w) window.location.assign(pdfViewUrl);
+  }, [pdfViewUrl]);
+
+  // "Print" links in emails open the voucher with ?print=1: go straight to the A4 PDF.
   const printedRef = React.useRef(false);
   React.useEffect(() => {
-    if (!booking || printedRef.current || searchParams.get('print') !== '1') return;
-    const t = window.setTimeout(() => { printedRef.current = true; window.print(); }, 900);
-    return () => window.clearTimeout(t);
-  }, [booking, searchParams]);
+    if (!booking || printedRef.current || searchParams.get('print') !== '1' || !pdfViewUrl) return;
+    printedRef.current = true;
+    window.location.assign(pdfViewUrl);
+  }, [booking, searchParams, pdfViewUrl]);
 
   React.useEffect(() => {
     document.body.classList.add('voucher-print');
@@ -177,7 +185,7 @@ const Voucher: React.FC = () => {
 
   const actions = [
     { key: 'pdf', label: pdfBusy ? 'Preparing…' : 'PDF', Icon: Download, onClick: downloadPdf, disabled: pdfBusy },
-    { key: 'print', label: 'Print', Icon: Printer, onClick: () => window.print() },
+    { key: 'print', label: 'Print', Icon: Printer, onClick: printVoucher },
     { key: 'cal', label: 'Calendar', Icon: CalendarPlus, onClick: addToCalendar, disabled: isNaN(start) },
     { key: 'share', label: 'Share', Icon: Share2, onClick: share },
   ];
@@ -197,7 +205,7 @@ const Voucher: React.FC = () => {
           <div className="flex items-center gap-1.5">
             <Link to="/my-bookings" className="hidden h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-medium text-slate-700 hover:bg-slate-100 sm:inline-flex"><Settings2 className="h-4 w-4" /> Manage</Link>
             {!cancelled && <a href="#wallet" onClick={e => { e.preventDefault(); document.getElementById('wallet')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} className="hidden h-9 items-center gap-1.5 rounded-lg bg-black px-3 text-sm font-semibold text-white hover:bg-slate-800 sm:inline-flex"><Smartphone className="h-4 w-4" /> Add to Wallet</a>}
-            <button onClick={() => window.print()} className="hidden h-9 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:inline-flex"><Printer className="h-4 w-4" /> Print</button>
+            <button onClick={printVoucher} className="hidden h-9 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:inline-flex"><Printer className="h-4 w-4" /> Print</button>
             <button onClick={downloadPdf} disabled={pdfBusy} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-accent px-3.5 text-sm font-semibold text-white hover:bg-accent-700 disabled:opacity-70">
               {pdfBusy ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /> : <Download className="h-4 w-4" />} PDF
             </button>
