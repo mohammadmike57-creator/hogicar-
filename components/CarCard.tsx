@@ -390,7 +390,7 @@ const CarCard: React.FC<CarCardProps> = ({
             <div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-slate-100 pt-3">
               <div className="flex items-center gap-3">
                 {supplierMark}
-                {!car.isHogicarChoiceBranded && ratingButton}
+                {!car.isHogicarChoiceBranded && Number(car.supplier.rating) > 0 && ratingButton}
               </div>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
                 <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-slate-600">

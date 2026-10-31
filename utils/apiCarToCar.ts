@@ -19,13 +19,15 @@ export const isBlockedExternalCar = (apiCar: ApiSearchResult) => {
 };
 
 export const apiCarToCar = (apiCar: ApiSearchResult): Car => {
+    // Suppliers connected through their own XML API: only what they send (no default rating or pick-up type).
+    const isXmlSupplier = String(apiCar.supplierId || '').startsWith('xml-');
     const hasFinalPrice = apiCar.finalPrice !== undefined && apiCar.finalPrice !== null;
     const dailyPrice = hasFinalPrice ? apiCar.finalPrice : apiCar.netPrice;
     
     const mappedSupplier: Supplier = {
         id: apiCar.supplierId || `api-supplier-${((apiCar.supplier?.name ?? 'Unknown')).replace(/\s+/g, '-')}`,
         name: apiCar.supplier?.name || apiCar.name || 'Unknown Supplier',
-        rating: apiCar.supplier?.rating || 4.5,
+        rating: apiCar.supplier?.rating || (isXmlSupplier ? 0 : 4.5),
         ratingReviewCount: apiCar.supplier?.ratingReviewCount,
         detailedRatings: {
             cleanliness: apiCar.supplier?.ratingCleanliness ?? ratingToPercent(apiCar.supplier?.rating),
@@ -54,7 +56,7 @@ export const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         includesCDW: (apiCar.supplier as any)?.includesCDW === true,
         includesTP: (apiCar.supplier as any)?.includesTP === true,
         enableSocialProof: false,
-        pickupType: apiCar.supplier?.pickupType as any || apiCar.pickupType as any || PickupType.IN_TERMINAL
+        pickupType: apiCar.supplier?.pickupType as any || apiCar.pickupType as any || (isXmlSupplier ? undefined : PickupType.IN_TERMINAL)
     };
     
     const apiRateTier: RateTier = {

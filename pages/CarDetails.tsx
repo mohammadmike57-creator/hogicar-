@@ -701,7 +701,7 @@ const CarDetails: React.FC = () => {
                       </div>
                     ) : (
                       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
-                        {ratingButton}
+                        {Number(car.supplier.rating) > 0 && ratingButton}
                         <span className="text-xs text-slate-500">Supplied by <span className="font-medium text-slate-700">{car.supplier.name}</span></span>
                       </div>
                     )}
@@ -831,7 +831,7 @@ const CarDetails: React.FC = () => {
                     <p className="font-semibold text-slate-900">{car.isHogicarChoiceBranded ? 'Hogicar exclusive fleet' : car.supplier.name}</p>
                     <p className="text-sm text-slate-500">{car.isHogicarChoiceBranded ? 'Verified and managed by Hogicar' : 'Car rental provider'}</p>
                   </div>
-                  {!car.isHogicarChoiceBranded && ratingButton}
+                  {!car.isHogicarChoiceBranded && Number(car.supplier.rating) > 0 && ratingButton}
                 </div>
                 <ul className="mt-4 grid grid-cols-2 gap-2 text-sm text-slate-600 sm:grid-cols-4">
                   <li className="flex items-center gap-2"><Shield className="h-4 w-4 text-accent" /> Verified partner</li>

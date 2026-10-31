@@ -894,7 +894,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                       <p className="mt-0.5 text-xs text-slate-500">{car.passengers} seats · {car.bags} bags · {transmissionLabel}</p>
                       <div className="mt-2 flex items-center gap-2">
                         {supplierMark}
-                        {!car.isHogicarChoiceBranded && (
+                        {!car.isHogicarChoiceBranded && Number(car.supplier.rating) > 0 && (
                           <RatingBadge rating={car.supplier.rating} size="sm" tileOnly />
                         )}
                       </div>

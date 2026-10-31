@@ -20,6 +20,7 @@ import { Hero, heroButton, heroPrimary, Segmented, num, inputCls, Field, useToas
 type Conn = {
   id: number; name: string; supplierCode?: string; channelCode?: string; baseUrl?: string; authMode?: string; environment?: string;
   currency?: string; locationCodes?: string; defaultDriverAge?: number; commissionPercent?: number; logoUrl?: string; replacesVendorCodes?: string;
+  pickupType?: string; pickupLabel?: string;
   active: boolean; bookingEnabled: boolean; timeoutSeconds?: number; webhookHeaderPrefix?: string; hasApiKey: boolean; hasWebhookSecret: boolean;
   webhookUrl?: string; supplierId?: string; lastPingAt?: string; lastPingOk?: boolean | null; lastError?: string; encryptionReady?: boolean;
 };
@@ -69,13 +70,14 @@ const statusTone = (s?: string) => ({
 }[s || ''] || 'bg-slate-100 text-slate-600');
 
 const EMPTY = { name: '', baseUrl: '', channelCode: 'HGC', supplierCode: '', authMode: 'BEARER', environment: 'SANDBOX', currency: 'USD', locationCodes: '',
-  defaultDriverAge: 30, commissionPercent: 0, logoUrl: '', replacesVendorCodes: '', active: false, bookingEnabled: true, timeoutSeconds: 20,
+  defaultDriverAge: 30, commissionPercent: 0, logoUrl: '', replacesVendorCodes: '', pickupType: '', pickupLabel: '', active: false, bookingEnabled: true, timeoutSeconds: 20,
   webhookHeaderPrefix: 'X-NCT', apiKey: '', webhookSecret: '' };
 
 /** The connection form, used to add a connection and in its Settings tab. */
 const ConnectionForm: React.FC<{ initial?: Conn | null; busy: boolean; onSave: (v: any) => void; onDelete?: () => void }> = ({ initial, busy, onSave, onDelete }) => {
   const [v, setV] = React.useState<any>(() => initial ? { ...EMPTY, ...initial, apiKey: '', webhookSecret: '',
-    replacesVendorCodes: initial.replacesVendorCodes || '', logoUrl: initial.logoUrl || '', locationCodes: initial.locationCodes || '' } : { ...EMPTY });
+    replacesVendorCodes: initial.replacesVendorCodes || '', logoUrl: initial.logoUrl || '', locationCodes: initial.locationCodes || '',
+    pickupType: initial.pickupType || '', pickupLabel: initial.pickupLabel || '' } : { ...EMPTY });
   const set = (k: string, val: any) => setV((x: any) => ({ ...x, [k]: val }));
   const save = () => {
     const body: any = { ...v };
@@ -136,6 +138,19 @@ const ConnectionForm: React.FC<{ initial?: Conn | null; busy: boolean; onSave: (
           <Field label="Locations they serve" hint="Codes, comma separated"><input className={`${inputCls} font-mono uppercase`} value={v.locationCodes} onChange={e => set('locationCodes', e.target.value.toUpperCase())} placeholder="AMM" /></Field>
           <Field label="Driver age in searches"><input type="number" className={inputCls} value={v.defaultDriverAge} onChange={e => set('defaultDriverAge', e.target.value)} /></Field>
           <Field label="Hogicar commission %" hint="Invoiced to them; customers pay their price"><input type="number" step="0.1" className={inputCls} value={v.commissionPercent} onChange={e => set('commissionPercent', e.target.value)} /></Field>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-[12rem_minmax(0,1fr)]">
+          <Field label="Pick-up type">
+            <select className={inputCls} value={v.pickupType} onChange={e => set('pickupType', e.target.value)}>
+              <option value="">None (city branch / office)</option>
+              <option value="IN_TERMINAL">In terminal</option>
+              <option value="MEET_AND_GREET">Meet &amp; greet</option>
+              <option value="SHUTTLE_BUS">Shuttle bus</option>
+            </select>
+          </Field>
+          <Field label="Pick-up wording customers see" hint="Shown when no pick-up type applies, e.g. their station from the guide.">
+            <input className={inputCls} value={v.pickupLabel} onChange={e => set('pickupLabel', e.target.value)} placeholder="Main branch, Amman" />
+          </Field>
         </div>
         <Field label="Hide their cars from other feeds" hint="Vendor codes of the same company in CheapTickets, e.g. URDRIVEJO, so their cars are not shown twice.">
           <input className={`${inputCls} font-mono uppercase`} value={v.replacesVendorCodes} onChange={e => set('replacesVendorCodes', e.target.value.toUpperCase())} placeholder="URDRIVEJO" />
