@@ -740,7 +740,8 @@ const CarDetails: React.FC = () => {
                 )}
               </section>
 
-              {/* Protection */}
+              {/* Protection (not offered for suppliers booked through their own API: they would not receive it) */}
+              {!String(car.supplierId || car.supplier?.id || '').startsWith('xml-') && (
               <section className="order-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:order-none">
                 <h2 className="text-lg font-bold text-slate-900">Choose your protection</h2>
                 <p className="mt-1 text-sm text-slate-500">Damage excess with basic cover: {excessDisplay}</p>
@@ -776,6 +777,7 @@ const CarDetails: React.FC = () => {
                   })}
                 </div>
               </section>
+              )}
 
               {/* Add-ons */}
               <AddonsSection
