@@ -779,7 +779,8 @@ const CarDetails: React.FC = () => {
               </section>
               )}
 
-              {/* Add-ons */}
+              {/* Add-ons (not for suppliers booked through their own API: they would not receive them) */}
+              {!String(car.supplierId || car.supplier?.id || '').startsWith('xml-') && (
               <AddonsSection
                 className="order-4 lg:order-none"
                 extras={car.extras || []}
@@ -788,6 +789,7 @@ const CarDetails: React.FC = () => {
                 money={money}
                 onChange={setSelectedExtraIds}
               />
+              )}
 
               {/* Important information */}
               <section className="order-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:order-none">
