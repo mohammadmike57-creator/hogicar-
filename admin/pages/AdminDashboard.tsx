@@ -26,6 +26,7 @@ import TrendingUp from 'lucide-react/dist/esm/icons/trending-up';
 import MailQuestion from 'lucide-react/dist/esm/icons/mail-question';
 import Rss from 'lucide-react/dist/esm/icons/rss';
 import Link2 from 'lucide-react/dist/esm/icons/link-2';
+import Plug from 'lucide-react/dist/esm/icons/plug';
 import XCircle from 'lucide-react/dist/esm/icons/x-circle';
 import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
 import Copy from 'lucide-react/dist/esm/icons/copy';
@@ -107,6 +108,7 @@ const AffiliateNetworksAdmin = React.lazy(() => import('../components/affiliateN
 const DistributionAdmin = React.lazy(() => import('../components/distribution/DistributionAdmin'));
 const RewardsAdmin = React.lazy(() => import('../components/RewardsAdmin'));
 const BannersAdmin = React.lazy(() => import('../components/BannersAdmin'));
+const XmlSuppliersAdmin = React.lazy(() => import('../components/XmlSuppliersAdmin'));
 const EmailCampaignsAdmin = React.lazy(() => import('../components/EmailCampaignsAdmin'));
 const MailAdmin = React.lazy(() => import('../components/MailAdmin'));
 import ChangeDecisionModal from '../../components/manage/ChangeDecisionModal';
@@ -304,6 +306,7 @@ const SECTION_META: Record<string, { title: string; description: string; group: 
   promotions: { title: 'Promotions', description: 'Promo codes for checkout and every supplier promotion.', group: 'Commercial' },
   carlibrary: { title: 'Car library', description: 'Car models, images and specifications used across the site.', group: 'Commercial' },
   apipartners: { title: 'Integrations', description: 'Partner API keys and connected services.', group: 'Commercial' },
+  xmlsuppliers: { title: 'XML suppliers', description: 'Rental companies connected through their own booking API (OTA XML).', group: 'Operations' },
   affiliates: { title: 'Affiliates', description: 'Partners who earn commission on the bookings they send.', group: 'Commercial' },
   affiliatenetworks: { title: 'Affiliate networks', description: 'Awin and other affiliate networks: tracking, conversions and reconciliation.', group: 'Commercial' },
   distribution: { title: 'Distribution network', description: 'Skyscanner, KAYAK and partner channels: onboarding, inventory, pricing, deeplinks and monitoring.', group: 'Commercial' },
@@ -327,7 +330,7 @@ const SECTION_META: Record<string, { title: string; description: string; group: 
 type Section = 'dashboard' | 'suppliers' | 'supplierrequests' | 'bookings' | 'fleet' | 
                 'carlibrary' | 'apipartners' | 'affiliates' | 'affiliatenetworks' | 'distribution' | 'rewards' | 'mail' | 'emailcampaigns' | 'banners' | 'cms' | 'seo' | 'seoaudit' |
                 'homepage' | 'sitesettings' | 'promotions' | 'globallocations' | 
-                'homepagelogos' | 'searchinglogos' | 'externalsuppliers' | 'blog' | 'sitemap' | 'push';
+                'homepagelogos' | 'searchinglogos' | 'externalsuppliers' | 'xmlsuppliers' | 'blog' | 'sitemap' | 'push';
 
 const StatCard = ({ icon: Icon, title, value, change, hint, color = 'blue' }: any) => {
   const colors: any = {
@@ -499,6 +502,7 @@ const NAV_ITEMS: { section: Section; icon: any }[] = [
   { section: 'suppliers', icon: Building },
   { section: 'supplierrequests', icon: MailQuestion },
   { section: 'externalsuppliers', icon: Share2 },
+  { section: 'xmlsuppliers', icon: Plug },
   { section: 'fleet', icon: Car },
   { section: 'promotions', icon: Tag },
   { section: 'carlibrary', icon: Car },
@@ -4525,6 +4529,11 @@ export const AdminDashboard: React.FC = () => {
       case 'fleet': return <FleetContent cars={fleet} loading={loadingFleet} onRefresh={() => fetchFleet(selectedSupplierId)} setManagingPromosForCar={setManagingPromosForCar} setIsPromotionModalOpen={setIsPromotionModalOpen} />;
       case 'carlibrary': return <CarLibraryAdmin library={carLibrary} loading={loadingCarLibrary} onRefresh={fetchCarLibrary} prepareImage={f => resizeImage(f, 7680, 4320, { removeBackground: true })} />;
       case 'apipartners': return <ApiPartnersContent />;
+      case 'xmlsuppliers': return (
+        <React.Suspense fallback={<div className="space-y-4"><div className="h-48 animate-pulse rounded-3xl bg-slate-200/70" /><div className="h-64 animate-pulse rounded-2xl bg-white ring-1 ring-slate-200" /></div>}>
+          <XmlSuppliersAdmin />
+        </React.Suspense>
+      );
       case 'affiliates': return <AffiliatesContent />;
       case 'affiliatenetworks': return <AffiliateNetworksContent />;
       case 'distribution': return <DistributionContent />;
