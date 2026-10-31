@@ -230,6 +230,8 @@ export interface Car {
   promotionAmount?: number;
   promotionPercent?: number;
   vendorCode?: string; // External API provider code
+  /** Supplier's cancellation policy code from their API, e.g. FLEX48 (free until 48 hours before pick-up). */
+  cancellationPolicy?: string;
   supplierPromotion?: SupplierPromotionInfo | null;
 }
 

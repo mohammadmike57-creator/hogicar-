@@ -118,6 +118,7 @@ export const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         promotionPercent: apiCar.promotionPercent,
         supplierPromotion: apiCar.supplierPromotion || null,
         vendorCode: (apiCar as any)._vendorCode || (apiCar as any).vendorCode || (apiCar.supplier as any)?.vendorCode,
+        cancellationPolicy: (apiCar as any).cancellationPolicy || undefined,
     };
 };
 

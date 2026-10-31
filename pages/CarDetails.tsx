@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { freeCancellationDetail, freeCancellationLine } from '../utils/cancellation';
 import { useParams, Link, useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import { trackCheckout, useCheckoutHeartbeat } from '../utils/checkoutTracker';
 import { usePriceHold } from '../utils/priceHold';
@@ -582,7 +583,7 @@ const CarDetails: React.FC = () => {
   ];
 
   const highlights = [
-    { label: 'Free cancellation', detail: 'Before pick-up' },
+    { label: 'Free cancellation', detail: freeCancellationDetail(car) },
     { label: car.unlimitedMileage ? 'Unlimited mileage' : 'Limited mileage', detail: 'Mileage policy', positive: car.unlimitedMileage },
     { label: `Fuel: ${fuelLabel}`, detail: 'Fuel policy' },
     ...(isInstant ? [{ label: 'Instant confirmation', detail: 'Booking mode' }] : []),
@@ -970,7 +971,7 @@ const CarDetails: React.FC = () => {
                     Continue to book <ArrowRight className="h-4 w-4" />
                   </Link>
                   <ul className="mt-4 space-y-1.5 text-sm text-slate-600">
-                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600" /> Free cancellation before pick-up</li>
+                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600" /> {freeCancellationLine(car)}</li>
                     <li className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600" /> Taxes and fees included</li>
                     <li className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600" /> Secure payment</li>
                   </ul>

@@ -1,5 +1,6 @@
 
 import * as React from 'react';
+import { freeCancellationLine } from '../utils/cancellation';
 import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { trackCheckout, useCheckoutHeartbeat } from '../utils/checkoutTracker';
 import { usePriceHold } from '../utils/priceHold';
@@ -948,7 +949,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
 
               <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                 <ul className="space-y-2 text-sm text-slate-600">
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 shrink-0 text-emerald-600" /> Free cancellation before pick-up</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 shrink-0 text-emerald-600" /> {freeCancellationLine(car)}</li>
                   <li className="flex items-center gap-2">{isInstant ? <Zap className="h-4 w-4 shrink-0 text-emerald-600" /> : <Clock className="h-4 w-4 shrink-0 text-amber-600" />} {isInstant ? 'Instant confirmation' : 'Supplier confirms your request shortly'}</li>
                   <li className="flex items-center gap-2"><Headphones className="h-4 w-4 shrink-0 text-emerald-600" /> 24/7 customer support</li>
                 </ul>
