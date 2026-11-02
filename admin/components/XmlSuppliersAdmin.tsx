@@ -25,7 +25,7 @@ type Conn = {
   webhookUrl?: string; supplierId?: string; lastPingAt?: string; lastPingOk?: boolean | null; lastError?: string; encryptionReady?: boolean;
 };
 type Offer = { offerId?: string; offerExpiresAt?: string; sipp?: string; makeModel?: string; seats?: number; bags?: number; doors?: number; transmission?: string;
-  airConditioning?: boolean; total?: number; currency?: string; deposit?: number; unlimitedMileage?: boolean; cancellationPolicy?: string; paymentType?: string; availableCount?: number };
+  airConditioning?: boolean; total?: number; currency?: string; deposit?: number; unlimitedMileage?: boolean; cancellationPolicy?: string; paymentType?: string; availableCount?: number; pictureUrl?: string };
 type Call = { id: number; operation: string; requestId?: string; remoteRequestId?: string; bookingRef?: string; httpStatus?: number; ok: boolean;
   errorCode?: string; errorMessage?: string; durationMs?: number; requestBody?: string; responseBody?: string; createdAt: string };
 type Link = { id: number; bookingRef: string; reservationId?: string; supplierStatus?: string; version?: number; cancellationPolicy?: string; lastError?: string; updatedAt?: string };
@@ -388,15 +388,25 @@ const XmlSuppliersAdmin: React.FC = () => {
                 {result && !result.ok && <div className="rounded-2xl bg-rose-50 p-4 text-sm text-rose-800 ring-1 ring-rose-200"><b>{result.errorCode || 'Failed'}</b> {result.message}{result.requestId && <span className="block text-xs">Request {result.requestId}</span>}</div>}
                 {result?.ok && (
                   <div className="overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200">
-                    <p className="border-b border-slate-100 px-4 py-2.5 text-sm text-slate-600"><b className="text-slate-900">{result.offers.length}</b> car group{result.offers.length === 1 ? '' : 's'} available · answered in {result.ms} ms</p>
+                    <p className="border-b border-slate-100 px-4 py-2.5 text-sm text-slate-600"><b className="text-slate-900">{result.offers.length}</b> car group{result.offers.length === 1 ? '' : 's'} available · answered in {result.ms} ms{result.fromLibrary != null && <> · <b className="text-slate-900">{result.fromLibrary}</b> with the Car library picture</>}</p>
                     <div className="overflow-x-auto">
                       <table className="min-w-full text-sm">
                         <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                          <tr><th className="px-4 py-2">Group</th><th className="px-4 py-2">Car</th><th className="px-4 py-2">Capacity</th><th className="px-4 py-2 text-right">Total</th><th className="px-4 py-2 text-right">Deposit</th><th className="px-4 py-2">Terms</th></tr>
+                          <tr><th className="px-4 py-2">Picture</th><th className="px-4 py-2">Group</th><th className="px-4 py-2">Car</th><th className="px-4 py-2">Capacity</th><th className="px-4 py-2 text-right">Total</th><th className="px-4 py-2 text-right">Deposit</th><th className="px-4 py-2">Terms</th></tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                           {result.offers.map((o: Offer, i: number) => (
                             <tr key={o.offerId || i}>
+                              {(() => {
+                                const img = result.images?.[o.offerId || o.sipp] ?? o.pictureUrl ?? '';
+                                const lib = !!img && img !== (o.pictureUrl || '');
+                                return (
+                                  <td className="px-4 py-2.5">
+                                    <div className="flex h-12 w-20 items-center justify-center overflow-hidden rounded-lg bg-slate-50 ring-1 ring-slate-200">{img ? <img src={img} alt="" className="max-h-full max-w-full object-contain" /> : <span className="text-[10px] text-slate-400">No picture</span>}</div>
+                                    <span className={`mt-1 block text-[10px] font-semibold ${lib ? 'text-emerald-700' : 'text-slate-500'}`}>{lib ? 'Car library' : img ? "Supplier's" : '—'}</span>
+                                  </td>
+                                );
+                              })()}
                               <td className="px-4 py-2.5 font-mono font-semibold">{o.sipp}</td>
                               <td className="px-4 py-2.5"><span className="font-medium text-slate-900">{o.makeModel}</span><span className="block text-xs text-slate-500">{[o.transmission, o.airConditioning ? 'A/C' : null, o.unlimitedMileage ? 'Unlimited km' : null].filter(Boolean).join(' · ')}</span></td>
                               <td className="px-4 py-2.5 text-slate-600">{o.seats ?? '—'} seats · {o.bags ?? '—'} bags · {o.doors ?? '—'} doors</td>
