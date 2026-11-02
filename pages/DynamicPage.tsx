@@ -16,6 +16,7 @@ import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 import { API_BASE_URL } from '../lib/config';
 import { detectRouteType, getRouteSEO } from '../utils/seo';
 import { lazyRetry } from '../utils/lazyRetry';
+import { safeHtml } from '../utils/safeHtml';
 
 const Home = lazyRetry(() => import('./Home'));
 const Reviews = lazyRetry(() => import('../components/Reviews'));
@@ -245,7 +246,7 @@ const DynamicPage: React.FC = () => {
     const hasHtml = /<[a-z][\s\S]*>/i.test(contentStr);
     
     if (hasHtml) {
-      return <div className="landing-prose prose prose-slate prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: contentStr }} />;
+      return <div className="landing-prose prose prose-slate prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: safeHtml(contentStr) }} />;
     }
     
     return (

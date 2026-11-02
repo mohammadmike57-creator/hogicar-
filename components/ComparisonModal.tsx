@@ -180,7 +180,7 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
 
     const SelectedCarCard = ({ car, pricing }: { car: Car; pricing: ReturnType<typeof calcPricing> }) => {
         const isBestPrice = pricing.finalTotal === bestTotal;
-        const isBestSupplier = Number(car.supplier?.rating || 0) === bestRating;
+        const isBestSupplier = bestRating > 0 && Number(car.supplier?.rating || 0) === bestRating;
 
         return (
             <section className={`relative rounded-card border bg-white p-3 shadow-sm sm:p-4 ${isBestPrice ? 'border-[#007ac2] ring-4 ring-emerald-50' : 'border-slate-200'}`}>
@@ -452,7 +452,7 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
                                     </div>
                                 }
                                 secondary={car.supplier?.name || 'Supplier not listed'}
-                                badge={Number(car.supplier?.rating || 0) === bestRating ? <Badge tone="success">Highest rated</Badge> : undefined}
+                                badge={bestRating > 0 && Number(car.supplier?.rating || 0) === bestRating ? <Badge tone="success">Highest rated</Badge> : undefined}
                             />
                         ))}
                     />

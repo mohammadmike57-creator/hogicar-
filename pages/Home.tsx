@@ -49,6 +49,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import { fetchLocations, fetchPublicSuppliers, fetchHomepageLogos, fetchSiteSettings, fetchHomepageContent } from '../api';
 import { LocationSuggestion } from '../api';
 import { API_BASE_URL } from '../lib/config';
+import { safeHtml } from '../utils/safeHtml';
 
 // Desktop-only hero photo, AI-upscaled to 2448px. Every file is under 150 KB (AVIF, WebP fallback).
 // Phones never download it; the tiny base64 preview shows on desktop while it loads.
@@ -946,9 +947,9 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
           <div className="mx-auto max-w-4xl px-4 sm:px-6">
             <div className="landing-prose prose prose-slate max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-p:leading-relaxed prose-p:text-slate-600 prose-strong:text-slate-900">
               {seoConfig?.content ? (
-                <div dangerouslySetInnerHTML={{ __html: seoConfig.content }} />
+                <div dangerouslySetInnerHTML={{ __html: safeHtml(seoConfig.content) }} />
               ) : (builderConfig?.sections?.content?.html || builderConfig?.html) ? (
-                <div dangerouslySetInnerHTML={{ __html: builderConfig?.sections?.content?.html || builderConfig?.html }} />
+                <div dangerouslySetInnerHTML={{ __html: safeHtml(builderConfig?.sections?.content?.html || builderConfig?.html) }} />
               ) : (
                 <div className="whitespace-pre-wrap text-slate-600">{builderConfig?.sections?.content?.text || builderConfig?.text}</div>
               )}

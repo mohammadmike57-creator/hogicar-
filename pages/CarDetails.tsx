@@ -78,6 +78,7 @@ import PromotionWrap from '../components/PromotionWrap';
 import { discountOf, promotionHighlights } from '../utils/promotions';
 import { validatePromoCode, rememberedPromo, rememberPromo, promoLabel } from '../utils/promoCodes';
 import { buildCarAddons, countSelected, extraUnitTotal, loadAddonSettings, withAddons } from '../utils/addons';
+import { jsonLd } from '../utils/safeHtml';
 
 // ==================== Helper Components ====================
 
@@ -99,7 +100,7 @@ const StructuredData: React.FC<{ car: Car; total: number; currencyCode: string }
       "seller": { "@type": "Organization", "name": car.supplier.name }
     }
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(schema) }} />;
 };
 
 const InfoTooltip: React.FC<{ text: string }> = ({ text }) => (

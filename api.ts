@@ -416,17 +416,17 @@ export const submitPartnerApplication = async (data: any): Promise<any> => {
 };
 
 export const getBookingByToken = async (token: string): Promise<any> => {
-  const response = await publicAxios.get(`${API_BASE_URL}/api/supplier/confirmation/booking?token=${token}`);
+  const response = await publicAxios.get(`${API_BASE_URL}/api/supplier/confirmation/booking?token=${encodeURIComponent(token)}`);
   return response.data;
 };
 
 export const confirmBookingByToken = async (token: string, confirmationNumber: string): Promise<any> => {
-  const response = await publicAxios.post(`${API_BASE_URL}/api/supplier/confirmation/confirm?token=${token}&confirmationNumber=${confirmationNumber}`);
+  const response = await publicAxios.post(`${API_BASE_URL}/api/supplier/confirmation/confirm?token=${encodeURIComponent(token)}&confirmationNumber=${encodeURIComponent(confirmationNumber || '')}`);
   return response.data;
 };
 
 export const rejectBookingByToken = async (token: string, reason: string): Promise<any> => {
-  const response = await publicAxios.post(`${API_BASE_URL}/api/supplier/confirmation/reject?token=${token}&reason=${encodeURIComponent(reason)}`);
+  const response = await publicAxios.post(`${API_BASE_URL}/api/supplier/confirmation/reject?token=${encodeURIComponent(token)}&reason=${encodeURIComponent(reason)}`);
   return response.data;
 };
 
@@ -463,13 +463,13 @@ export const api = {
 // ---------- Supplier API ----------
 export const supplierApi = {
   getBookingByToken: (token: string) => 
-    supplierAxios.get(`${API_BASE_URL}/api/supplier/confirmation/booking?token=${token}`),
+    supplierAxios.get(`${API_BASE_URL}/api/supplier/confirmation/booking?token=${encodeURIComponent(token)}`),
 
   confirmBooking: (token: string, confirmationNumber: string) =>
-    supplierAxios.post(`${API_BASE_URL}/api/supplier/confirmation/confirm?token=${token}&confirmationNumber=${confirmationNumber}`),
+    supplierAxios.post(`${API_BASE_URL}/api/supplier/confirmation/confirm?token=${encodeURIComponent(token)}&confirmationNumber=${encodeURIComponent(confirmationNumber || '')}`),
 
   rejectBooking: (token: string, reason: string) =>
-    supplierAxios.post(`${API_BASE_URL}/api/supplier/confirmation/reject?token=${token}&reason=${encodeURIComponent(reason)}`),
+    supplierAxios.post(`${API_BASE_URL}/api/supplier/confirmation/reject?token=${encodeURIComponent(token)}&reason=${encodeURIComponent(reason)}`),
 
   getCars: () => supplierAxios.get(`${API_BASE_URL}/api/supplier/dashboard/cars`),
   createCar: (payload: any) => supplierAxios.post(`${API_BASE_URL}/api/supplier/dashboard/cars`, payload),

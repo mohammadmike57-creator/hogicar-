@@ -97,10 +97,21 @@ function send(res, status, body, headers = {}, req = null, filePath = null) {
   res.end(finalBody);
 }
 
+const proxySecret = (process.env.PROXY_SHARED_SECRET || '').length >= 16 ? process.env.PROXY_SHARED_SECRET : '';
+
 async function proxyToBackend(req, res, url) {
   const target = new URL(url.pathname + url.search, backendOrigin);
   const headers = new Headers(req.headers);
   headers.set('host', target.host);
+  // The visitor's address for the backend's rate limits: the last X-Forwarded-For entry is the one our own
+  // load balancer added (earlier entries can be written by anyone). Proven with PROXY_SHARED_SECRET.
+  headers.delete('x-hogicar-client-ip');
+  headers.delete('x-hogicar-proxy-key');
+  if (proxySecret) {
+    const fwd = String(req.headers['x-forwarded-for'] || '').split(',').map(s => s.trim()).filter(Boolean);
+    headers.set('x-hogicar-client-ip', fwd.length ? fwd[fwd.length - 1] : (req.socket.remoteAddress || ''));
+    headers.set('x-hogicar-proxy-key', proxySecret);
+  }
   headers.set('accept-encoding', 'identity');
 
   const chunks = [];

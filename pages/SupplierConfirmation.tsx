@@ -35,19 +35,16 @@ const SupplierConfirmation: React.FC = () => {
 
     React.useEffect(() => {
         const loadData = async () => {
-            if (!bookingId && !token) {
-                setError('No booking ID or token provided');
+            // The booking request is opened only with the secret link sent to the supplier.
+            if (!token) {
+                setError('Please open this page with the link in the booking email we sent you.');
                 setIsLoading(false);
                 return;
             }
 
             try {
-                let fetchedBooking: any;
-                if (token) {
-                    fetchedBooking = await api.getBookingByToken(token);
-                } else if (bookingId) {
-                    fetchedBooking = await api.getBookingByRef(bookingId);
-                }
+                const fetchedBooking: any = await api.getBookingByToken(token);
+                if (!fetchedBooking) throw new Error('This link is not valid any more. Please use the link in the latest email.');
                 
                 setBooking(fetchedBooking);
                 
@@ -92,13 +89,10 @@ const SupplierConfirmation: React.FC = () => {
         setError('');
 
         try {
-            if (token) {
-                await api.confirmBookingByToken(token, confirmationNumber);
-            } else if (bookingId) {
-                await api.confirmBookingByToken(bookingId as string, confirmationNumber);
-            }
+            if (!token) throw new Error('Please open this page with the link in the booking email we sent you.');
+            await api.confirmBookingByToken(token, confirmationNumber);
             setIsConfirmed(true);
-            const updatedBooking = await (token ? api.getBookingByToken(token) : api.getBookingByRef(bookingId!));
+            const updatedBooking = await api.getBookingByToken(token);
             setBooking(updatedBooking);
         } catch (err: any) {
             setError(err.message || 'Could not confirm booking.');

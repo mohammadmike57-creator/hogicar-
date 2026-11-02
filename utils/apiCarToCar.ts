@@ -2,7 +2,8 @@
 import { CarCategory, Car, Transmission, FuelPolicy, CommissionType, ApiSearchResult, Supplier, BookingMode, CarType, RateTier, PickupType } from '../types';
 
 const ratingToPercent = (rating: number | undefined) => {
-    const safeRating = Number(rating || 4.5);
+    // No rating from real reviews: no detailed ratings either (0 = not shown).
+    const safeRating = Number(rating || 0);
     return Math.round(Math.max(0, Math.min(100, safeRating > 5 ? safeRating * 10 : safeRating * 20)));
 };
 
@@ -27,7 +28,8 @@ export const apiCarToCar = (apiCar: ApiSearchResult): Car => {
     const mappedSupplier: Supplier = {
         id: apiCar.supplierId || `api-supplier-${((apiCar.supplier?.name ?? 'Unknown')).replace(/\s+/g, '-')}`,
         name: apiCar.supplier?.name || apiCar.name || 'Unknown Supplier',
-        rating: apiCar.supplier?.rating || (isXmlSupplier ? 0 : 4.5),
+        // Only ratings from real reviews are shown; none is made up.
+        rating: Number(apiCar.supplier?.rating) > 0 ? Number(apiCar.supplier?.rating) : 0,
         ratingReviewCount: apiCar.supplier?.ratingReviewCount,
         detailedRatings: {
             cleanliness: apiCar.supplier?.ratingCleanliness ?? ratingToPercent(apiCar.supplier?.rating),
@@ -41,7 +43,8 @@ export const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         logo: apiCar.supplier?.logoUrl || '',
         commissionType: CommissionType.PAY_AT_DESK,
         commissionValue: 0,
-        bookingMode: BookingMode.FREE_SALE,
+        // On-request suppliers confirm each booking themselves: never shown as "Instant confirmation".
+        bookingMode: String((apiCar.supplier as any)?.bookingMode || '').toUpperCase() === 'ON_REQUEST' ? BookingMode.ON_REQUEST : BookingMode.FREE_SALE,
         status: 'active',
         location: '',
         locations: [],

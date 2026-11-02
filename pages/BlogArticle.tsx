@@ -18,6 +18,7 @@ import { api, fetchRelatedBlogs } from '../api';
 import { API_BASE_URL, PUBLIC_BASE_URL } from '../lib/config';
 import { BlogArticle as BlogArticleType } from '../types';
 import { articlePath, blogImage, cleanExcerpt, displayAuthor, formatBlogDate, prepareArticle, readingLabel, routeLabel } from '../utils/blog';
+import { safeHtml } from '../utils/safeHtml';
 
 const XLogo: React.FC<{ size?: number }> = ({ size = 16 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -310,7 +311,7 @@ const BlogArticle: React.FC = () => {
               </div>
             )}
 
-            <div ref={bodyRef} className="article-body" dangerouslySetInnerHTML={{ __html: prepared.html }} />
+            <div ref={bodyRef} className="article-body" dangerouslySetInnerHTML={{ __html: safeHtml(prepared.html) }} />
 
             {faqs.length > 0 && (
               <section className="mt-16" aria-labelledby="faq-heading">
