@@ -18,7 +18,7 @@
     "axios": "^1.13.5",
     "country-flag-icons": "^1.6.20",
     "date-fns": "^4.1.0",
-    "dompurify": "3.2.6",
+    "dompurify": "3.4.17",
     "framer-motion": "^12.34.5",
     "lucide-react": "^0.563.0",
     "qrcode-generator": "^2.0.4",
@@ -26,8 +26,7 @@
     "react-dom": "^19.2.3",
     "react-helmet-async": "^3.0.0",
     "react-router-dom": "^7.13.0",
-    "recharts": "^3.7.0",
-    "serve": "^14.2.4"
+    "recharts": "^3.7.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.1",
