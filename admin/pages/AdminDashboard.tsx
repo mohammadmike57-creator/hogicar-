@@ -103,6 +103,8 @@ import IntegrationsAdmin from '../components/IntegrationsAdmin';
 import LocationsAdmin from '../components/LocationsAdmin';
 import CarLibraryAdmin from '../components/CarLibraryAdmin';
 import HomepageBrandsAdmin from '../components/HomepageBrandsAdmin';
+import OverviewAdmin from '../components/OverviewAdmin';
+import BookingsAdmin from '../components/BookingsAdmin';
 import { SuppliersBoard, FleetBoard } from '../components/suppliersFleetUi';
 import { SeoBoard } from '../components/seoPagesUi';
 const AffiliateNetworksAdmin = React.lazy(() => import('../components/affiliateNetworks/AffiliateNetworksAdmin'));
@@ -1173,127 +1175,6 @@ const SupplierRequestsContent = ({ apps, onApprove, onReject, onRefresh }: any) 
   );
 };
 
-// ==================== Bookings ====================
-const BookingsContent = ({ bookings, onRefresh }: any) => {
-  const [query, setQuery] = React.useState('');
-  const [status, setStatus] = React.useState('all');
-  const [viewing, setViewing] = React.useState<any | null>(null);
-  const [deciding, setDeciding] = React.useState<any | null>(null);
-  const list: any[] = Array.isArray(bookings) ? bookings : [];
-  const changeCount = list.filter(b => changeStatusOf(b) === 'REQUESTED').length;
-  const decide = async (approve: boolean, message: string) => {
-    const token = getAdminToken() || '';
-    const res = await fetch(`${API_BASE_URL}/api/admin/bookings/${deciding.id}/change-request`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ approve, message }),
-    });
-    if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.message || `Server returned ${res.status}`); }
-    setDeciding(null); setViewing(null);
-    onRefresh?.();
-  };
-  const st = (b: any) => String(b.status || '').toLowerCase();
-  const counts = list.reduce((acc: Record<string, number>, b) => { acc[st(b)] = (acc[st(b)] || 0) + 1; return acc; }, {});
-  const q = query.trim().toLowerCase();
-  const filtered = list
-    .filter(b => status === 'all' || (status === 'changes' ? changeStatusOf(b) === 'REQUESTED' : st(b) === status))
-    .filter(b => !q || `${b.bookingRef} ${b.firstName} ${b.lastName} ${b.email} ${b.supplierName} ${b.pickupCode} ${b.carMake} ${b.carModel}`.toLowerCase().includes(q))
-    .sort((a, b) => new Date(b.createdAt || b.pickupDate || 0).getTime() - new Date(a.createdAt || a.pickupDate || 0).getTime());
-  const fmt = (v?: string) => { if (!v) return '—'; const d = new Date(v); return isNaN(d.getTime()) ? v : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); };
-  const amount = (b: any) => { const n = Number(b.finalPrice ?? b.totalPrice ?? 0); try { return new Intl.NumberFormat('en-US', { style: 'currency', currency: b.currency || 'USD' }).format(n); } catch { return `${b.currency || ''} ${n.toFixed(2)}`; } };
-  const downloadPdf = async () => {
-    if (!viewing) return;
-    try {
-      const token = getAdminToken() || '';
-      const res = await fetch(`${API_BASE_URL}/api/admin/bookings/${viewing.id}/voucher/download`, { headers: { Authorization: `Bearer ${token}` } });
-      if (!res.ok) throw new Error(`Server returned ${res.status}`);
-      const url = URL.createObjectURL(await res.blob());
-      const a = document.createElement('a');
-      a.href = url; a.download = `Hogicar-Voucher-${viewing.bookingRef || viewing.id}.pdf`;
-      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-    } catch (e: any) {
-      alert(`Could not download the PDF voucher (${e?.message || 'error'}). Use "Print / Save as PDF" instead.`);
-    }
-  };
-  const tabs = [['all', 'All', list.length], ['pending', 'Pending', counts.pending || 0], ['confirmed', 'Confirmed', counts.confirmed || 0], ['completed', 'Completed', counts.completed || 0], ['cancelled', 'Cancelled', counts.cancelled || 0], ...(changeCount ? [['changes', 'Change requests', changeCount]] : [])] as const;
-
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="-mx-1 flex gap-1 overflow-x-auto px-1">
-          {tabs.map(([id, label, n]) => (
-            <button key={id} onClick={() => setStatus(id)} className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${status === id ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'}`}>
-              {label}<span className={`rounded-full px-1.5 text-[11px] tabular-nums ${status === id ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}`}>{n}</span>
-            </button>
-          ))}
-        </div>
-        <div className="flex gap-2">
-          <div className="relative flex-1 lg:w-72">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Reference, customer, supplier…" className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-sm outline-none placeholder:text-slate-400 focus:border-accent focus:ring-2 focus:ring-accent/20" />
-          </div>
-          <button onClick={onRefresh} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-50" aria-label="Refresh bookings" title="Refresh">
-            <RefreshCw className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] text-sm">
-            <thead className="bg-slate-50 text-left text-xs font-medium text-slate-500">
-              <tr>
-                <th className="px-5 py-3 font-medium">Booking</th>
-                <th className="px-4 py-3 font-medium">Customer</th>
-                <th className="px-4 py-3 font-medium">Supplier</th>
-                <th className="px-4 py-3 font-medium">Pick-up → drop-off</th>
-                <th className="px-4 py-3 text-right font-medium">Total</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-5 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filtered.map((b: any) => (
-                <tr key={b.id} onClick={(e) => { if ((e.target as HTMLElement).closest('button')) return; setViewing(b); }} className="cursor-pointer hover:bg-slate-50/70">
-                  <td className="px-5 py-3">
-                    <p className="font-mono text-[13px] font-medium text-slate-900">{b.bookingRef || `#${b.id}`}</p>
-                    <p className="text-xs text-slate-500">{[b.carMake, b.carModel].filter(Boolean).join(' ') || '—'}</p>
-                  </td>
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-slate-900">{b.firstName} {b.lastName}</p>
-                    <p className="text-xs text-slate-500">{b.email || b.phone || '—'}</p>
-                  </td>
-                  <td className="px-4 py-3 text-slate-700">{b.supplierName || '—'}</td>
-                  <td className="px-4 py-3">
-                    <p className="text-slate-900">{fmt(b.pickupDate)} → {fmt(b.dropoffDate)}</p>
-                    <p className="text-xs text-slate-500">{b.pickupCode || '—'}{b.dropoffCode && b.dropoffCode !== b.pickupCode ? ` → ${b.dropoffCode}` : ''}</p>
-                  </td>
-                  <td className="px-4 py-3 text-right font-semibold tabular-nums text-slate-900">{amount(b)}</td>
-                  <td className="px-4 py-3"><div className="flex flex-col items-start gap-1"><Badge status={b.status} />{changeStatusOf(b) === 'REQUESTED' && <span className="whitespace-nowrap rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800 ring-1 ring-inset ring-amber-200">Change requested</span>}</div></td>
-                  <td className="px-5 py-3 text-right">
-                    <button onClick={() => setViewing(b)} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-2.5 text-xs font-medium text-slate-700 hover:border-accent hover:text-accent">
-                      <FileText className="h-3.5 w-3.5" /> Voucher
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="px-6 py-14 text-center text-sm text-slate-500">{list.length ? 'No bookings match your filters.' : 'No bookings yet.'}</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <VoucherModal booking={viewing} audience="admin" onClose={() => setViewing(null)} onDownloadPdf={downloadPdf}
-        extraActions={viewing && changeStatusOf(viewing) === 'REQUESTED' ? (
-          <button onClick={() => setDeciding(viewing)} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-amber-500 px-3 text-sm font-semibold text-white hover:bg-amber-600">Review change</button>
-        ) : null} />
-      {deciding && <ChangeDecisionModal booking={deciding} onClose={() => setDeciding(null)} onDecide={decide} />}
-    </div>
-  );
-};
-
 // ==================== CMS ====================
 const CmsContent = ({ pages, onEditPage }: any) => (
   <div className="bg-white rounded-card shadow-lg p-6">
@@ -2000,163 +1881,6 @@ const formatEnum = (val: string) => {
 
 // ==================== Suppliers Content ====================
 const SuppliersContent = (props: any) => <SuppliersBoard {...props} />;
-
-// ==================== Dashboard ====================
-const bookingAmount = (b: any) => Number(b.finalPrice ?? b.totalPrice) || 0;
-const bookingCreated = (b: any) => {
-  const d = new Date(b.bookingDate || b.createdAt || b.startDate);
-  return Number.isNaN(d.getTime()) ? null : d;
-};
-const money = (n: number) => `$${n >= 10000 ? `${(n / 1000).toFixed(1)}k` : n.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
-
-const DashboardContent = ({ stats, pendingCount, bookings, onNavigate }: any) => {
-  const list: any[] = Array.isArray(bookings) ? bookings : [];
-  const byStatus = list.reduce((acc: Record<string, number>, b) => {
-    const k = String(b.status || 'pending').toLowerCase();
-    acc[k] = (acc[k] || 0) + 1;
-    return acc;
-  }, {});
-
-  // Revenue per day for the last 14 days, from real bookings.
-  const days = Array.from({ length: 14 }, (_, i) => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    d.setDate(d.getDate() - (13 - i));
-    return d;
-  });
-  const chart = days.map(day => {
-    const next = new Date(day); next.setDate(day.getDate() + 1);
-    const inDay = list.filter(b => { const c = bookingCreated(b); return c && c >= day && c < next && String(b.status).toLowerCase() !== 'cancelled'; });
-    return { name: day.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }), revenue: Math.round(inDay.reduce((a, b) => a + bookingAmount(b), 0)), bookings: inDay.length };
-  });
-  const last14Revenue = chart.reduce((a, d) => a + d.revenue, 0);
-  const last14Bookings = chart.reduce((a, d) => a + d.bookings, 0);
-  const recent = [...list].sort((a, b) => (bookingCreated(b)?.getTime() || 0) - (bookingCreated(a)?.getTime() || 0)).slice(0, 8);
-  const avgValue = list.length ? stats.totalRevenue / Math.max(1, list.length - (byStatus.cancelled || 0)) : 0;
-
-  const statusRows = [
-    { key: 'confirmed', label: 'Confirmed', color: 'bg-emerald-500' },
-    { key: 'pending', label: 'Pending', color: 'bg-amber-500' },
-    { key: 'completed', label: 'Completed', color: 'bg-accent' },
-    { key: 'modified', label: 'Modified', color: 'bg-violet-500' },
-    { key: 'cancelled', label: 'Cancelled', color: 'bg-red-500' },
-  ];
-
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-        <StatCard icon={DollarSign} title="Revenue" value={money(stats.totalRevenue)} hint="All bookings, excluding cancelled" />
-        <StatCard icon={Calendar} title="Bookings" value={stats.totalBookings.toLocaleString()} hint={`${last14Bookings} in the last 14 days`} color="green" />
-        <StatCard icon={TrendingUp} title="Average booking value" value={money(avgValue)} hint="Per non-cancelled booking" color="purple" />
-        <StatCard icon={Building} title="Active suppliers" value={stats.activeSuppliers} hint={pendingCount > 0 ? `${pendingCount} request${pendingCount === 1 ? '' : 's'} waiting` : 'No requests waiting'} color="orange" />
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        <div className="rounded-xl border border-slate-200 bg-white p-5 xl:col-span-2">
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
-            <div>
-              <h3 className="text-base font-semibold text-slate-900">Revenue, last 14 days</h3>
-              <p className="text-sm text-slate-500">{money(last14Revenue)} from {last14Bookings} booking{last14Bookings === 1 ? '' : 's'}</p>
-            </div>
-          </div>
-          <div className="h-[220px] w-full min-w-0 sm:h-[300px]">
-            <ResponsiveContainer width="100%" height="100%" minHeight={1} minWidth={0}>
-              <AreaChart data={chart} margin={{ left: 0, right: 8, top: 8 }}>
-                <defs>
-                  <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#007ac2" stopOpacity={0.18} />
-                    <stop offset="100%" stopColor="#007ac2" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} dy={8} interval="preserveStartEnd" />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} width={48} tickFormatter={(v: number) => (v >= 1000 ? `${v / 1000}k` : String(v))} />
-                <Tooltip
-                  contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgb(15 23 42 / 0.08)', padding: '8px 12px', fontSize: 12 }}
-                  formatter={(value: any, name: any) => [name === 'revenue' ? `$${Number(value).toLocaleString()}` : value, name === 'revenue' ? 'Revenue' : 'Bookings']}
-                />
-                <Area type="monotone" dataKey="revenue" stroke="#007ac2" strokeWidth={2} fillOpacity={1} fill="url(#colorRev)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-slate-200 bg-white p-5">
-          <h3 className="text-base font-semibold text-slate-900">Bookings by status</h3>
-          <p className="text-sm text-slate-500">{list.length.toLocaleString()} bookings in total</p>
-          <ul className="mt-5 space-y-4">
-            {statusRows.map(row => {
-              const count = byStatus[row.key] || 0;
-              const pct = list.length ? Math.round((count / list.length) * 100) : 0;
-              return (
-                <li key={row.key}>
-                  <div className="mb-1.5 flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2 text-slate-700"><span className={`h-2 w-2 rounded-full ${row.color}`} />{row.label}</span>
-                    <span className="tabular-nums text-slate-900">{count} <span className="text-slate-400">· {pct}%</span></span>
-                  </div>
-                  <div className="h-1.5 overflow-hidden rounded-full bg-slate-100"><div className={`h-full rounded-full ${row.color}`} style={{ width: `${pct}%` }} /></div>
-                </li>
-              );
-            })}
-          </ul>
-          {pendingCount > 0 && (
-            <button onClick={() => onNavigate?.('supplierrequests')} className="mt-6 flex w-full items-center justify-between rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-left text-sm text-amber-800 hover:bg-amber-100">
-              <span>{pendingCount} supplier request{pendingCount === 1 ? '' : 's'} to review</span>
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-        <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-4 sm:px-5">
-          <div className="min-w-0">
-            <h3 className="text-base font-semibold text-slate-900">Recent bookings</h3>
-            <p className="text-sm text-slate-500">The latest reservations across all suppliers</p>
-          </div>
-          <button onClick={() => onNavigate?.('bookings')} className="inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50">
-            View all <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
-        {recent.length ? (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50 text-left text-xs text-slate-500">
-                <tr>
-                  <th className="px-5 py-2.5 font-medium">Customer</th>
-                  <th className="px-5 py-2.5 font-medium">Reference</th>
-                  <th className="px-5 py-2.5 font-medium">Supplier</th>
-                  <th className="px-5 py-2.5 font-medium">Booked</th>
-                  <th className="px-5 py-2.5 font-medium">Status</th>
-                  <th className="px-5 py-2.5 text-right font-medium">Amount</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {recent.map((b: any) => (
-                  <tr key={b.id} className="hover:bg-slate-50/70">
-                    <td className="px-5 py-3">
-                      <div className="flex items-center gap-3">
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-600">{b.firstName?.[0]}{b.lastName?.[0]}</span>
-                        <span className="font-medium text-slate-900">{b.firstName} {b.lastName}</span>
-                      </div>
-                    </td>
-                    <td className="px-5 py-3 font-mono text-xs text-slate-600">{b.bookingRef}</td>
-                    <td className="px-5 py-3 text-slate-700">{b.supplierName || '—'}</td>
-                    <td className="px-5 py-3 text-slate-600">{bookingCreated(b)?.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) || '—'}</td>
-                    <td className="px-5 py-3"><Badge status={b.status} /></td>
-                    <td className="px-5 py-3 text-right font-medium tabular-nums text-slate-900">${bookingAmount(b).toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <p className="px-5 py-12 text-center text-sm text-slate-500">No bookings yet.</p>
-        )}
-      </div>
-    </div>
-  );
-};
 
 // ==================== Fleet ====================
 const FleetContent = ({ cars, loading, onRefresh, setManagingPromosForCar, setIsPromotionModalOpen }: any) => (
@@ -4328,10 +4052,10 @@ export const AdminDashboard: React.FC = () => {
 
   const renderContent = () => {
     switch (activeSection) {
-      case 'dashboard': return <DashboardContent stats={stats} pendingCount={pendingCount} bookings={bookings} onNavigate={setActiveSection} />;
+      case 'dashboard': return <OverviewAdmin bookings={bookings} loading={loadingBookings} pendingApplications={pendingCount} activeSuppliers={stats.activeSuppliers} onNavigate={(s: string) => setActiveSection(s as any)} onRefresh={() => fetchBookings(selectedSupplierId)} />;
       case 'suppliers': return <SuppliersContent suppliers={suppliers} bookings={bookings} fetchError={supplierFetchError} onEdit={setEditingSupplier} onApprove={handleApproveSupplier} onManageApi={(s: any) => { setEditingSupplier(s); setIsApiModalOpen(true); }} onManageFleet={setViewingFleetSupplier} onAddSupplier={() => setEditingSupplier({})} onRefresh={fetchSuppliers} onDelete={handleDeleteSupplier} onFixData={handleFixData} onToggleVisibility={handleToggleVisibility} revealedPasswords={revealedPasswords} onCopy={handleCopy} />;
       case 'supplierrequests': return <SupplierRequestsContent apps={supplierApps} onApprove={handleApproveApplication} onReject={handleRejectApplication} onRefresh={fetchSupplierApps} />;
-      case 'bookings': return <BookingsContent bookings={bookings} onRefresh={() => fetchBookings(selectedSupplierId)} />;
+      case 'bookings': return <BookingsAdmin bookings={bookings} loading={loadingBookings} onRefresh={() => fetchBookings(selectedSupplierId)} />;
       case 'fleet': return <FleetContent cars={fleet} loading={loadingFleet} onRefresh={() => fetchFleet(selectedSupplierId)} setManagingPromosForCar={setManagingPromosForCar} setIsPromotionModalOpen={setIsPromotionModalOpen} />;
       case 'carlibrary': return <CarLibraryAdmin library={carLibrary} loading={loadingCarLibrary} onRefresh={fetchCarLibrary} prepareImage={f => resizeImage(f, 7680, 4320, { removeBackground: true })} />;
       case 'apipartners': return <ApiPartnersContent />;
