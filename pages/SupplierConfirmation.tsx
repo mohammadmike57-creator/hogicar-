@@ -10,13 +10,11 @@ import {
 import SEOMetadata from '../components/SEOMetadata';
 import { api, API_BASE_URL } from '../api';
 import { Logo } from '../components/Logo';
-import { useCurrency } from '../contexts/CurrencyContext';
 
 const SupplierConfirmation: React.FC = () => {
     const { bookingId } = useParams<{ bookingId: string }>();
     const location = useLocation();
     const navigate = useNavigate();
-    const { getCurrencySymbol } = useCurrency();
     
     const queryParams = new URLSearchParams(location.search);
     const token = queryParams.get('token');
@@ -198,7 +196,7 @@ const SupplierConfirmation: React.FC = () => {
                              <div className="rounded-2xl bg-slate-50 p-6 dark:bg-slate-900/50">
                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Supplier Net Rate</p>
                                 <p className="text-3xl font-black text-[#123C69] dark:text-white">
-                                    {getCurrencySymbol(booking.currency)} {booking.netPrice?.toFixed(2)}
+                                    {booking.currency} {Number(booking.netPrice ?? 0).toFixed(2)}
                                 </p>
                              </div>
                         </div>

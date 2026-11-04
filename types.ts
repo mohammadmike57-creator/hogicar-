@@ -132,6 +132,10 @@ export interface Supplier {
   locationCode?: string; // Airport code (e.g., LHR)
   locations: Location[]; // New multi-location support
   contactEmail: string;
+  /** Login email of a supplier-portal account. */
+  email?: string;
+  /** Commission added on top of the net price (search results set it to 0). */
+  commissionValue?: number;
   address?: string;
   phone?: string;
   workingHours?: WorkingHours;
@@ -252,6 +256,7 @@ export interface SupplierPromotionInfo {
 
 export interface ApiSearchResult {
   id: string;
+  excess?: number;
   name?: string;
   brand?: string;
   model?: string;
@@ -733,6 +738,7 @@ export interface BlogArticle {
   id?: number;
   title: string;
   slug: string;
+  lang?: string;
   content: string;
   excerpt: string;
   featuredImage: string;

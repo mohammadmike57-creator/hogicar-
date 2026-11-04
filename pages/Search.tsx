@@ -39,6 +39,7 @@ import { useCurrency } from '../contexts/CurrencyContext';
 import SearchWidget from '../components/SearchWidget';
 import { Logo } from '../components/Logo';
 import { API_BASE_URL } from '../lib/config';
+import { fetchPublicSuppliers } from '../api';
 import { formatCategoryName } from '../utils/ratings';
 import { clearMatchingPrefetchedResults, getMatchingPrefetchedResults, waitForMatchingSearchPrefetch, getPrefetchParamsFromUrl } from '../utils/searchPrefetch';
 import PickupTypeIcon from '../components/PickupTypeIcon';
@@ -145,7 +146,6 @@ export const Search: React.FC = () => {
     if (typeof window === 'undefined') return [];
     const prefetched = getMatchingPrefetchedResults(searchPrefetchParams);
     if (prefetched && prefetched.cars) {
-      console.log("Search: Initializing state with prefetched cars:", prefetched.cars.length);
       return apiCarsToCars(prefetched.cars);
     }
     return [];
@@ -161,7 +161,6 @@ export const Search: React.FC = () => {
     // Check if there's an in-flight prefetch we should wait for
     const pendingPrefetch = waitForMatchingSearchPrefetch(searchPrefetchParams);
     if (pendingPrefetch) {
-        console.log("Search: In-flight prefetch detected, starting in loading state.");
         return true;
     }
 
@@ -216,7 +215,6 @@ export const Search: React.FC = () => {
     if (!isLoadMore && page === 0) {
       const prefetched = getMatchingPrefetchedResults(searchPrefetchParams);
       if (prefetched) {
-        console.log("Search: Using pre-fetched results from session storage.");
         const cars = apiCarsToCars(prefetched.cars);
         
         // Only update if we don't already have these cars (from initial state)
@@ -233,12 +231,10 @@ export const Search: React.FC = () => {
       const pendingPrefetch = waitForMatchingSearchPrefetch(searchPrefetchParams);
       if (pendingPrefetch) {
         try {
-          console.log("Search: Waiting for in-flight prefetch.");
           // Only show loading if we really don't have cars yet
           if (apiCars.length === 0) setLoading(true);
           
           const result = await pendingPrefetch;
-          console.log("Search: In-flight prefetch completed.", { count: result.cars?.length });
           
           const cars = apiCarsToCars(result.cars);
           setApiCars(cars);

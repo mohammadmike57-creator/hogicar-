@@ -6,6 +6,8 @@ interface SearchState {
     dropoffCode?: string;
     pickupDate?: string;
     dropoffDate?: string;
+    startTime?: string;
+    endTime?: string;
 }
 
 // The API booking response might have a different structure

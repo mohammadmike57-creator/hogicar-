@@ -92,7 +92,7 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
         navigate(`/car/${car.id}${searchParams}`);
     };
 
-    const Badge = ({ children, tone = 'default' }: { children: React.ReactNode; tone?: Tone }) => (
+    const Badge = ({ children, tone = 'default' }: { children: React.ReactNode; tone?: Tone; key?: string | number }) => (
         <span className={`inline-flex items-center justify-center rounded-card border px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.16em] ${toneClasses[tone]}`}>
             {children}
         </span>
@@ -178,7 +178,7 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
         </div>
     );
 
-    const SelectedCarCard = ({ car, pricing }: { car: Car; pricing: ReturnType<typeof calcPricing> }) => {
+    const SelectedCarCard = ({ car, pricing }: { car: Car; pricing: ReturnType<typeof calcPricing>; key?: string | number }) => {
         const isBestPrice = pricing.finalTotal === bestTotal;
         const isBestSupplier = bestRating > 0 && Number(car.supplier?.rating || 0) === bestRating;
 
@@ -225,7 +225,7 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
         );
     };
 
-    const MobileCarDetails = ({ car, pricing }: { car: Car; pricing: ReturnType<typeof calcPricing> }) => (
+    const MobileCarDetails = ({ car, pricing }: { car: Car; pricing: ReturnType<typeof calcPricing>; key?: string | number }) => (
         <section className="rounded-card border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex items-start gap-3">
                 <div className="flex h-16 w-32 shrink-0 items-center justify-center bg-transparent p-0">

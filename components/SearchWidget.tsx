@@ -476,7 +476,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("SEARCH BUTTON CLICKED");
 
         const trimmedQuery = (pickupQuery || '').trim();
         let pickupLocation: string | undefined;
@@ -510,14 +509,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
             }
         }
 
-        console.log("SEARCH PARAMETERS:", {
-            pickup: pickupLocation,
-            dropoff: dropoffLocation,
-            pickupDate,
-            dropoffDate,
-            pickupTime,
-            dropoffTime
-        });
 
         setIsSuggestionsOpen(false);
         setIsDropoffSuggestionsOpen(false);
@@ -537,7 +528,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
             differentDropoff: differentDropoff
         };
 
-        console.log("CAR SEARCH API STARTED (PREFETCH)");
         startCarSearchPrefetch({
             pickupCode: finalPickupCode,
             dropoffCode: dropoffLocation || finalPickupCode,
@@ -547,7 +537,6 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
             endTime: dropoffTime,
         });
 
-        console.log("NAVIGATING TO SEARCHING PAGE");
         onSearch(searchPayload);
     };
     

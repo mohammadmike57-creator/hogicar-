@@ -53,11 +53,11 @@ export const calculatePrice = (car: Car, days: number, startDate?: string) => {
         case CommissionType.PARTIAL_PREPAID:
         case CommissionType.FULL_PREPAID:
             // This is a percentage markup
-            grossTotal = netTotal * (1 + car.supplier.commissionValue);
+            grossTotal = netTotal * (1 + (car.supplier.commissionValue ?? 0));
             break;
         case CommissionType.PAY_AT_DESK:
             // This is a fixed fee PER BOOKING added on top.
-            grossTotal = netTotal + car.supplier.commissionValue;
+            grossTotal = netTotal + (car.supplier.commissionValue ?? 0);
             break;
     }
 

@@ -58,17 +58,11 @@ const Searching: React.FC = () => {
   React.useEffect(() => {
     if (!pickupIata) return;
 
-    console.log("Searching: MOUNTED. Ensuring car results are loading...", {
-        pickupIata,
-        params: searchPrefetchParams
-    });
     startCarSearchPrefetch(searchPrefetchParams);
     
     // Pre-load the Search component chunk while we're on the buffer page
     // This reduces the flash caused by lazy loading in App.tsx
-    console.log("Searching: Starting pre-load of Search component chunk...");
     import('./Search').then(() => {
-        console.log("Searching: Search component chunk LOADED.");
         setIsChunkLoaded(true);
     }).catch(err => {
         console.warn("Searching: Search component pre-load failed", err);
@@ -80,14 +74,11 @@ const Searching: React.FC = () => {
   React.useEffect(() => {
     const loadSuppliers = async () => {
       try {
-        console.log("Searching: Loading suppliers and logos for location:", pickupIata);
         const [realData, searchingLogos] = await Promise.all([
             fetchPublicSuppliers(pickupIata),
             fetchSearchingLogos(pickupIata)
         ]);
         
-        console.log("Searching: Real suppliers found:", realData?.length);
-        console.log("Searching: Searching logos found:", searchingLogos?.length);
         
         let results: any[] = [];
         
@@ -123,7 +114,6 @@ const Searching: React.FC = () => {
           });
         }
         
-        console.log("Searching: Total logos to display:", results.length);
         // Finalize supplier list - show up to 100
         setSuppliers(results.slice(0, 100));
       } catch (error) {
@@ -171,7 +161,6 @@ const Searching: React.FC = () => {
     const fillTime = Math.max(duration, MIN_DISPLAY_TIME);
     const elapsedMs = () => Date.now() - startTimeRef.current;
 
-    console.log("Searching: initial data status:", initialStatus);
 
     const tryNavigate = () => {
       // Ensure we only navigate once
@@ -183,7 +172,6 @@ const Searching: React.FC = () => {
       const isMinTimeFinished = elapsed >= MIN_DISPLAY_TIME;
 
       if (isDataWaitFinished && isMinTimeFinished && isChunkLoaded) {
-        console.log("Searching: proceeding to results page.", { isDataFinished, isChunkLoaded, elapsed });
         setProgress(1);
         isNavigated = true;
         // Short pause so the completed state is visible
@@ -214,7 +202,6 @@ const Searching: React.FC = () => {
     pendingPrefetch?.then(() => {
       if (isDisposed) return;
       const status = getPrefetchStatus(searchPrefetchParams);
-      console.log("Searching: prefetch promise resolved with status:", status);
       if (status === 'fulfilled' || status === 'failed') {
         isDataFinished = true;
         tryNavigate();
@@ -229,7 +216,6 @@ const Searching: React.FC = () => {
       const status = getPrefetchStatus(searchPrefetchParams);
       if (status === 'fulfilled' || status === 'failed') {
         if (!isDataFinished) {
-            console.log("Searching: data status changed to finished via interval:", status);
         }
         isDataFinished = true;
         tryNavigate();

@@ -47,10 +47,8 @@ const BecomeSupplier: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('[DEBUG_LOG] Submitting partner application:', formData);
     try {
         const response = await api.submitPartnerApplication(formData);
-        console.log('[DEBUG_LOG] Submission successful:', response);
         setSubmitted(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {

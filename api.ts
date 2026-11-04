@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { API_BASE_URL as CONFIG_BASE_URL } from './lib/config';
+import type { BlogArticle } from './types';
 
 export const API_BASE_URL = CONFIG_BASE_URL || "";
 
@@ -95,7 +96,6 @@ export const fetchLocations = async (query: string, hint?: string): Promise<Loca
     if (hint) {
       url += `&hint=${encodeURIComponent(hint)}`;
     }
-    console.log('[DEBUG_LOG] Fetching locations from:', url);
     const response = await publicAxios.get(url);
     // Map the backend response to { value, label, type } format
     const results = response.data.map((loc: any) => {
@@ -126,7 +126,7 @@ export const fetchLocations = async (query: string, hint?: string): Promise<Loca
     });
 
     // Deduplicate by label to prevent identical suggestions
-    return Array.from(new Map(results.map((item: any) => [item.label, item])).values());
+    return Array.from(new Map<string, LocationSuggestion>(results.map((item: LocationSuggestion) => [item.label, item])).values());
   } catch (error) {
     console.error('Error fetching locations:', error);
     return [];
@@ -160,7 +160,7 @@ export const getPublicLocations = async (): Promise<LocationSuggestion[]> => {
     });
 
     // Deduplicate by label
-    return Array.from(new Map(results.map((item: any) => [item.label, item])).values());
+    return Array.from(new Map<string, LocationSuggestion>(results.map((item: LocationSuggestion) => [item.label, item])).values());
   } catch (error) {
     console.error('Error fetching all locations:', error);
     return [];
@@ -212,18 +212,8 @@ export const lookupBooking = async (email: string, bookingRef: string): Promise<
   return response.data;
 };
 
-export const getBooking = async (id: number): Promise<Booking> => {
-  const response = await publicAxios.get(`${API_BASE_URL}/api/bookings/${id}`);
-  return response.data;
-};
-
 export const getBookingByRef = async (bookingRef: string): Promise<Booking> => {
   const response = await publicAxios.get(`${API_BASE_URL}/api/bookings/ref/${encodeURIComponent(bookingRef)}`);
-  return response.data;
-};
-
-export const cancelBooking = async (id: number): Promise<Booking> => {
-  const response = await publicAxios.post(`${API_BASE_URL}/api/bookings/${id}/cancel`);
   return response.data;
 };
 
@@ -237,16 +227,6 @@ export const manageBooking = {
     publicAxios.post(`${API_BASE_URL}/api/bookings/manage/change-request`, { email, ref, ...change }).then(r => r.data),
   withdrawChange: (email: string, ref: string) =>
     publicAxios.post(`${API_BASE_URL}/api/bookings/manage/change-request/withdraw`, { email, ref }).then(r => r.data),
-};
-
-export const requestModification = async (id: number, data: any): Promise<any> => {
-  const response = await publicAxios.post(`${API_BASE_URL}/api/bookings/${id}/modification/request`, data);
-  return response.data;
-};
-
-export const confirmModification = async (id: number): Promise<Booking> => {
-  const response = await publicAxios.post(`${API_BASE_URL}/api/bookings/${id}/modification/confirm`);
-  return response.data;
 };
 
 /** Review of the rental company, verified with the email-link token or the booking email. */
@@ -435,14 +415,10 @@ export const api = {
   fetchLocations,
   getPublicLocations,
   lookupBooking,
-  getBooking,
   getBookingByRef,
   getBookingByToken,
   confirmBookingByToken,
   rejectBookingByToken,
-  cancelBooking,
-  requestModification,
-  confirmModification,
   submitReview,
   fetchReviewContext,
   fetchExperienceContext,

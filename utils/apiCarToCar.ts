@@ -26,7 +26,7 @@ export const apiCarToCar = (apiCar: ApiSearchResult): Car => {
     const dailyPrice = hasFinalPrice ? apiCar.finalPrice : apiCar.netPrice;
     
     const mappedSupplier: Supplier = {
-        id: apiCar.supplierId || `api-supplier-${((apiCar.supplier?.name ?? 'Unknown')).replace(/\s+/g, '-')}`,
+        id: String(apiCar.supplierId || `api-supplier-${((apiCar.supplier?.name ?? 'Unknown')).replace(/\s+/g, '-')}`),
         name: apiCar.supplier?.name || apiCar.name || 'Unknown Supplier',
         // Only ratings from real reviews are shown; none is made up.
         rating: Number(apiCar.supplier?.rating) > 0 ? Number(apiCar.supplier?.rating) : 0,
@@ -43,6 +43,8 @@ export const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         logo: apiCar.supplier?.logoUrl || '',
         commissionType: CommissionType.PAY_AT_DESK,
         commissionValue: 0,
+        commissionPercent: Number((apiCar.supplier as any)?.commissionPercent ?? apiCar.commissionPercent ?? 0),
+        visible: true,
         // On-request suppliers confirm each booking themselves: never shown as "Instant confirmation".
         bookingMode: String((apiCar.supplier as any)?.bookingMode || '').toUpperCase() === 'ON_REQUEST' ? BookingMode.ON_REQUEST : BookingMode.FREE_SALE,
         status: 'active',

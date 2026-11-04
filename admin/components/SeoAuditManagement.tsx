@@ -26,7 +26,7 @@ import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import Archive from 'lucide-react/dist/esm/icons/archive';
 import LogIn from 'lucide-react/dist/esm/icons/log-in';
 import { motion, AnimatePresence } from 'framer-motion';
-import { adminFetch, performSeoAudit, fixOneSeoIssue, fixAllSeoIssues, getSeoFixJob, fixPageSeo, dismissSeoIssue, rollbackSeoFixJob, runSeoAuditJob, getSeoAuditJob, getSeoAuditResults, fixCountrySeo, fixSiteSeo, setRouteLifecycleStatus, deleteSeoRoute } from '../../lib/adminApi';
+import { adminFetch, performSeoAudit, fixOneSeoIssue, fixAllSeoIssues, getSeoFixJob, fixPageSeo, dismissSeoIssue, rollbackSeoFixJob, runSeoAuditJob, getSeoAuditJob, getSeoAuditResults, fixCountrySeo, fixSiteSeo, generateJordanSeoRoutes, setRouteLifecycleStatus, deleteSeoRoute } from '../../lib/adminApi';
 
 const SeoAuditManagement: React.FC = () => {
     const [report, setReport] = useState<any>(null);
@@ -92,7 +92,6 @@ const SeoAuditManagement: React.FC = () => {
             const job = await generateJordanSeoRoutes();
             setFixJob(job);
             setIsFixing(true);
-            // Optionally refresh report after job finishes
         } catch (error) {
             console.error('Failed to generate Jordan routes:', error);
         } finally {
@@ -255,18 +254,6 @@ const SeoAuditManagement: React.FC = () => {
         }
     };
 
-    const handleGenerateJordan = async () => {
-        try {
-            setLoading(true);
-            const job = await generateJordanSeoRoutes();
-            setFixJob(job);
-            setIsFixing(true);
-        } catch (error) {
-            console.error('Failed to generate Jordan routes:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleFixCountry = async (country: string) => {
         setIsFixing(true);
@@ -446,7 +433,7 @@ const SeoAuditManagement: React.FC = () => {
                         {isAuditing ? 'Auditing...' : 'Run Audit'}
                     </button>
                     <button 
-                        onClick={handleGenerateJordan}
+                        onClick={handleGenerateJordanRoutes}
                         disabled={loading || isFixing || isAuditing}
                         className="px-6 py-2.5 bg-amber-500 text-white rounded-card font-extrabold text-xs uppercase tracking-widest hover:bg-amber-600 transition-all flex items-center gap-2 shadow-lg disabled:opacity-50"
                     >

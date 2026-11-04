@@ -325,7 +325,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
             targetOption = options.find(o => {
               const name = (o.name || '').toLowerCase();
               const label = (o.label || '').toLowerCase();
-              const iata = (o.iataCode || o.iata || '').toLowerCase();
+              const iata = (o.iataCode || '').toLowerCase();
               
               return (name.length > 2 && lowerDest.includes(name)) || 
                      (label.length > 2 && lowerDest.includes(label)) ||

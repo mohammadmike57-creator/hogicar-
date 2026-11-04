@@ -3460,11 +3460,8 @@ const SearchingLogosContent = () => {
     const fetchLogos = async () => {
         setLoading(true);
         try {
-            console.log("[DEBUG] Fetching searching logos...");
             const data = await adminFetch(`/api/admin/searching-logos?t=${Date.now()}`);
-            console.log("[DEBUG] Fetched searching logos raw data:", data);
             const logosArray = Array.isArray(data) ? data : [];
-            console.log("[DEBUG] Setting searching logos state. Count:", logosArray.length);
             setLogos(logosArray);
         } catch (e: any) {
             console.error('[DEBUG] Failed to fetch searching logos', e);
@@ -3490,17 +3487,14 @@ const SearchingLogosContent = () => {
     const handleSave = async (logo: any) => {
         setLoading(true);
         try {
-            console.log("[DEBUG] Initiating save searching logo:", logo);
             const isNew = !logo.id;
             const method = isNew ? 'POST' : 'PUT';
             const url = isNew ? '/api/admin/searching-logos' : `/api/admin/searching-logos/${logo.id}`;
             
-            console.log(`[DEBUG] Calling ${method} ${url}`);
             const saved = await adminFetch(url, {
                 method,
                 body: JSON.stringify(logo)
             });
-            console.log("[DEBUG] Saved searching logo response:", saved);
             
             await fetchLogos();
             setEditingLogo(null);

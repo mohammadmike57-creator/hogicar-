@@ -12,6 +12,10 @@ interface State {
 }
 
 class ErrorBoundary extends Component<Props, State> {
+  declare props: Readonly<Props>;
+  declare state: State;
+  declare setState: (state: Partial<State>) => void;
+
   constructor(props: Props) {
     super(props);
     this.state = { hasError: false, error: null, reloading: false };

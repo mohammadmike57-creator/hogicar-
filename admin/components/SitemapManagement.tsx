@@ -352,7 +352,7 @@ const SitemapManagement: React.FC = () => {
                         </h3>
                         <div className="space-y-4">
                             {report && Object.entries(report.breakdown).length > 0 ? (
-                                Object.entries(report.breakdown).sort((a, b) => b[1] - a[1]).map(([reason, count]) => (
+                                (Object.entries(report.breakdown) as [string, number][]).sort((a, b) => b[1] - a[1]).map(([reason, count]) => (
                                     <div key={reason} className="space-y-1.5">
                                         <div className="flex justify-between items-center text-[10px] font-extrabold uppercase tracking-wider">
                                             <span className="text-slate-500">{reason}</span>

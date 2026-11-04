@@ -583,7 +583,6 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
         console.error("Payment submission error:", error);
         
         if (error.message === 'STRIPE_ACCOUNT_MISMATCH') {
-            console.log('Stripe account mismatch handled. Component will remount.');
             setPaymentError('Adjusting secure payment settings. Please try clicking confirm again in a moment.');
             return;
         }
@@ -1045,7 +1044,6 @@ const BookingPage: React.FC = () => {
 
   React.useEffect(() => {
     if (currentKey) {
-      console.log(`[Stripe] Initializing loadStripe with key: ${currentKey.substring(0, 10)}...`);
       setDynamicStripePromise(loadStripe(currentKey));
     } else {
       setDynamicStripePromise(null);
@@ -1061,7 +1059,6 @@ const BookingPage: React.FC = () => {
         const mode = (config as any)?.mode || (key.startsWith('pk_test') ? 'test' : (key.startsWith('pk_live') ? 'live' : 'unknown'));
         const mismatch = (config as any)?.mismatch === 'true';
         
-        console.log(`[Stripe] Configuration fetched. Mode: ${mode.toUpperCase()}${mismatch ? ' (MISMATCH DETECTED!)' : ''}`);
         
         if (mismatch) {
           setConfigMismatch(true);
