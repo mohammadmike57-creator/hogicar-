@@ -102,6 +102,7 @@ import AffiliatesAdmin from '../components/AffiliatesAdmin';
 import IntegrationsAdmin from '../components/IntegrationsAdmin';
 import LocationsAdmin from '../components/LocationsAdmin';
 import CarLibraryAdmin from '../components/CarLibraryAdmin';
+import HomepageBrandsAdmin from '../components/HomepageBrandsAdmin';
 import { SuppliersBoard, FleetBoard } from '../components/suppliersFleetUi';
 import { SeoBoard } from '../components/seoPagesUi';
 const AffiliateNetworksAdmin = React.lazy(() => import('../components/affiliateNetworks/AffiliateNetworksAdmin'));
@@ -315,7 +316,7 @@ const SECTION_META: Record<string, { title: string; description: string; group: 
   emailcampaigns: { title: 'Email campaigns', description: 'Send discounts and promotions to customers by email.', group: 'Commercial' },
   push: { title: 'Push notifications', description: 'Messages sent to app users.', group: 'Commercial' },
   homepage: { title: 'Homepage', description: 'Hero, sections and images on the homepage.', group: 'Website' },
-  homepagelogos: { title: 'Homepage logos', description: 'Brand logos shown in the homepage strip.', group: 'Website' },
+  homepagelogos: { title: 'Homepage branding', description: 'The rental brand logos shown on the homepage.', group: 'Website' },
   searchinglogos: { title: 'Searching logos', description: 'Logos shown on the searching screen.', group: 'Website' },
   banners: { title: 'Search banners', description: 'Offers shown between the cars on the search results page.', group: 'Website' },
   cms: { title: 'Pages', description: 'Content pages on the website.', group: 'Website' },
@@ -3340,117 +3341,6 @@ const AdminPromotionModal = ({ car, isOpen, onClose, onSave, onDeleteTier }: any
 };
 
 // ==================== Homepage Logos ====================
-const HomepageLogosContent = () => {
-    const [logos, setLogos] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [editingLogo, setEditingLogo] = useState<any>(null);
-
-    const fetchLogos = async () => {
-        setLoading(true);
-        try {
-            const data = await adminFetch('/api/admin/homepage-logos');
-            setLogos(Array.isArray(data) ? data : []);
-        } catch (e) {
-            console.error('Failed to fetch logos', e);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => { fetchLogos(); }, []);
-
-    const handleDelete = async (id: number) => {
-        if (!confirm('Are you sure you want to remove this brand logo?')) return;
-        try {
-            await adminFetch(`/api/admin/homepage-logos/${id}`, { method: 'DELETE' });
-            fetchLogos();
-        } catch (e: any) {
-            alert(`Delete failed: ${e.message}`);
-        }
-    };
-
-    const handleSave = async (logo: any) => {
-        try {
-            const method = logo.id ? 'PUT' : 'POST';
-            const url = logo.id ? `/api/admin/homepage-logos/${logo.id}` : '/api/admin/homepage-logos';
-            await adminFetch(url, {
-                method,
-                body: JSON.stringify(logo)
-            });
-            fetchLogos();
-            setEditingLogo(null);
-        } catch (e: any) {
-            alert(`Save failed: ${e.message}`);
-        }
-    };
-
-    return (
-        <div className="space-y-6">
-            <EditHomepageLogoModal 
-                isOpen={!!editingLogo} 
-                onClose={() => setEditingLogo(null)} 
-                onSave={handleSave} 
-                logo={editingLogo} 
-            />
-            
-            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30">
-                    <div>
-                        <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight text-left">Homepage Branding</h2>
-                        <p className="text-sm text-gray-500 font-medium text-left">Control global brands and trusted partners displayed on the landing page</p>
-                    </div>
-                    <button onClick={() => setEditingLogo({ name: '', logoUrl: '', displayOrder: logos.length + 1, scale: 100, mobileScale: 100, spacing: 24, active: true })} 
-                        className="bg-[#007ac2] text-white px-6 py-2.5 rounded-card font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-800 transition-all flex items-center gap-2">
-                        <PlusCircle className="w-5 h-5" />
-                        Add New Brand
-                    </button>
-                </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-slate-50/50">
-                                <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Preview</th>
-                                <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Brand Name</th>
-                                <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Order</th>
-                                <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Status</th>
-                                <th className="px-8 py-4 text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-50">
-                            {loading ? (
-                                <tr><td colSpan={5} className="p-12 text-center text-slate-400 font-bold"><RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2"/> Loading brands...</td></tr>
-                            ) : logos.length === 0 ? (
-                                <tr><td colSpan={5} className="p-12 text-center text-slate-400 font-bold">No brands configured yet</td></tr>
-                            ) : logos.map((l: any) => (
-                                <tr key={l.id} className="hover:bg-blue-50/30 transition-colors group">
-                                    <td className="px-8 py-4">
-                                        <div className="w-20 h-10 bg-white border border-slate-100 rounded-card flex items-center justify-center p-1.5 shadow-sm group-hover:border-blue-200 transition-colors">
-                                            {l.logoUrl ? (
-                                                <img src={getImageUrl(l.logoUrl)} alt={l.name} className="max-w-full max-h-full object-contain" width="100" height="50" />
-                                            ) : (
-                                                <ImageIcon className="w-4 h-4 text-slate-300" />
-                                            )}
-                                        </div>
-                                    </td>
-                                    <td className="px-8 py-4"><span className="text-sm font-extrabold text-slate-900">{l.name}</span></td>
-                                    <td className="px-8 py-4"><span className="text-xs font-mono font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-md">{l.displayOrder}</span></td>
-                                    <td className="px-8 py-4"><Badge status={l.active ? 'active' : 'inactive'} /></td>
-                                    <td className="px-8 py-4 text-right">
-                                        <div className="flex justify-end gap-2">
-                                            <button onClick={() => setEditingLogo(l)} className="p-2 bg-slate-100 hover:bg-blue-100 text-slate-600 hover:text-[#007ac2] rounded-card transition-all"><Edit className="w-4 h-4"/></button>
-                                            <button onClick={() => handleDelete(l.id)} className="p-2 bg-slate-100 hover:bg-red-100 text-slate-600 hover:text-red-600 rounded-card transition-all"><Trash2 className="w-4 h-4"/></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    );
-};
-
 // ==================== Searching Page Logos ====================
 const SearchingLogosContent = () => {
     const [logos, setLogos] = useState<any[]>([]);
@@ -3714,84 +3604,6 @@ const EditSearchingLogoModal = ({ isOpen, onClose, onSave, logo, loading }: any)
                     >
                         {loading ? 'Processing...' : (logo?.id ? 'Update Branding' : 'Add Branding')}
                     </button>
-                </div>
-            </div>
-        </Modal>
-    );
-};
-
-const EditHomepageLogoModal = ({ isOpen, onClose, onSave, logo }: any) => {
-    const [formData, setFormData] = useState<any>(logo || {});
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
-    useEffect(() => { if (logo) setFormData(logo); }, [logo]);
-
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            try {
-                const base64 = await resizeImage(file, 800, 400);
-                setFormData({ ...formData, logoUrl: base64 });
-            } catch (err) {
-                alert('Failed to process image');
-            }
-        }
-    };
-
-    if (!isOpen) return null;
-
-    return (
-        <Modal isOpen={isOpen} onClose={onClose} title={logo?.id ? 'Edit Brand Logo' : 'Add New Brand Logo'} size="md">
-            <div className="space-y-6">
-                <InputField label="Brand Name" value={formData.name} onChange={(e: any) => setFormData({ ...formData, name: e.target.value })} placeholder="e.g., Hertz, Avis, Local Partner" />
-                
-                <div className="space-y-3">
-                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] block">Brand Logo</label>
-                    <div className="flex gap-4 items-start">
-                        <div className="flex-1 space-y-3">
-                            <InputField value={formData.logoUrl} onChange={(e: any) => setFormData({ ...formData, logoUrl: e.target.value })} placeholder="Paste direct image URL or upload →" />
-                            <div className="flex items-center gap-2 text-[9px] text-slate-400 font-medium">
-                                <AlertCircle className="w-3 h-3" />
-                                <span>Recommended: 400x200px, Transparent PNG</span>
-                            </div>
-                        </div>
-                        <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" className="hidden" />
-                        <button onClick={() => fileInputRef.current?.click()} className="p-3 bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-slate-200 rounded-card transition-colors flex items-center justify-center text-slate-400 hover:text-[#007ac2] hover:border-blue-200">
-                            <ImageIcon className="w-6 h-6" />
-                        </button>
-                    </div>
-                    {formData.logoUrl && (
-                        <div className="mt-4 p-4 border border-slate-100 rounded-card bg-slate-50/50 flex items-center justify-center">
-                            <img src={getImageUrl(formData.logoUrl)} alt="Preview" className="max-h-24 object-contain drop-shadow-sm" width="200" height="100" />
-                        </div>
-                    )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                    <InputField label="Display Order" type="number" value={formData.displayOrder ?? 0} onChange={(e: any) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 0 })} />
-                    <InputField label="Scale (Desktop %)" type="number" value={formData.scale ?? 100} onChange={(e: any) => setFormData({ ...formData, scale: parseInt(e.target.value) || 0 })} />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                    <InputField label="Scale (Mobile %)" type="number" value={formData.mobileScale ?? 100} onChange={(e: any) => setFormData({ ...formData, mobileScale: parseInt(e.target.value) || 0 })} />
-                    <InputField label="Spacing (px)" type="number" value={formData.spacing ?? 24} onChange={(e: any) => setFormData({ ...formData, spacing: parseInt(e.target.value) || 0 })} />
-                </div>
-
-                <div className="space-y-2">
-                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] block">Status</label>
-                    <select 
-                        className="w-full bg-white border border-slate-200 rounded-card px-5 py-3 text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all cursor-pointer"
-                        value={formData.active ? 'true' : 'false'}
-                        onChange={(e) => setFormData({ ...formData, active: e.target.value === 'true' })}
-                    >
-                        <option value="true">Active (Visible)</option>
-                        <option value="false">Inactive (Hidden)</option>
-                    </select>
-                </div>
-
-                <div className="flex gap-4 pt-4">
-                    <button onClick={onClose} className="flex-1 py-4 rounded-card font-extrabold text-xs uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-colors">Cancel</button>
-                    <button onClick={() => onSave(formData)} className="flex-1 py-4 rounded-card font-extrabold text-xs uppercase tracking-widest text-white bg-[#007ac2] shadow-lg shadow-blue-200 hover:bg-blue-800 transition-all">Save Changes</button>
                 </div>
             </div>
         </Modal>
@@ -4565,7 +4377,7 @@ export const AdminDashboard: React.FC = () => {
       case 'sitesettings': return <SiteSettingsContent />;
       case 'promotions': return <PromotionsContent />;
       case 'globallocations': return <LocationsAdmin />;
-      case 'homepagelogos': return <HomepageLogosContent />;
+      case 'homepagelogos': return <HomepageBrandsAdmin prepareImage={f => resizeImage(f, 800, 400)} imageUrl={getImageUrl} />;
       case 'searchinglogos': return <SearchingLogosContent />;
       case 'externalsuppliers': return <ExternalSuppliersPage />;
       default: return null;
