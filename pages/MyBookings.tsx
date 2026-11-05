@@ -51,10 +51,12 @@ const ease = [0.22, 1, 0.36, 1] as const;
 
 // ---------- helpers ----------
 
-type Status = 'confirmed' | 'pending' | 'cancelled' | 'completed' | 'modified';
+type Status = 'confirmed' | 'pending' | 'cancelled' | 'completed' | 'modified' | 'unpaid';
 const statusOf = (b: any): Status => {
   const s = String(b?.status || '').toLowerCase();
-  return (['confirmed', 'pending', 'cancelled', 'completed', 'modified'].includes(s) ? s : 'confirmed') as Status;
+  if (s === 'payment_pending') return 'unpaid';
+  // Never shown as confirmed unless it is.
+  return (['confirmed', 'pending', 'cancelled', 'completed', 'modified'].includes(s) ? s : 'unpaid') as Status;
 };
 const pickupOf = (b: any) => b.pickupDate || b.startDate;
 const dropoffOf = (b: any) => b.dropoffDate || b.endDate;
@@ -71,6 +73,7 @@ const STATUS_UI: Record<Status, { label: string; title: string; text: string; to
   modified: { label: 'Updated', title: 'Your booking was updated', text: 'Your latest changes are saved. Your voucher shows the new details.', tone: 'bg-sky-50 text-sky-800 ring-sky-200', icon: CheckCircle, bar: 'from-sky-500 to-[#007ac2]' },
   pending: { label: 'Awaiting confirmation', title: 'Waiting for the rental company', text: 'The supplier usually confirms within a few hours. We’ll email you as soon as it’s confirmed.', tone: 'bg-amber-50 text-amber-800 ring-amber-200', icon: Clock, bar: 'from-amber-400 to-orange-500' },
   cancelled: { label: 'Cancelled', title: 'This booking was cancelled', text: 'Nothing more is needed. Any refund goes back to your original payment method.', tone: 'bg-rose-50 text-rose-700 ring-rose-200', icon: XCircle, bar: 'from-rose-500 to-red-500' },
+  unpaid: { label: 'Not confirmed', title: 'Payment not completed', text: 'This booking is not confirmed because the payment did not go through. Please book again to reserve the car.', tone: 'bg-rose-50 text-rose-700 ring-rose-200', icon: CreditCard, bar: 'from-rose-500 to-red-500' },
   completed: { label: 'Completed', title: 'Trip completed', text: 'Thanks for renting with Hogicar. We hope you enjoyed the drive.', tone: 'bg-slate-100 text-slate-700 ring-slate-200', icon: CheckCircle, bar: 'from-slate-400 to-slate-500' },
 };
 
@@ -332,7 +335,7 @@ const BookingDetailView = ({ booking, email, onBookingModified, onBack, initialA
   const days = daysBetween(start, end);
   const now = new Date();
   const isPast = end ? end < now : false;
-  const active = status !== 'cancelled' && status !== 'completed' && !isPast;
+  const active = status !== 'cancelled' && status !== 'completed' && status !== 'unpaid' && !isPast;
   const daysToPickup = start ? Math.ceil((start.getTime() - now.getTime()) / 86400000) : null;
   const carName = [b.carMake, b.carModel].filter(Boolean).join(' ') || b.carName || 'Your car';
   const displayImage = imageError || !b.carImage ? null : b.carImage;
@@ -377,7 +380,7 @@ const BookingDetailView = ({ booking, email, onBookingModified, onBack, initialA
   const rise = (i: number) => ({ initial: { opacity: 0, y: reduce ? 0 : 18 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.55, ease, delay: 0.06 * i } });
 
   const actions = [
-    { key: 'voucher', icon: FileText, title: 'View voucher', text: 'Show it at the desk', to: `/voucher?bookingRef=${ref}`, show: status !== 'cancelled' },
+    { key: 'voucher', icon: FileText, title: 'View voucher', text: 'Show it at the desk', to: `/voucher?bookingRef=${ref}`, show: status !== 'cancelled' && status !== 'unpaid' },
     { key: 'modify', icon: Edit2, title: 'Change booking', text: pendingChange ? 'Request pending' : 'Dates, flight or phone', onClick: () => setChangeTab(pendingChange ? 'contact' : 'dates'), busy: false, show: active },
     { key: 'calendar', icon: CalendarPlus, title: 'Add to calendar', text: 'Pick-up reminder', href: ics, download: `hogicar-${ref}.ics`, show: active && !!ics },
     { key: 'review', icon: Star, title: 'Leave a review', text: 'Rate your rental', onClick: () => navigate(`/leave-review/${encodeURIComponent(String(ref))}`, { state: { email } }), show: (status === 'completed' || (isPast && status !== 'cancelled')) && !b.reviewSubmitted },
@@ -502,7 +505,7 @@ const BookingDetailView = ({ booking, email, onBookingModified, onBack, initialA
             </motion.ul>
           )}
 
-          {status !== 'cancelled' && <WalletStrip booking={b} />}
+          {status !== 'cancelled' && status !== 'unpaid' && <WalletStrip booking={b} />}
 
           {/* Trip */}
           <motion.section {...rise(3)} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
@@ -587,7 +590,9 @@ const BookingDetailView = ({ booking, email, onBookingModified, onBack, initialA
             <h2 className="text-base font-semibold text-slate-900">Payment</h2>
             <dl className="mt-2 divide-y divide-slate-100">
               <Row label="Total price" value={price(b.finalPrice ?? b.totalPrice)} strong />
-              {b.payNow != null && <Row label="Paid online" value={<span className="inline-flex items-center gap-1 text-emerald-700"><CheckCircle className="h-3.5 w-3.5" /> {price(b.payNow)}</span>} />}
+              {b.payNow != null && (status === 'unpaid'
+                ? <Row label="Due online (not paid)" value={<span className="text-rose-700">{price(b.payNow)}</span>} />
+                : <Row label="Paid online" value={<span className="inline-flex items-center gap-1 text-emerald-700"><CheckCircle className="h-3.5 w-3.5" /> {price(b.payNow)}</span>} />)}
               {b.payAtDesk != null && <Row label="Pay at pick-up" value={price(b.payAtDesk)} />}
               {Number(b.carDeposit) > 0 && <Row label="Security deposit" value={<span>{price(b.carDeposit)}<span className="block text-[11px] font-normal text-slate-500">Held on your card, then released</span></span>} />}
             </dl>

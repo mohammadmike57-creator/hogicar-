@@ -181,7 +181,7 @@ const Confirmation: React.FC = () => {
   return (
     <>
       <SEOMetadata
-        title={`Booking Confirmed: ${booking.bookingRef || booking.id} | Hogicar`}
+        title={`Booking ${booking.bookingRef || booking.id} | Hogicar`}
         description="Your car rental booking is confirmed. View your voucher and pickup details."
         noIndex={true}
       />
@@ -194,15 +194,31 @@ const Confirmation: React.FC = () => {
               </div>
           )}
           <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
-            <div className="p-8 text-center bg-green-50 border-b border-green-200">
-              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <h1 className="text-3xl font-extrabold text-slate-900">Booking Confirmed!</h1>
-              <p className="text-slate-600 mt-2">A confirmation email has been sent to <strong className="text-slate-800">{booking.email}</strong>.</p>
+            {(() => {
+              // The heading follows the booking's real status: "confirmed" only once it is.
+              const st = String(booking.status || '').toUpperCase();
+              const head = st === 'PAYMENT_PENDING'
+                ? { box: 'bg-rose-50 border-rose-200', icon: <AlertCircle className="w-16 h-16 text-rose-500 mx-auto mb-4" />, title: 'Payment not completed', text: <>Your booking is <strong>not confirmed</strong> because the payment did not go through. No confirmation has been sent. Please go back and complete the payment, or search again.</> }
+                : st === 'PENDING'
+                ? { box: 'bg-amber-50 border-amber-200', icon: <CheckCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />, title: 'Payment received, booking requested', text: <>The rental company is confirming your car now. We have emailed <strong className="text-slate-800">{booking.email}</strong> and will email your voucher as soon as it is confirmed.</> }
+                : st === 'CANCELLED'
+                ? { box: 'bg-slate-50 border-slate-200', icon: <AlertCircle className="w-16 h-16 text-slate-400 mx-auto mb-4" />, title: 'Booking cancelled', text: <>This booking has been cancelled.</> }
+                : { box: 'bg-green-50 border-green-200', icon: <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />, title: 'Booking Confirmed!', text: <>A confirmation email has been sent to <strong className="text-slate-800">{booking.email}</strong>.</> };
+              return (
+            <div className={`p-8 text-center border-b ${head.box}`}>
+              {head.icon}
+              <h1 className="text-3xl font-extrabold text-slate-900">{head.title}</h1>
+              <p className="text-slate-600 mt-2 max-w-xl mx-auto">{head.text}</p>
+              {st === 'PAYMENT_PENDING' && (
+                <button onClick={() => window.history.back()} className="mt-4 inline-flex h-11 items-center rounded-lg bg-accent px-5 text-sm font-semibold text-white hover:opacity-90">Back to payment</button>
+              )}
               <div className="mt-4 inline-block">
                 <p className="text-sm text-slate-500">Your Booking Reference:</p>
                 <p className="font-mono text-xl font-bold text-accent bg-accent/5 border border-accent/20 rounded-md px-4 py-2 mt-1">{booking.bookingRef || booking.id}</p>
               </div>
             </div>
+              );
+            })()}
 
             <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Car & Supplier */}
