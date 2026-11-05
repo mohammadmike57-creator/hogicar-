@@ -68,7 +68,6 @@ import { useCurrency } from '../contexts/CurrencyContext';
 import BookingStepper from '../components/BookingStepper';
 import { Logo } from '../components/Logo';
 import { calcPricing, rentalDays } from '../utils/pricing';
-import { supplierApi } from '../lib/api';
 import { persistSelectedCar } from '../utils/storage';
 import { loadCars } from '../utils/loadCars';
 import { apiCarsToCars } from '../utils/apiCarToCar';
