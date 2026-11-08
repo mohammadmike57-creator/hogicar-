@@ -212,8 +212,12 @@ export const lookupBooking = async (email: string, bookingRef: string): Promise<
   return response.data;
 };
 
-export const getBookingByRef = async (bookingRef: string): Promise<Booking> => {
-  const response = await publicAxios.get(`${API_BASE_URL}/api/bookings/ref/${encodeURIComponent(bookingRef)}`);
+/** "?k=..." for a booking link key (the key in the customer's own links shows the full booking). */
+export const keyQuery = (accessKey?: string | null, joiner: '?' | '&' = '?') =>
+  accessKey ? `${joiner}k=${encodeURIComponent(accessKey)}` : '';
+
+export const getBookingByRef = async (bookingRef: string, accessKey?: string | null): Promise<Booking> => {
+  const response = await publicAxios.get(`${API_BASE_URL}/api/bookings/ref/${encodeURIComponent(bookingRef)}${keyQuery(accessKey)}`);
   return response.data;
 };
 
@@ -256,13 +260,13 @@ export const createBooking = async (bookingData: any): Promise<Booking & { clien
   return response.data;
 };
 
-export const markBookingPaymentComplete = async (id: number, paymentIntentId: string): Promise<Booking> => {
-  const response = await publicAxios.post(`${API_BASE_URL}/api/bookings/${id}/payment-complete`, { paymentIntentId });
+export const markBookingPaymentComplete = async (id: number, paymentIntentId: string, accessKey?: string | null): Promise<Booking> => {
+  const response = await publicAxios.post(`${API_BASE_URL}/api/bookings/${id}/payment-complete${keyQuery(accessKey)}`, { paymentIntentId });
   return response.data;
 };
 
-export const refreshBookingPaymentIntent = async (id: number): Promise<Booking & { clientSecret?: string }> => {
-  const response = await publicAxios.post(`${API_BASE_URL}/api/bookings/${id}/payment-intent/refresh`);
+export const refreshBookingPaymentIntent = async (id: number, accessKey?: string | null): Promise<Booking & { clientSecret?: string }> => {
+  const response = await publicAxios.post(`${API_BASE_URL}/api/bookings/${id}/payment-intent/refresh${keyQuery(accessKey)}`);
   return response.data;
 };
 
@@ -271,15 +275,15 @@ export const fetchStripeConfig = async (): Promise<{ publishableKey: string }> =
   return response.data || { publishableKey: '' };
 };
 
-export const getGoogleWalletUrl = async (bookingRef: string): Promise<string> => {
-  const response = await publicAxios.get(`${API_BASE_URL}/api/vouchers/${encodeURIComponent(bookingRef)}/google-wallet-url`);
+export const getGoogleWalletUrl = async (bookingRef: string, accessKey?: string | null): Promise<string> => {
+  const response = await publicAxios.get(`${API_BASE_URL}/api/vouchers/${encodeURIComponent(bookingRef)}/google-wallet-url${keyQuery(accessKey)}`);
   const data = response.data;
   return typeof data === 'string' ? data : data?.url;
 };
 
 /** Signed Apple Wallet pass (.pkpass) for a booking. */
-export const appleWalletPassUrl = (bookingRef: string) =>
-  `${API_BASE_URL}/api/vouchers/${encodeURIComponent(bookingRef)}/apple-wallet`;
+export const appleWalletPassUrl = (bookingRef: string, accessKey?: string | null) =>
+  `${API_BASE_URL}/api/vouchers/${encodeURIComponent(bookingRef)}/apple-wallet${keyQuery(accessKey)}`;
 
 export type WalletStatus = { appleWallet: boolean; googleWallet: boolean };
 let walletStatusPromise: Promise<WalletStatus> | null = null;
@@ -416,6 +420,7 @@ export const api = {
   getPublicLocations,
   lookupBooking,
   getBookingByRef,
+  keyQuery,
   getBookingByToken,
   confirmBookingByToken,
   rejectBookingByToken,

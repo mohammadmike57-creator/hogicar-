@@ -52,8 +52,10 @@ const Voucher: React.FC = () => {
     let alive = true;
     (async () => {
       try {
-        const data = await api.getBookingByRef(bookingRef);
-        if (alive) setBooking(data);
+        const data: any = await api.getBookingByRef(bookingRef, searchParams.get('k'));
+        // Without the key from the customer's own link, the voucher (driver's details) is not shown.
+        if (alive && data?.detailsHidden) setError('For your privacy, please open your voucher from the link in your booking email, or find it in Manage booking.');
+        else if (alive) setBooking(data);
       } catch {
         if (alive) setError('We couldn’t find a voucher for this reference.');
       } finally {
@@ -64,7 +66,8 @@ const Voucher: React.FC = () => {
   }, [searchParams, navigate]);
 
   // Printing uses the A4 PDF voucher, so the printed copy is always the same professional document.
-  const pdfViewUrl = booking ? `${API_BASE_URL}/api/vouchers/${encodeURIComponent(booking.bookingRef || searchParams.get('bookingRef') || '')}/pdf?inline=true` : '';
+  const accessKey: string | null = booking?.accessKey || searchParams.get('k');
+  const pdfViewUrl = booking ? `${API_BASE_URL}/api/vouchers/${encodeURIComponent(booking.bookingRef || searchParams.get('bookingRef') || '')}/pdf?inline=true${api.keyQuery(accessKey, '&')}` : '';
   const printVoucher = React.useCallback(() => {
     if (!pdfViewUrl) { window.print(); return; }
     const w = window.open(pdfViewUrl, '_blank', 'noopener');
@@ -136,7 +139,7 @@ const Voucher: React.FC = () => {
   const downloadPdf = async () => {
     setPdfBusy(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/vouchers/${encodeURIComponent(ref)}/pdf`);
+      const res = await fetch(`${API_BASE_URL}/api/vouchers/${encodeURIComponent(ref)}/pdf${api.keyQuery(accessKey)}`);
       if (!res.ok) { showToast('We couldn’t prepare the PDF. Please try again.', 'err'); return; }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
@@ -258,7 +261,7 @@ const Voucher: React.FC = () => {
                     { Icon: ScanLine, t: 'QR ready at the desk' },
                   ].map(x => <li key={x.t} className="flex flex-col items-start gap-1.5 sm:flex-row sm:items-center sm:gap-2"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-[#0b2545]"><x.Icon className="h-3.5 w-3.5" /></span>{x.t}</li>)}
                 </ul>
-                <WalletButtons bookingRef={ref} status={booking.status} size="lg" className="mt-5 max-w-[520px]" onAvailability={onAvailability} />
+                <WalletButtons bookingRef={ref} accessKey={accessKey} status={booking.status} size="lg" className="mt-5 max-w-[520px]" onAvailability={onAvailability} />
               </div>
               <div className="hidden items-center gap-6 md:flex">
                 <WalletPassPreview booking={booking} />

@@ -314,6 +314,10 @@ export interface ApiSearchResult {
 
 
 export interface Booking {
+  /** Key for the customer's booking links (voucher, wallet passes); sent only to someone who proved access. */
+  accessKey?: string;
+  /** True when only the booking reference was known: personal details are shortened or left out. */
+  detailsHidden?: boolean;
   isHogicarChoiceBranded?: boolean;
   id: string | number;
   // FIX: Add optional 'bookingRef' property to align with API response and fix type errors.

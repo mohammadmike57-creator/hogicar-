@@ -79,8 +79,12 @@
       href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700;14..32,900&display=swap"
       rel="stylesheet"
       media="print"
-      onload="this.media='all'"
+      id="font-inter"
     />
+    <script>
+      (function(){var l=document.getElementById('font-inter');if(!l)return;var on=function(){l.media='all';};
+      if(l.sheet)on();else l.addEventListener('load',on);})();
+    </script>
     <noscript>
       <link
         href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700;14..32,900&display=swap"
@@ -89,12 +93,14 @@
     </noscript>
     <script>
       (function() {
+        // The page's nonce, passed on to Google Tag Manager so it may run under the strict script policy.
+        var nonce = (document.currentScript && (document.currentScript.nonce || document.currentScript.getAttribute('nonce'))) || '';
         window.loadGTM = function() {
           if (window.gtmLoaded) return;
           window.gtmLoaded = true;
           (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
           new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;if(nonce)j.setAttribute('nonce',nonce);j.src=
           'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
           })(window,document,'script','dataLayer','GTM-MHN6Q99H');
         };

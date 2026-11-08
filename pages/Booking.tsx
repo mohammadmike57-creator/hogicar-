@@ -493,7 +493,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
           const activeBooking = await ensureBookingDraft();
           if (priceDetails.payNow <= 0) {
             // For unpaid bookings, we still "finalize" it to trigger emails and update status
-            const finalized = await api.markBookingPaymentComplete(activeBooking.id, 'pay_at_desk');
+            const finalized = await api.markBookingPaymentComplete(activeBooking.id, 'pay_at_desk', activeBooking.accessKey);
             storeBookingAndGoToConfirmation(finalized);
             return;
           }
@@ -528,7 +528,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
             const paymentIntentStatus = paymentIntent?.status || '';
 
             if (paymentIntent?.id && paymentIntentStatus === 'succeeded') {
-              const completedBooking = await api.markBookingPaymentComplete(activeBooking.id, paymentIntent.id);
+              const completedBooking = await api.markBookingPaymentComplete(activeBooking.id, paymentIntent.id, activeBooking.accessKey);
               storeBookingAndGoToConfirmation(completedBooking);
               return;
             }
@@ -541,7 +541,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                 return;
               }
 
-              const refreshedBooking = await api.refreshBookingPaymentIntent(activeBooking.id);
+              const refreshedBooking = await api.refreshBookingPaymentIntent(activeBooking.id, activeBooking.accessKey);
               if (refreshedBooking.publishableKey && currentKey && refreshedBooking.publishableKey !== currentKey) {
                 sessionStorage.setItem('hogicar_last_stripe_key', refreshedBooking.publishableKey);
                 sessionStorage.removeItem('hogicar_pending_booking');
@@ -569,7 +569,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
 
           const paymentIntent = paymentResult.paymentIntent;
           if (paymentIntent && paymentIntent.status === 'succeeded') {
-              const completedBooking = await api.markBookingPaymentComplete(activeBooking.id, paymentIntent.id);
+              const completedBooking = await api.markBookingPaymentComplete(activeBooking.id, paymentIntent.id, activeBooking.accessKey);
               storeBookingAndGoToConfirmation(completedBooking);
           } else {
               // This is the CRITICAL FIX for the reported "bypass" issue.

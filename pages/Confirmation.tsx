@@ -84,7 +84,10 @@ const Confirmation: React.FC = () => {
       }
 
       try {
-        const data = await api.getBookingByRef(bookingRef);
+        // The key from this browser's own booking (or the email link) shows the driver's details.
+        const sameBooking = storedBooking && ((storedBooking as any).bookingRef === bookingRef || storedBooking.id == bookingRef);
+        const accessKey = searchParams.get('k') || (sameBooking ? (storedBooking as any).accessKey : null);
+        const data = await api.getBookingByRef(bookingRef, accessKey);
         setBooking(data);
         sessionStorage.setItem("hogicar_booking", JSON.stringify(data));
         
@@ -344,7 +347,7 @@ const Confirmation: React.FC = () => {
             </div>
 
             <div className="p-6 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link to={`/voucher?bookingRef=${booking.bookingRef || booking.id}`} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-accent hover:bg-accent-700 text-white font-black py-3.5 px-8 rounded-xl shadow-lg shadow-accent/10 transition-all active:scale-95 uppercase tracking-widest text-sm">
+              <Link to={`/voucher?bookingRef=${booking.bookingRef || booking.id}${api.keyQuery((booking as any).accessKey, '&')}`} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-accent hover:bg-accent-700 text-white font-black py-3.5 px-8 rounded-xl shadow-lg shadow-accent/10 transition-all active:scale-95 uppercase tracking-widest text-sm">
                 <FileText className="w-5 h-5"/> View Full Voucher
               </Link>
               <Link to="/my-bookings" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold py-3.5 px-8 rounded-xl shadow-sm transition-colors text-sm uppercase tracking-widest">

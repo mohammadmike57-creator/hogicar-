@@ -253,7 +253,7 @@ const WalletStrip: React.FC<{ booking: any }> = ({ booking }) => {
           <h2 className="mt-1 text-lg font-semibold">Your voucher, one tap away</h2>
           <p className="mt-0.5 text-sm text-sky-100/80">Add it to your phone’s wallet. It works offline at the desk.</p>
         </div>
-        <WalletButtons bookingRef={booking.bookingRef} status={booking.status} layout="stack" className="w-full shrink-0 sm:w-[230px]" onAvailability={onAvailability} />
+        <WalletButtons bookingRef={booking.bookingRef} accessKey={booking.accessKey} status={booking.status} layout="stack" className="w-full shrink-0 sm:w-[230px]" onAvailability={onAvailability} />
       </div>
     </section>
   );
@@ -380,7 +380,7 @@ const BookingDetailView = ({ booking, email, onBookingModified, onBack, initialA
   const rise = (i: number) => ({ initial: { opacity: 0, y: reduce ? 0 : 18 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.55, ease, delay: 0.06 * i } });
 
   const actions = [
-    { key: 'voucher', icon: FileText, title: 'View voucher', text: 'Show it at the desk', to: `/voucher?bookingRef=${ref}`, show: status !== 'cancelled' && status !== 'unpaid' },
+    { key: 'voucher', icon: FileText, title: 'View voucher', text: 'Show it at the desk', to: `/voucher?bookingRef=${ref}${api.keyQuery(b.accessKey, '&')}`, show: status !== 'cancelled' && status !== 'unpaid' },
     { key: 'modify', icon: Edit2, title: 'Change booking', text: pendingChange ? 'Request pending' : 'Dates, flight or phone', onClick: () => setChangeTab(pendingChange ? 'contact' : 'dates'), busy: false, show: active },
     { key: 'calendar', icon: CalendarPlus, title: 'Add to calendar', text: 'Pick-up reminder', href: ics, download: `hogicar-${ref}.ics`, show: active && !!ics },
     { key: 'review', icon: Star, title: 'Leave a review', text: 'Rate your rental', onClick: () => navigate(`/leave-review/${encodeURIComponent(String(ref))}`, { state: { email } }), show: (status === 'completed' || (isPast && status !== 'cancelled')) && !b.reviewSubmitted },

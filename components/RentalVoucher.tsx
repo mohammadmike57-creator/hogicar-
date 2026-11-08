@@ -145,7 +145,8 @@ export const RentalVoucher: React.FC<{ booking: VoucherBooking; audience?: Vouch
   const sameReturn = pickupName === dropoffName;
   const driver = [pick(b, 'firstName'), pick(b, 'lastName')].filter(Boolean).join(' ') || pick(b, 'customerName');
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.hogicar.com';
-  const voucherUrl = `${origin}/voucher?bookingRef=${encodeURIComponent(String(pick(b, 'bookingRef') || ''))}`;
+  const linkKey = pick(b, 'accessKey');
+  const voucherUrl = `${origin}/voucher?bookingRef=${encodeURIComponent(String(pick(b, 'bookingRef') || ''))}${linkKey ? `&k=${encodeURIComponent(String(linkKey))}` : ''}`;
   const issued = pick(b, 'createdAt', 'bookingDate');
   const payNow = Number(pick(b, 'payNow') ?? 0);
   const payAtDesk = Number(pick(b, 'payAtDesk') ?? 0);

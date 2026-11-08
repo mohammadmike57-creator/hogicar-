@@ -100,13 +100,15 @@ const messageOf = async (res: Response, fallback: string) => {
  */
 const WalletButtons: React.FC<{
   bookingRef: string;
+  /** The key from the customer's own booking link: the passes need it. */
+  accessKey?: string | null;
   status?: string;
   size?: 'md' | 'lg';
   layout?: 'row' | 'stack';
   className?: string;
   fallback?: React.ReactNode;
   onAvailability?: (available: boolean) => void;
-}> = ({ bookingRef, status, size = 'md', layout = 'row', className = '', fallback = null, onAvailability }) => {
+}> = ({ bookingRef, accessKey, status, size = 'md', layout = 'row', className = '', fallback = null, onAvailability }) => {
   const wallet = useWalletStatus();
   const platform = React.useMemo(walletPlatform, []);
   const [busy, setBusy] = React.useState<null | 'apple' | 'google'>(null);
@@ -134,7 +136,7 @@ const WalletButtons: React.FC<{
 
   const addApple = async () => {
     setError(null); setDone(null); setInfo(null);
-    const url = appleWalletPassUrl(bookingRef);
+    const url = appleWalletPassUrl(bookingRef, accessKey);
     if (platform === 'ios') {
       // Safari on iPhone opens the "Add pass" sheet when it navigates to a .pkpass.
       setBusy('apple');
@@ -161,7 +163,7 @@ const WalletButtons: React.FC<{
     const tab = mobile ? null : window.open('', '_blank');
     setBusy('google');
     try {
-      const url = await getGoogleWalletUrl(bookingRef);
+      const url = await getGoogleWalletUrl(bookingRef, accessKey);
       if (!url) throw new Error('no url');
       if (tab) { tab.location.href = url; setDone('Google Wallet opened in a new tab.'); }
       else window.location.href = url;

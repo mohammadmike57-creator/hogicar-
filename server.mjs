@@ -4,6 +4,7 @@ import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gzipSync, deflateSync, brotliCompressSync } from 'node:zlib';
+import { randomBytes } from 'node:crypto';
 import { handleAiAssistant, isAiConfigured } from './server/aiAssistant.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -49,7 +50,7 @@ const AFFILIATE_CSP = (process.env.AFFILIATE_CSP_SOURCES || 'https://*.dwin1.com
   .split(/\s+/).filter(src => /^(https:\/\/|http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$)[^\s;'"]*$/.test(src)).join(' ');
 
 const securityHeaders = {
-  'Content-Security-Policy': `upgrade-insecure-requests; default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com https://*.stripe.com https://*.clarity.ms https://*.doubleclick.net https://*.googleadservices.com https://*.google-analytics.com https://*.google.com ${AFFILIATE_CSP}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; img-src 'self' data: https: https://*.googletagmanager.com https://*.google-analytics.com https://*.doubleclick.net ${AFFILIATE_CSP}; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.googletagmanager.com https://*.stripe.com https://hogicar-backend.onrender.com https://*.clarity.ms https://*.google-analytics.com https://*.analytics.google.com https://*.doubleclick.net https://*.google.com https://*.googleadservices.com ${AFFILIATE_CSP}; frame-src 'self' https://*.stripe.com https://accounts.google.com ${AFFILIATE_CSP}; object-src 'none';`,
+  'Content-Security-Policy': `upgrade-insecure-requests; default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com https://*.stripe.com https://*.clarity.ms https://*.doubleclick.net https://*.googleadservices.com https://*.google-analytics.com https://*.google.com ${AFFILIATE_CSP}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; img-src 'self' data: https: https://*.googletagmanager.com https://*.google-analytics.com https://*.doubleclick.net ${AFFILIATE_CSP}; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.googletagmanager.com https://*.stripe.com https://hogicar-backend.onrender.com https://*.clarity.ms https://*.google-analytics.com https://*.analytics.google.com https://*.doubleclick.net https://*.google.com https://*.googleadservices.com ${AFFILIATE_CSP}; frame-src 'self' https://*.stripe.com https://accounts.google.com ${AFFILIATE_CSP}; object-src 'none'; base-uri 'self';`,
   'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'SAMEORIGIN',
@@ -66,9 +67,36 @@ function compress(data, encoding) {
   return data;
 }
 
+// Strict script policy: only scripts carrying this page's one-time nonce (and what they load) may run, so a
+// script injected into a page cannot. Browsers without nonce support fall back to 'unsafe-inline' https:.
+// It is sent as report-only (violations are logged by the backend, nothing is blocked) until
+// CSP_STRICT_SCRIPTS=enforce is set, after the reports show Google Tag Manager's tags all work with it.
+const strictScripts = (process.env.CSP_STRICT_SCRIPTS || 'report').toLowerCase();
+const strictScriptPolicy = nonce =>
+  `script-src 'nonce-${nonce}' 'strict-dynamic' 'unsafe-inline' https:; object-src 'none'; base-uri 'self'`;
+
+/** Adds a fresh nonce to the page's script tags and the matching policy headers. */
+function withScriptNonce(body, headers) {
+  const nonce = randomBytes(18).toString('base64');
+  const html = String(body)
+    .replace(/<script(?![^>]*\bnonce=)/gi, `<script nonce="${nonce}"`)
+    .replace(/<link(?![^>]*\bnonce=)([^>]*\brel=["']?modulepreload)/gi, `<link nonce="${nonce}"$1`);
+  if (strictScripts === 'enforce') {
+    headers['Content-Security-Policy'] = headers['Content-Security-Policy']
+      .replace(/script-src [^;]*;/, `${strictScriptPolicy(nonce).split(';')[0]};`);
+  } else if (strictScripts !== 'off') {
+    headers['Content-Security-Policy-Report-Only'] = `${strictScriptPolicy(nonce)}; report-uri /api/public/csp-report`;
+  }
+  return Buffer.from(html);
+}
+
 function send(res, status, body, headers = {}, req = null, filePath = null) {
   let finalBody = body;
   const finalHeaders = { ...securityHeaders, ...headers };
+  const isHtml = !!body && String(finalHeaders['Content-Type'] || '').startsWith('text/html');
+  if (isHtml) {
+    finalBody = withScriptNonce(body, finalHeaders);
+  }
 
   if (req && body && body.length > 1024) {
     const acceptEncoding = req.headers['accept-encoding'] || '';
@@ -79,11 +107,12 @@ function send(res, status, body, headers = {}, req = null, filePath = null) {
     else if (acceptEncoding.includes('deflate')) encoding = 'deflate';
 
     if (encoding) {
-      const cacheKey = filePath ? `${filePath}:${encoding}` : null;
+      // Pages carry a new nonce each time, so only other files use the compressed cache.
+      const cacheKey = filePath && !isHtml ? `${filePath}:${encoding}` : null;
       if (cacheKey && compressedCache.has(cacheKey)) {
         finalBody = compressedCache.get(cacheKey);
       } else {
-        finalBody = compress(body, encoding);
+        finalBody = compress(isHtml ? finalBody : body, encoding);
         if (cacheKey) compressedCache.set(cacheKey, finalBody);
       }
       finalHeaders['Content-Encoding'] = encoding;

@@ -22,7 +22,7 @@ const WalletPassPreview: React.FC<{ booking: any; className?: string }> = ({ boo
   const to = code(b.dropoffCode || b.pickupCode, b.dropoffLocationName || b.pickupLocationName);
   const driver = [b.firstName, b.lastName].filter(Boolean).join(' ') || 'Main driver';
   const car = [b.carMake, b.carModel].filter(Boolean).join(' ') || 'Rental car';
-  const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://www.hogicar.com'}/voucher?bookingRef=${encodeURIComponent(b.bookingRef || '')}`;
+  const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://www.hogicar.com'}/voucher?bookingRef=${encodeURIComponent(b.bookingRef || '')}${b.accessKey ? `&k=${encodeURIComponent(b.accessKey)}` : ''}`;
   return (
     <motion.div
       initial={{ rotate: -4, y: 12, opacity: 0 }}
