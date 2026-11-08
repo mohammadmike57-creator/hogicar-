@@ -97,6 +97,8 @@ function send(res, status, body, headers = {}, req = null, filePath = null) {
   res.end(finalBody);
 }
 
+const MAX_PROXY_BODY = 26 * 1024 * 1024;
+
 const proxySecret = (process.env.PROXY_SHARED_SECRET || '').length >= 16 ? process.env.PROXY_SHARED_SECRET : '';
 
 async function proxyToBackend(req, res, url) {
@@ -113,18 +115,41 @@ async function proxyToBackend(req, res, url) {
     headers.set('x-hogicar-proxy-key', proxySecret);
   }
   headers.set('accept-encoding', 'identity');
+  // Not supported by fetch (a request carrying it used to fail with a server error).
+  headers.delete('expect');
 
+  // Uploads are capped just above the backend's own 25 MB limit, so a huge request cannot fill the memory.
+  const declared = Number(req.headers['content-length'] || 0);
+  if (declared > MAX_PROXY_BODY) {
+    req.resume();
+    send(res, 413, 'Request too large', { 'Content-Type': contentTypes['.txt'], Connection: 'close' });
+    return;
+  }
   const chunks = [];
+  let size = 0;
   for await (const chunk of req) {
+    size += chunk.length;
+    if (size > MAX_PROXY_BODY) {
+      send(res, 413, 'Request too large', { 'Content-Type': contentTypes['.txt'], Connection: 'close' });
+      req.destroy();
+      return;
+    }
     chunks.push(chunk);
   }
 
-  const response = await fetch(target, {
-    method: req.method,
-    headers,
-    body: chunks.length ? Buffer.concat(chunks) : undefined,
-    redirect: 'manual'
-  });
+  let response;
+  try {
+    response = await fetch(target, {
+      method: req.method,
+      headers,
+      body: chunks.length ? Buffer.concat(chunks) : undefined,
+      redirect: 'manual'
+    });
+  } catch (error) {
+    console.error('[frontend-server] backend unreachable', error?.cause?.code || error?.message);
+    send(res, 502, 'Service temporarily unavailable', { 'Content-Type': contentTypes['.txt'] });
+    return;
+  }
 
   const responseHeaders = new Headers(response.headers);
   responseHeaders.delete('content-encoding');
