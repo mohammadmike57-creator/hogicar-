@@ -7,8 +7,10 @@ import './index.css';
 
 import ErrorBoundary from './components/ErrorBoundary';
 import { cleanReloadMarker, isChunkLoadError, reloadForNewVersion } from './utils/chunkReload';
+import { startErrorAlerts } from './lib/errorAlerts';
 
 cleanReloadMarker();
+startErrorAlerts();
 
 // Vite fires this when a page's JavaScript or CSS file can't be preloaded, which happens when
 // a new version was deployed while this tab was open. Reload to pick up the new build.

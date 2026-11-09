@@ -1,4 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { reportError } from '../lib/errorAlerts';
 import { isChunkLoadError, reloadForNewVersion } from '../utils/chunkReload';
 
 interface Props {
@@ -30,7 +31,9 @@ class ErrorBoundary extends Component<Props, State> {
     // A new version was deployed while the page was open: reload to get it.
     if (isChunkLoadError(error) && reloadForNewVersion()) {
       this.setState({ reloading: true });
+      return;
     }
+    reportError(error);
   }
 
   private handleReload = () => {

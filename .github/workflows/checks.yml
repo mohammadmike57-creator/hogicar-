@@ -1,0 +1,36 @@
+name: Checks
+
+# Type check and production build on each push and pull request. Render can wait for this to pass before
+# deploying (Settings > Build & Deploy > Auto-Deploy: "After CI Checks Pass").
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  website:
+    name: Website type check and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Type check
+        run: npx tsc --noEmit -p .
+      - name: Production build
+        run: npm run build
+      - name: Website server starts
+        run: node --check server.mjs
+      - name: No known vulnerable packages in production dependencies
+        run: npm audit --omit=dev --audit-level=high
