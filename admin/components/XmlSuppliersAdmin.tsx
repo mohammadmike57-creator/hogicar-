@@ -14,6 +14,13 @@ import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import Trash from 'lucide-react/dist/esm/icons/trash-2';
 import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
+import Building from 'lucide-react/dist/esm/icons/building-2';
+import Code from 'lucide-react/dist/esm/icons/code-xml';
+import Store from 'lucide-react/dist/esm/icons/store';
+import PauseCircle from 'lucide-react/dist/esm/icons/pause-circle';
+import Play from 'lucide-react/dist/esm/icons/play';
+import Gauge from 'lucide-react/dist/esm/icons/gauge';
+import Wallet from 'lucide-react/dist/esm/icons/wallet';
 import { adminFetch } from '../../lib/adminApi';
 import { Hero, heroButton, heroPrimary, Segmented, num, inputCls, Field, useToast, Toast, Drawer, ErrorBanner, Spinner, CopyButton, ago } from './commercialUi';
 
@@ -25,7 +32,11 @@ type Conn = {
   webhookUrl?: string; supplierId?: string; lastPingAt?: string; lastPingOk?: boolean | null; lastError?: string; encryptionReady?: boolean;
   protocol?: string; otaVersion?: string; otaNamespace?: string; urlTemplate?: string; username?: string; apiKeyHeader?: string; oauthTokenUrl?: string;
   signRequests?: boolean; signingHeaderPrefix?: string; hasSigningSecret?: boolean; customMapping?: string;
+  health?: Health;
 };
+type Health = { status: 'HEALTHY' | 'DEGRADED' | 'PAUSED' | 'TESTING' | 'UNKNOWN'; searches: number; successRate?: number | null; medianMs?: number | null;
+  p95Ms?: number | null; failuresInARow: number; pausedUntil?: string | null; lastError?: string | null; lastErrorAt?: string | null; lastOkAt?: string | null;
+  recent: { at: string; ok: boolean; ms: number; error?: string }[] };
 type Preset = { id: string; label: string; description: string; protocol: string; otaVersion?: string | null; urlTemplate?: string | null; authMode: string; customMapping?: string | null };
 
 const PROTOCOLS: Record<string, string> = {
@@ -85,6 +96,41 @@ const StatusDot: React.FC<{ c: Conn }> = ({ c }) => (
   </span>
 );
 
+const HEALTH: Record<string, { label: string; cls: string; dot: string }> = {
+  HEALTHY: { label: 'Healthy', cls: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20', dot: 'bg-emerald-500' },
+  DEGRADED: { label: 'Errors', cls: 'bg-amber-50 text-amber-800 ring-amber-600/20', dot: 'bg-amber-500' },
+  TESTING: { label: 'Recovering', cls: 'bg-sky-50 text-sky-800 ring-sky-600/20', dot: 'bg-sky-500' },
+  PAUSED: { label: 'Paused', cls: 'bg-rose-50 text-rose-700 ring-rose-600/20', dot: 'bg-rose-500' },
+  UNKNOWN: { label: 'No searches yet', cls: 'bg-slate-50 text-slate-600 ring-slate-500/20', dot: 'bg-slate-300' },
+};
+const HealthBadge: React.FC<{ h?: Health }> = ({ h }) => {
+  const t = HEALTH[h?.status || 'UNKNOWN'];
+  return <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-semibold ring-1 ring-inset ${t.cls}`}><span className={`h-1.5 w-1.5 rounded-full ${t.dot}`} />{t.label}</span>;
+};
+/** The latest searches, oldest on the left: green answered (taller = slower), red failed. */
+const SearchStrip: React.FC<{ h?: Health; slots?: number }> = ({ h, slots = 20 }) => {
+  const recent = [...(h?.recent || [])].reverse().slice(-slots);
+  const max = Math.max(800, ...recent.map(r => r.ms));
+  return (
+    <div className="flex h-8 items-end gap-[3px]" aria-label={`Last ${recent.length} searches`}>
+      {Array.from({ length: slots - recent.length }).map((_, i) => <span key={`e${i}`} className="h-1.5 flex-1 rounded-sm bg-slate-100" />)}
+      {recent.map((r, i) => (
+        <span key={i} title={`${new Date(r.at).toLocaleTimeString()} · ${r.ok ? `${r.ms} ms` : r.error}`}
+          className={`flex-1 rounded-sm ${r.ok ? 'bg-emerald-400' : 'bg-rose-400'}`} style={{ height: `${r.ok ? Math.max(18, Math.round((r.ms / max) * 100)) : 100}%` }} />
+      ))}
+    </div>
+  );
+};
+const fmtMs = (ms?: number | null) => ms == null ? '—' : ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${ms} ms`;
+const fmtRate = (r?: number | null) => r == null ? '—' : `${r % 1 === 0 ? r.toFixed(0) : r.toFixed(1)}%`;
+const panelCls = 'space-y-4 rounded-2xl bg-white p-5 ring-1 ring-slate-200';
+const PanelHead: React.FC<{ icon?: any; title: string; text?: string }> = ({ icon: Icon, title, text }) => (
+  <div className="flex items-start gap-3">
+    {Icon && <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><Icon className="h-4 w-4" /></span>}
+    <div><h3 className="text-sm font-semibold text-slate-900">{title}</h3>{text && <p className="mt-0.5 text-xs text-slate-500">{text}</p>}</div>
+  </div>
+);
+
 const statusTone = (s?: string) => ({
   CONFIRMED: 'bg-emerald-50 text-emerald-700', PENDING: 'bg-amber-50 text-amber-800', IN_PROGRESS: 'bg-sky-50 text-sky-800',
   COMPLETED: 'bg-slate-100 text-slate-700', CANCELLED: 'bg-rose-50 text-rose-700', NO_SHOW: 'bg-rose-50 text-rose-700', FAILED: 'bg-rose-100 text-rose-800',
@@ -123,16 +169,16 @@ const ConnectionForm: React.FC<{ initial?: Conn | null; busy: boolean; onSave: (
     onSave(body);
   };
   return (
-    <div className="space-y-6">
-      <section className="space-y-3">
-        <h3 className="text-sm font-semibold text-slate-900">Supplier</h3>
+    <div className="space-y-4">
+      <section className={panelCls}>
+        <PanelHead icon={Building} title="Supplier" text="How the company appears to customers." />
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label="Name customers see"><input className={inputCls} value={v.name} onChange={e => set('name', e.target.value)} placeholder="UR-Drive" /></Field>
           <Field label="Logo link (optional)"><input className={inputCls} value={v.logoUrl} onChange={e => set('logoUrl', e.target.value)} placeholder="https://…/logo.png" /></Field>
         </div>
       </section>
-      <section className="space-y-3">
-        <h3 className="text-sm font-semibold text-slate-900">Message format</h3>
+      <section className={panelCls}>
+        <PanelHead icon={Code} title="Message format" text="Pick the style from their integration guide; every value can still be changed." />
         {presets.length > 0 && (
           <div className="grid gap-2 sm:grid-cols-2">
             {presets.map(p => {
@@ -204,8 +250,8 @@ const ConnectionForm: React.FC<{ initial?: Conn | null; busy: boolean; onSave: (
           </div>
         </div>
       </section>
-      <section className="space-y-3">
-        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-900"><KeyRound className="h-4 w-4 text-slate-400" /> Sign-in</h3>
+      <section className={panelCls}>
+        <PanelHead icon={KeyRound} title="Sign-in" text="How Hogicar proves who it is. Secrets are stored encrypted and never shown again." />
         <div className="grid gap-3 sm:grid-cols-[14rem_minmax(0,1fr)]">
           <Field label="Method">
             <select className={inputCls} value={v.authMode} onChange={e => set('authMode', e.target.value)}>
@@ -255,12 +301,12 @@ const ConnectionForm: React.FC<{ initial?: Conn | null; busy: boolean; onSave: (
           </div>
         )}
       </section>
-      <section className="space-y-3">
-        <h3 className="text-sm font-semibold text-slate-900">Selling</h3>
+      <section className={panelCls}>
+        <PanelHead icon={Store} title="Selling" text="Where their cars are sold and how customers pay." />
         <div className="grid gap-3 sm:grid-cols-3">
           <Field label="Locations they serve" hint="Codes, comma separated"><input className={`${inputCls} font-mono uppercase`} value={v.locationCodes} onChange={e => set('locationCodes', e.target.value.toUpperCase())} placeholder="AMM" /></Field>
           <Field label="Driver age in searches"><input type="number" className={inputCls} value={v.defaultDriverAge} onChange={e => set('defaultDriverAge', e.target.value)} /></Field>
-          <Field label="Hogicar commission %" hint="Invoiced to them; customers pay their price"><input type="number" step="0.1" className={inputCls} value={v.commissionPercent} onChange={e => set('commissionPercent', e.target.value)} /></Field>
+          <Field label="Hogicar commission %" hint="Paid online by the customer; the rest at the counter"><input type="number" step="0.1" className={inputCls} value={v.commissionPercent} onChange={e => set('commissionPercent', e.target.value)} /></Field>
         </div>
         <div className="grid gap-3 sm:grid-cols-[12rem_minmax(0,1fr)]">
           <Field label="Pick-up type">
@@ -279,8 +325,8 @@ const ConnectionForm: React.FC<{ initial?: Conn | null; busy: boolean; onSave: (
           <input className={`${inputCls} font-mono uppercase`} value={v.replacesVendorCodes} onChange={e => set('replacesVendorCodes', e.target.value.toUpperCase())} placeholder="URDRIVEJO" />
         </Field>
       </section>
-      <section className="space-y-3">
-        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-900"><Webhook className="h-4 w-4 text-slate-400" /> Status updates (webhooks)</h3>
+      <section className={panelCls}>
+        <PanelHead icon={Webhook} title="Status updates (webhooks)" text="Cancellations, pick-ups and no-shows from their counter, verified with a shared secret." />
         <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_10rem]">
           <Field label={initial?.hasWebhookSecret ? 'New signing secret (leave empty to keep)' : 'Signing secret'}>
             <input type="password" autoComplete="new-password" className={`${inputCls} font-mono`} value={v.webhookSecret} onChange={e => set('webhookSecret', e.target.value)} placeholder={initial?.hasWebhookSecret ? '•••••••• saved' : 'From the supplier'} />
@@ -331,6 +377,11 @@ const XmlSuppliersAdmin: React.FC = () => {
     catch (e: any) { setError(errorText(e, 'Connections could not be loaded.')); setList(l => l ?? []); }
   }, []);
   React.useEffect(() => { load(); }, [load]);
+  // Health figures change with every customer search: refresh quietly while the page is open.
+  React.useEffect(() => {
+    const t = window.setInterval(() => { if (document.visibilityState === 'visible') load(); }, 30000);
+    return () => window.clearInterval(t);
+  }, [load]);
 
   const open = (list || []).find(c => c.id === openId) || null;
   React.useEffect(() => {
@@ -352,6 +403,11 @@ const XmlSuppliersAdmin: React.FC = () => {
       await load();
     } catch (e: any) { notify(errorText(e, 'The check failed.'), 'err'); }
     finally { setPinging(null); }
+  };
+
+  const resume = async (c: Conn) => {
+    try { await adminFetch(`/api/admin/xml-suppliers/${c.id}/resume`, { method: 'POST' }); notify(`${c.name} is back in search`); await load(); }
+    catch (e: any) { notify(errorText(e, 'Could not resume.'), 'err'); }
   };
 
   const save = async (body: any, id?: number) => {
@@ -392,6 +448,7 @@ const XmlSuppliersAdmin: React.FC = () => {
   const items = list || [];
   const live = items.filter(c => c.active).length;
   const failing = items.filter(c => c.lastPingOk === false).length;
+  const paused = items.filter(c => c.health?.status === 'PAUSED').length;
 
   const checklist = (c: Conn) => [
     { done: !!c.baseUrl, label: 'Address and format set', hint: c.baseUrl ? `${formatLine(c)} · ${c.baseUrl}` : 'Add the address from their guide' },
@@ -417,7 +474,7 @@ const XmlSuppliersAdmin: React.FC = () => {
           { label: 'Connections', value: num(items.length), Icon: Plug },
           { label: 'Live in search', value: num(live), Icon: Search },
           { label: 'In production', value: num(items.filter(c => c.environment === 'PRODUCTION').length), Icon: ShieldCheck, note: `${num(items.length - items.filter(c => c.environment === 'PRODUCTION').length)} in sandbox` },
-          { label: 'Failed last check', value: num(failing), Icon: Activity, note: failing ? 'Open the request log' : 'All good' },
+          { label: 'Needs attention', value: num(failing + paused), Icon: Activity, note: paused ? `${num(paused)} paused automatically` : failing ? 'Connection check failed' : 'All good' },
         ]}
       />
       {error && <ErrorBanner text={error} onRetry={load} />}
@@ -432,30 +489,42 @@ const XmlSuppliersAdmin: React.FC = () => {
       ) : (
         <div className="grid gap-4 lg:grid-cols-2">
           {items.map(c => (
-            <div key={c.id} className="flex flex-col rounded-2xl bg-white p-5 ring-1 ring-slate-200">
-              <div className="flex items-start gap-3">
+            <div key={c.id} className="group flex flex-col rounded-2xl bg-white ring-1 ring-slate-200 transition hover:shadow-md hover:ring-slate-300">
+              <div className="flex items-start gap-3 p-5 pb-4">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-900 text-sm font-bold text-white">
                   {c.logoUrl ? <img src={c.logoUrl} alt="" className="h-full w-full bg-white object-contain p-1" /> : c.name.slice(0, 2).toUpperCase()}
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2"><p className="truncate text-base font-semibold text-slate-900">{c.name}</p><EnvPill env={c.environment} /></div>
-                  <p className="mt-0.5 font-mono text-xs text-slate-500">{c.channelCode || '—'} → {c.supplierCode || '—'} · {formatLine(c)}</p>
+                  <p className="mt-0.5 truncate text-xs text-slate-500"><span className="font-mono">{c.channelCode || '—'} → {c.supplierCode || '—'}</span> · {formatLine(c)}</p>
                 </div>
                 <StatusDot c={c} />
               </div>
-              <div className="mt-4 flex flex-wrap items-center gap-1.5">
-                {(c.locationCodes || '').split(',').filter(Boolean).map(l => <span key={l} className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 font-mono text-xs font-semibold text-slate-700"><MapPin className="h-3 w-3" />{l}</span>)}
-                {!c.locationCodes && <span className="text-xs text-slate-400">No locations yet</span>}
+              <div className="grid grid-cols-3 divide-x divide-slate-100 border-y border-slate-100 bg-slate-50/60">
+                {[['Health', <HealthBadge key="h" h={c.health} />], ['Success', fmtRate(c.health?.successRate)], ['Typical answer', fmtMs(c.health?.medianMs)]].map(([k, v]) => (
+                  <div key={k as string} className="min-w-0 px-4 py-3"><p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">{k}</p><div className="mt-1 truncate text-sm font-semibold text-slate-900">{v}</div></div>
+                ))}
               </div>
-              <div className={`mt-4 flex items-center gap-2 rounded-xl px-3 py-2 text-xs ${c.lastPingOk === false ? 'bg-rose-50 text-rose-800' : c.lastPingOk ? 'bg-emerald-50 text-emerald-800' : 'bg-slate-50 text-slate-500'}`}>
-                {c.lastPingOk === false ? <XCircle className="h-4 w-4 shrink-0" /> : c.lastPingOk ? <CheckCircle className="h-4 w-4 shrink-0" /> : <Circle className="h-4 w-4 shrink-0" />}
-                <span className="truncate">{c.lastPingAt ? `${c.lastPingOk ? 'Connected' : 'Failed'} ${ago(c.lastPingAt)}${c.lastError ? ` · ${c.lastError}` : ''}` : 'Not checked yet'}</span>
-              </div>
-              <div className="mt-4 flex gap-2">
-                <button onClick={() => ping(c)} disabled={pinging === c.id} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl text-sm font-semibold text-slate-700 ring-1 ring-inset ring-slate-200 hover:bg-slate-50 disabled:opacity-60">
-                  {pinging === c.id ? <Spinner /> : <Activity className="h-4 w-4" />} Test connection
-                </button>
-                <button onClick={() => { setOpenId(c.id); setTab('overview'); }} className="inline-flex h-10 flex-1 items-center justify-center rounded-xl bg-slate-900 text-sm font-semibold text-white hover:bg-slate-800">Open</button>
+              <div className="space-y-3 p-5 pt-4">
+                <div>
+                  <div className="mb-1.5 flex items-center justify-between text-[11px] text-slate-400"><span>Last searches</span><span>{c.health?.searches ? `${c.health.searches} recorded` : 'none yet'}</span></div>
+                  <SearchStrip h={c.health} />
+                </div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {(c.locationCodes || '').split(',').filter(Boolean).map(l => <span key={l} className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 font-mono text-xs font-semibold text-slate-700"><MapPin className="h-3 w-3" />{l}</span>)}
+                  {!c.locationCodes && <span className="text-xs text-slate-400">No locations yet</span>}
+                  <span className="ml-auto text-xs text-slate-500">{Number(c.commissionPercent || 0)}% online · rest at counter</span>
+                </div>
+                <div className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs ${c.health?.status === 'PAUSED' ? 'bg-rose-50 text-rose-800' : c.lastPingOk === false ? 'bg-rose-50 text-rose-800' : c.lastPingOk ? 'bg-emerald-50 text-emerald-800' : 'bg-slate-50 text-slate-500'}`}>
+                  {c.health?.status === 'PAUSED' ? <PauseCircle className="h-4 w-4 shrink-0" /> : c.lastPingOk === false ? <XCircle className="h-4 w-4 shrink-0" /> : c.lastPingOk ? <CheckCircle className="h-4 w-4 shrink-0" /> : <Circle className="h-4 w-4 shrink-0" />}
+                  <span className="truncate">{c.health?.status === 'PAUSED' ? `Left out of search until ${new Date(c.health.pausedUntil!).toLocaleTimeString()} · ${c.health.lastError || ''}` : c.lastPingAt ? `Connection check ${c.lastPingOk ? 'passed' : 'failed'} ${ago(c.lastPingAt)}${c.lastError ? ` · ${c.lastError}` : ''}` : 'Connection not checked yet'}</span>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => ping(c)} disabled={pinging === c.id} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl text-sm font-semibold text-slate-700 ring-1 ring-inset ring-slate-200 hover:bg-slate-50 disabled:opacity-60">
+                    {pinging === c.id ? <Spinner /> : <Activity className="h-4 w-4" />} Test connection
+                  </button>
+                  <button onClick={() => { setOpenId(c.id); setTab('overview'); }} className="inline-flex h-10 flex-1 items-center justify-center rounded-xl bg-slate-900 text-sm font-semibold text-white hover:bg-slate-800">Open</button>
+                </div>
               </div>
             </div>
           ))}
@@ -476,39 +545,75 @@ const XmlSuppliersAdmin: React.FC = () => {
             headerExtra={<div className="pb-3"><Segmented layoutId="xml-tab" value={tab} onChange={setTab} items={[
               { key: 'overview', label: 'Overview' }, { key: 'search', label: 'Test search' }, { key: 'bookings', label: 'Bookings' },
               { key: 'log', label: 'Request log' }, { key: 'settings', label: 'Settings' }]} /></div>}>
-            {tab === 'overview' && (
-              <div className="space-y-5">
+            {tab === 'overview' && (() => {
+              const h = open.health;
+              const pct = Number(open.commissionPercent || 0);
+              const example = 100;
+              const online = Math.round(example * pct) / 100;
+              return (
+              <div className="space-y-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <EnvPill env={open.environment} /><StatusDot c={open} />
+                  <EnvPill env={open.environment} /><StatusDot c={open} /><HealthBadge h={h} />
+                  <span className="text-xs text-slate-500">{formatLine(open)}</span>
                   <button onClick={() => ping(open)} disabled={pinging === open.id} className="ml-auto inline-flex h-10 items-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white disabled:opacity-60">{pinging === open.id ? <Spinner light /> : <Activity className="h-4 w-4" />} Test connection</button>
                 </div>
-                <div className="rounded-2xl bg-white ring-1 ring-slate-200">
-                  <p className="border-b border-slate-100 px-5 py-3 text-sm font-semibold text-slate-900">Go-live checklist</p>
-                  <ul className="divide-y divide-slate-100">
-                    {checklist(open).map(i => (
-                      <li key={i.label} className="flex items-start gap-3 px-5 py-3">
-                        {i.done ? <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" /> : <Circle className="mt-0.5 h-5 w-5 shrink-0 text-slate-300" />}
-                        <span className="min-w-0"><span className="block text-sm font-medium text-slate-900">{i.label}</span><span className="block break-words text-xs text-slate-500">{i.hint}</span></span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="rounded-2xl bg-white p-5 ring-1 ring-slate-200">
-                  <p className="text-sm font-semibold text-slate-900">Your webhook address</p>
-                  <p className="mt-0.5 text-xs text-slate-500">Send this to the supplier ("Your HTTPS webhook URL"). Events must be signed with the secret; older than 5 minutes, wrongly signed or repeated events are refused.</p>
-                  <div className="mt-3 flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 ring-1 ring-slate-200">
-                    <code className="min-w-0 flex-1 truncate text-xs text-slate-800">{open.webhookUrl}</code>
-                    <CopyButton text={open.webhookUrl || ''} label="Copy" className="h-8 px-2 text-slate-700 hover:bg-white" onCopied={() => notify('Webhook address copied')} />
+
+                {h?.status === 'PAUSED' && (
+                  <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-rose-50 p-4 ring-1 ring-rose-200">
+                    <PauseCircle className="h-5 w-5 shrink-0 text-rose-600" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-rose-900">Paused: left out of search until {new Date(h.pausedUntil!).toLocaleTimeString()}</p>
+                      <p className="text-xs text-rose-800">{h.failuresInARow} failed searches in a row{h.lastError ? ` · ${h.lastError}` : ''}. Customers are not kept waiting; one test search runs when the pause ends. Bookings and cancellations still go through.</p>
+                    </div>
+                    <button onClick={() => resume(open)} className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-white px-3 text-sm font-semibold text-rose-700 ring-1 ring-inset ring-rose-200 hover:bg-rose-100"><Play className="h-4 w-4" /> Resume now</button>
                   </div>
+                )}
+
+                <div className={panelCls}>
+                  <PanelHead icon={Gauge} title="Search health" text="How their system answered the latest customer searches (since the server last started)." />
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    {[['Success rate', fmtRate(h?.successRate)], ['Typical answer', fmtMs(h?.medianMs)], ['Slowest 5%', fmtMs(h?.p95Ms)], ['Searches', String(h?.searches ?? 0)]].map(([k, v]) => (
+                      <div key={k} className="rounded-xl bg-slate-50 px-3 py-2.5"><p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">{k}</p><p className="mt-0.5 text-lg font-semibold text-slate-900">{v}</p></div>
+                    ))}
+                  </div>
+                  <SearchStrip h={h} slots={40} />
+                  <p className="text-xs text-slate-500">{h?.lastError ? <>Last error {h.lastErrorAt ? ago(h.lastErrorAt) : ''}: <span className="font-mono text-slate-700">{h.lastError}</span>. </> : null}After 3 failed searches in a row the supplier is paused automatically (1 minute, doubling up to 15), so a supplier that is down never slows the site.</p>
                 </div>
-                <div className="grid gap-3 sm:grid-cols-3">
-                  {[['Payment', 'Customer pays at the counter'], ['Price shown', 'Their price, nothing added'], ['Commission', `${open.commissionPercent ?? 0}% invoiced to them`]].map(([k, val]) => (
-                    <div key={k} className="rounded-2xl bg-white p-4 ring-1 ring-slate-200"><p className="text-xs text-slate-500">{k}</p><p className="mt-1 text-sm font-semibold text-slate-900">{val}</p></div>
-                  ))}
+
+                <div className={panelCls}>
+                  <PanelHead icon={Wallet} title="How customers pay" text="The price customers see is the supplier's own price. Hogicar's commission is paid online; the rest at the counter." />
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    {[['Customer sees', money(example, open.currency), 'Supplier price, unchanged'], ['Pays online to Hogicar', money(online, open.currency), `${pct}% commission`], ['Pays at the counter', money(example - online, open.currency), 'Written on the booking sent to them']].map(([k, v, n]) => (
+                      <div key={k} className="rounded-xl bg-slate-50 px-3 py-2.5"><p className="text-xs text-slate-500">{k}</p><p className="mt-0.5 text-lg font-semibold text-slate-900">{v}</p><p className="text-[11px] text-slate-400">{n}</p></div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-slate-500">Example for a {money(example, open.currency)} rental. Every booking tells the supplier the amount prepaid to Hogicar and the amount to collect.{pct <= 0 ? ' With 0% commission nothing is paid online, so these cars cannot be booked on the website.' : ''}</p>
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+                  <div className="rounded-2xl bg-white ring-1 ring-slate-200">
+                    <p className="border-b border-slate-100 px-5 py-3 text-sm font-semibold text-slate-900">Go-live checklist <span className="ml-1 text-xs font-normal text-slate-500">{checklist(open).filter(i => i.done).length}/{checklist(open).length}</span></p>
+                    <ul className="divide-y divide-slate-100">
+                      {checklist(open).map(i => (
+                        <li key={i.label} className="flex items-start gap-3 px-5 py-3">
+                          {i.done ? <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" /> : <Circle className="mt-0.5 h-5 w-5 shrink-0 text-slate-300" />}
+                          <span className="min-w-0"><span className="block text-sm font-medium text-slate-900">{i.label}</span><span className="block break-words text-xs text-slate-500">{i.hint}</span></span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className={`${panelCls} self-start`}>
+                    <PanelHead icon={Webhook} title="Your webhook address" text={'Send this to the supplier ("Your HTTPS webhook URL"). Events must be signed with the secret; old, wrongly signed or repeated events are refused.'} />
+                    <div className="flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 ring-1 ring-slate-200">
+                      <code className="min-w-0 flex-1 truncate text-xs text-slate-800">{open.webhookUrl}</code>
+                      <CopyButton text={open.webhookUrl || ''} label="Copy" className="h-8 px-2 text-slate-700 hover:bg-white" onCopied={() => notify('Webhook address copied')} />
+                    </div>
+                  </div>
                 </div>
                 {!open.encryptionReady && <ErrorBanner text="The server has no encryption key (AFFILIATE_MASTER_ENCRYPTION_KEY), so API keys can't be saved yet." onRetry={load} />}
               </div>
-            )}
+              );
+            })()}
 
             {tab === 'search' && (
               <div className="space-y-4">
