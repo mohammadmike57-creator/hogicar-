@@ -63,7 +63,6 @@ const Badge: React.FC<{
       whileTap={{ scale: 0.97 }}
       onClick={onClick}
       disabled={disabled}
-      aria-label={`Add to ${label}`}
       aria-busy={busy}
       className={`group relative inline-flex w-full items-center justify-center gap-3 overflow-hidden bg-black text-left text-white shadow-[0_8px_20px_-8px_rgba(0,0,0,0.55)] ring-1 ring-black transition hover:bg-[#111] focus:outline-none focus-visible:ring-4 focus-visible:ring-accent/40 disabled:cursor-wait ${size === 'lg' ? 'h-14 rounded-2xl px-5' : 'h-12 rounded-xl px-4'} ${kind === 'google' ? 'sm:rounded-full' : ''}`}
     >
@@ -72,7 +71,7 @@ const Badge: React.FC<{
         {busy ? <Spinner /> : kind === 'apple' ? <AppleWalletIcon /> : <GoogleWalletIcon />}
       </span>
       <span className="flex flex-col leading-none">
-        <span className="text-[11px] font-medium text-white/80">{busy ? 'Preparing your pass…' : 'Add to'}</span>
+        <span className="text-[11px] font-medium text-white/80">{busy ? 'Preparing your pass…' : 'Add to'}</span>{' '}
         <span className={`mt-0.5 font-semibold tracking-tight ${size === 'lg' ? 'text-[19px]' : 'text-[17px]'}`}>{label}</span>
       </span>
     </motion.button>

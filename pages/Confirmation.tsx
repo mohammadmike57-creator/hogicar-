@@ -23,6 +23,7 @@ import BookingStepper from '../components/BookingStepper';
 import { Logo } from '../components/Logo';
 import { api } from '../api';
 import { fireConversionTags } from '../utils/affiliateTracking';
+import { cleanCarName, carNameOf } from '../utils/carName';
 
 const Confirmation: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -143,8 +144,8 @@ const Confirmation: React.FC = () => {
 
   // Use car details from booking object (which we just added to backend)
   const carDisplay = {
-    make: booking.carMake || storedCar?.make || "Vehicle",
-    model: booking.carModel || booking.carName || storedCar?.model || "Rental",
+    make: cleanCarName(booking.carMake || storedCar?.make) || "Vehicle",
+    model: cleanCarName(booking.carModel || booking.carName || storedCar?.model) || "Rental",
     category: booking.carCategory || storedCar?.category || "Standard",
     image: booking.carImage || storedCar?.image || (storedCar as any)?.imageUrl || 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle',
     location: storedCar?.location || booking.pickupCode || "Airport",
@@ -227,7 +228,7 @@ const Confirmation: React.FC = () => {
               {/* Car & Supplier */}
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Vehicle Details</h3>
+                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Vehicle Details</h3>
                   <div className="flex flex-col sm:flex-row items-center gap-6">
                     <div className="w-full sm:w-48 h-32 bg-white rounded-xl border border-slate-100 p-2 flex items-center justify-center shrink-0">
                       <img 
@@ -245,9 +246,9 @@ const Confirmation: React.FC = () => {
                     </div>
                     <div className="flex flex-col">
                       <div className="flex items-center gap-2">
-                        <p className="font-bold text-slate-800 text-lg uppercase">{carDisplay.make} {carDisplay.model}</p>
+                        <p className="font-bold text-slate-800 text-lg">{carNameOf(carDisplay.make, carDisplay.model)}</p>
                         {(!booking.bookingMode || booking.bookingMode === 'FREE_SALE') && (
-                          <div className="flex items-center gap-1 bg-accent/5 text-accent px-2 py-0.5 rounded text-[10px] font-black uppercase border border-accent/10 shadow-sm">
+                          <div className="flex items-center gap-1 bg-accent/5 text-accent-700 px-2 py-0.5 rounded text-[10px] font-black uppercase border border-accent/10 shadow-sm">
                              <Zap className="w-2.5 h-2.5 fill-accent/20" />
                              Instant
                           </div>
@@ -275,7 +276,7 @@ const Confirmation: React.FC = () => {
                 </div>
                 {!booking.isHogicarChoiceBranded || booking.supplierName === 'Hogi Car Choice' ? (
                   <div>
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{booking.supplierName === 'Hogi Car Choice' ? 'Service Level' : 'Rental Provider'}</h3>
+                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">{booking.supplierName === 'Hogi Car Choice' ? 'Service Level' : 'Rental Provider'}</h3>
                     <div className="flex items-center gap-3">
                        {booking.supplierLogoUrl === 'HOGICAR_CHOICE_LOGO' ? (
                           <Logo className="h-6 w-auto max-w-[100px]" />
@@ -287,7 +288,7 @@ const Confirmation: React.FC = () => {
                   </div>
                 ) : (
                   <div>
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Service Level</h3>
+                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Service Level</h3>
                     <div className="flex items-center gap-3">
                        <div className="p-1.5 bg-[#003580] rounded-lg border border-amber-400"><Award className="w-5 h-5 text-amber-400 fill-amber-400/20" /></div>
                        <p className="font-bold text-slate-900 tracking-tight uppercase">Hogicar Choice Exclusive</p>
@@ -299,7 +300,7 @@ const Confirmation: React.FC = () => {
               {/* Itinerary */}
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Pick-up</h3>
+                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Pick-up</h3>
                   <div className="flex items-start gap-3">
                     <div className="bg-accent/5 p-2 rounded text-accent"><Calendar className="w-5 h-5" /></div>
                     <div>
@@ -309,7 +310,7 @@ const Confirmation: React.FC = () => {
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Drop-off</h3>
+                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Drop-off</h3>
                   <div className="flex items-start gap-3">
                     <div className="bg-accent/5 p-2 rounded text-accent"><Calendar className="w-5 h-5" /></div>
                     <div>
@@ -326,7 +327,7 @@ const Confirmation: React.FC = () => {
               <div>
                 <h3 className="text-lg font-bold text-slate-800 mb-4">Payment Summary</h3>
                 <div className="space-y-2 text-sm">
-                  <div className="flex justify-between"><span className="text-slate-600">Paid Online:</span> <span className="font-bold text-green-600">{renderPrice(booking.payNow)}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-600">Paid Online:</span> <span className="font-bold text-green-700">{renderPrice(booking.payNow)}</span></div>
                   <div className="flex justify-between"><span className="text-slate-600">Due at pick-up:</span> <span className="font-bold text-slate-800">{renderPrice(booking.payAtDesk ?? 0)}</span></div>
                   <div className="flex justify-between pt-2 mt-2 border-t border-dashed">
                     <span className="font-bold text-slate-800">Total Price:</span>

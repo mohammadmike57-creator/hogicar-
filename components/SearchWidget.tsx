@@ -105,7 +105,6 @@ const MobileDateTimeField = React.memo(({
                 className="flex w-full items-start gap-2.5 px-3 py-2.5 text-start active:bg-slate-50"
                 onClick={onOpenDate}
                 aria-haspopup="dialog"
-                aria-label={`${label} date: ${formatDateForDisplay(dateValue)}`}
             >
                 <Calendar className={`mt-0.5 h-4 w-4 shrink-0 ${iconColor}`} />
                 <span className="min-w-0">
@@ -238,6 +237,8 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
     const [pickupQuery, setPickupQuery] = React.useState(initialValues?.pickupName || initialValues?.location || '');
     const [pickupSelection, setPickupSelection] = React.useState<LocationSuggestion | null>(initialValues?.pickup ? { label: initialValues.pickupName || initialValues.location || '', value: initialValues.pickup, type: 'airport' as any } : null);
     
+    // A location problem is shown under the location boxes (never as a browser pop-up).
+    const [locationError, setLocationError] = React.useState<string | null>(null);
     const [differentDropoff, setDifferentDropoff] = React.useState(initialValues?.differentDropoff || false);
     
     const [dropoffQuery, setDropoffQuery] = React.useState(initialValues?.dropoffName || initialValues?.dropoffLocation || '');
@@ -352,6 +353,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
         setPickupQuery(value);
         setPickupSelection(null);
         setSuggestionsError(null);
+        setLocationError(null);
 
         if (debounceTimer.current) clearTimeout(debounceTimer.current);
 
@@ -397,6 +399,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
         setDropoffQuery(value);
         setDropoffSelection(null);
         setDropoffError(null);
+        setLocationError(null);
 
         if (debounceTimer.current) clearTimeout(debounceTimer.current);
         
@@ -488,7 +491,9 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
             pickupLocation = trimmedQuery.toUpperCase();
             finalPickupName = pickupLocation;
         } else {
-            alert("Please select a location from the dropdown (or type a valid 3-letter IATA code like DXB).");
+            setLocationError('Please choose a pick-up location from the list, or type a 3-letter airport code such as AMM.');
+            setIsSuggestionsOpen(false);
+            setIsDropoffSuggestionsOpen(false);
             return;
         }
 
@@ -504,7 +509,9 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
                 dropoffLocation = trimmedDropoffQuery.toUpperCase();
                 finalDropoffName = dropoffLocation;
             } else if (dropoffQuery) {
-                alert('Please select a drop-off location from the dropdown, or enter a valid 3-letter airport code.');
+                setLocationError('Please choose a drop-off location from the list, or type a 3-letter airport code such as AMM.');
+            setIsSuggestionsOpen(false);
+            setIsDropoffSuggestionsOpen(false);
                 return;
             }
         }
@@ -556,7 +563,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
                 </span>
                 <span className="min-w-0 flex-1">
                     <span className="block text-xs text-slate-500">{label}</span>
-                    <span className={`block truncate text-[15px] ${selection?.label || query ? 'font-semibold text-slate-900' : 'text-slate-400'}`}>
+                    <span className={`block truncate text-[15px] ${selection?.label || query ? 'font-semibold text-slate-900' : 'text-slate-500'}`}>
                         {selection?.label || query || 'Airport, city or station'}
                     </span>
                 </span>
@@ -676,16 +683,24 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
                                         aria-expanded={isSuggestionsOpen}
                                         aria-haspopup="listbox"
                                         placeholder="Airport, city or station"
-                                        className="w-full border-none bg-transparent p-0 text-[15px] font-semibold text-slate-900 placeholder:font-normal placeholder:text-slate-400 focus:outline-none focus:ring-0"
+                                        className="w-full border-none bg-transparent p-0 text-[15px] font-semibold text-slate-900 placeholder:font-normal placeholder:text-slate-500 focus:outline-none focus:ring-0"
                                         value={pickupQuery}
                                         onChange={handleLocationChange}
                                         onFocus={handleFocus}
                                         autoComplete="off"
                                         aria-controls="pickup-suggestions"
+                                        aria-invalid={locationError && !pickupSelection ? true : undefined}
+                                        aria-describedby={locationError ? 'search-location-error' : undefined}
                                         required
                                     />
                                 </div>
                             </div>
+                            {locationError && !isSuggestionsOpen && (
+                                <p id="search-location-error" role="alert" className="absolute start-0 top-full z-[150] mt-1 flex w-max max-w-[min(90vw,460px)] items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800 shadow-lg">
+                                    <span aria-hidden="true" className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">!</span>
+                                    {locationError}
+                                </p>
+                            )}
                             {isSuggestionsOpen && (
                                 <div id="pickup-suggestions" onMouseDown={(e) => e.preventDefault()} className="absolute start-0 top-full z-[200] mt-1 max-h-[400px] w-full min-w-[320px] overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-2xl">
                                     {renderSuggestions(isLoadingSuggestions, suggestionsError, suggestions, handleSuggestionClick)}
@@ -708,7 +723,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
                                             aria-expanded={isDropoffSuggestionsOpen}
                                             aria-haspopup="listbox"
                                             placeholder="Airport, city or station"
-                                            className="w-full border-none bg-transparent p-0 text-[15px] font-semibold text-slate-900 placeholder:font-normal placeholder:text-slate-400 focus:outline-none focus:ring-0"
+                                            className="w-full border-none bg-transparent p-0 text-[15px] font-semibold text-slate-900 placeholder:font-normal placeholder:text-slate-500 focus:outline-none focus:ring-0"
                                             value={dropoffQuery}
                                             onChange={handleDropoffLocationChange}
                                             onFocus={handleDropoffFocus}

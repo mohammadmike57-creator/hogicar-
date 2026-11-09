@@ -131,7 +131,7 @@ export const Footer = React.memo(() => (
         {/* Brand and main links */}
         <nav aria-label="Footer" className="grid grid-cols-2 gap-x-8 gap-y-10 py-12 md:grid-cols-4 lg:grid-cols-12 lg:py-14">
           <div className="col-span-2 md:col-span-4 lg:col-span-5 lg:pr-12">
-            <Link to="/" className="inline-block" aria-label="Hogicar Home">
+            <Link to="/" className="inline-block" aria-label="Hogicar.com home">
               <Logo className="h-8 w-auto" variant="light" />
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-blue-100/85">

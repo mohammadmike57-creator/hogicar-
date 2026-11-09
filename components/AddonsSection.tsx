@@ -85,7 +85,7 @@ const AddonsSection: React.FC<{
                       {selected && qty > 1 && <span className="ml-1.5 rounded-full bg-accent px-1.5 py-0.5 align-middle text-[11px] font-semibold text-white">× {qty}</span>}
                     </p>
                     {extra.free ? (
-                      <span className="shrink-0 rounded-md bg-emerald-600 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white">Free</span>
+                      <span className="shrink-0 rounded-md bg-emerald-700 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white">Free</span>
                     ) : extra.onRequest ? (
                       <span className="shrink-0 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">At the desk</span>
                     ) : (

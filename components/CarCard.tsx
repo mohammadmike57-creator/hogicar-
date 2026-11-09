@@ -130,6 +130,7 @@ const getRecentBookingInfo = (car: CarType): { isRecent: boolean; message: strin
 
 
 import { Logo } from './Logo';
+import { cleanCarName, carNameOf } from '../utils/carName';
 
 interface CarCardProps {
   car: CarType;
@@ -210,7 +211,7 @@ const CarCard: React.FC<CarCardProps> = ({
     car.locationDetail || 'Pick-up desk';
   const fuelLabel = car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to full' : String(car.fuelPolicy || '').replace(/_/g, ' ').toLowerCase().replace(/^\w/, c => c.toUpperCase());
   const isInstant = !car.supplier?.bookingMode || car.supplier.bookingMode === 'FREE_SALE';
-  const carName = (car.displayName || `${car.make} ${car.model}`).replace(/\s+or similar\s*$/i, '');
+  const carName = cleanCarName(car.displayName) || carNameOf(car.make, car.model);
   const promo = car.supplierPromotion || null;
   const promoOriginal = promo && discountOf(promo) > 0 && promo.originalFinalPrice && promo.originalFinalPrice > totalFinalPrice ? promo.originalFinalPrice : null;
   const originalPrice = promoOriginal ?? (car.promotionPercent && car.promotionPercent > 0 ? totalFinalPrice / (1 - car.promotionPercent / 100) : null);

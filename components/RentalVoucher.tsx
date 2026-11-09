@@ -25,6 +25,7 @@ import CarFront from 'lucide-react/dist/esm/icons/car-front';
 import Building2 from 'lucide-react/dist/esm/icons/building-2';
 import Info from 'lucide-react/dist/esm/icons/info';
 import { Logo } from './Logo';
+import { cleanCarName, carNameOf } from '../utils/carName';
 
 export type VoucherAudience = 'customer' | 'supplier' | 'admin';
 
@@ -134,7 +135,7 @@ export const RentalVoucher: React.FC<{ booking: VoucherBooking; audience?: Vouch
   const status = STATUS[String(b.status || '').toUpperCase()] || STATUS.CONFIRMED;
   const cancelled = /CANCEL|REJECT/.test(String(b.status || '').toUpperCase());
   const currency = pick(b, 'currency') || 'USD';
-  const carName = [pick(b, 'carMake'), pick(b, 'carModel')].filter(Boolean).join(' ') || pick(b, 'carName') || 'Rental car';
+  const carName = carNameOf(pick(b, 'carMake'), pick(b, 'carModel'), '') || cleanCarName(pick(b, 'carName')) || 'Rental car';
   const pickupDate = pick(b, 'pickupDate', 'startDate');
   const dropoffDate = pick(b, 'dropoffDate', 'endDate');
   const rentalDays = days(pickupDate, dropoffDate);

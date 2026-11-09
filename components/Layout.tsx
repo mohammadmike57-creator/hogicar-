@@ -99,7 +99,7 @@ const Layout: React.FC = () => {
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 transition-all duration-500">
           {/* Logo */}
-          <Link to="/" className="flex shrink-0 items-center max-w-[140px] lg:max-w-[160px] overflow-hidden transition-all duration-500" aria-label="Hogicar Home">
+          <Link to="/" className="flex shrink-0 items-center max-w-[140px] lg:max-w-[160px] overflow-hidden transition-all duration-500" aria-label="Hogicar.com home">
             <Logo className="w-full h-auto" variant="light" />
           </Link>
 

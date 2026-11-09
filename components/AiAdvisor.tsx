@@ -12,6 +12,7 @@ import { calculatePrice } from '../utils/bookingUtils';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { normalizeRatingScore, formatCategoryName } from '../utils/ratings';
 import { localAdvisorAnswer } from '../utils/localAdvisor';
+import { cleanCarName, carNameOf } from '../utils/carName';
 
 interface AiAdvisorProps {
   cars: Car[];
@@ -64,7 +65,7 @@ const pickupLabel = (car: Car) => {
   return car.locationDetail || undefined;
 };
 
-const carName = (car: Car) => (car.displayName || `${car.make} ${car.model}`).replace(/\s+or similar\s*$/i, '').trim();
+const carName = (car: Car) => cleanCarName(car.displayName) || carNameOf(car.make, car.model);
 
 /** Renders the advisor's plain-text reply, turning "- " lines into a bullet list. */
 const ReplyText: React.FC<{ text: string }> = ({ text }) => {
@@ -265,7 +266,7 @@ export const AiAdvisor: React.FC<AiAdvisorProps> = ({ cars, days, startDate, end
           exit={{ opacity: 0, y: 16 }}
           onClick={() => setOpen(true)}
           className={`fixed right-4 z-[110] flex h-12 items-center gap-2 rounded-full bg-gradient-to-r from-[#003580] to-accent pl-3.5 pr-5 text-sm font-semibold text-white shadow-[0_10px_30px_-8px_rgba(0,53,128,0.6)] ring-1 ring-white/20 transition-transform hover:-translate-y-0.5 sm:right-6 ${raised ? 'bottom-24' : 'bottom-5 sm:bottom-6'}`}
-          aria-label="Ask the Hogicar AI advisor"
+          aria-label="Ask AI advisor (Hogicar AI)"
         >
           <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15">
             <Sparkles className="h-4 w-4" />

@@ -52,6 +52,7 @@ import { calcPricing, rentalDays } from '../utils/pricing';
 import { countSelected, extraUnitTotal } from '../utils/addons';
 import { api } from '../api';
 import { compactCarForStorage, safeSessionStorageSetItem } from '../utils/storage';
+import { cleanCarName, carNameOf } from '../utils/carName';
 
 
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '';
@@ -164,7 +165,19 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showRatingsTooltip, setShowRatingsTooltip] = React.useState(false);
   const [cardholderName, setCardholderName] = React.useState('');
-  const [paymentError, setPaymentError] = React.useState<string | null>(null);
+  const [paymentError, setPaymentErrorText] = React.useState<string | null>(null);
+  // Messages are shown on the page (never as browser pop-ups): red for problems, blue for information.
+  const [paymentNoticeTone, setPaymentNoticeTone] = React.useState<'error' | 'info'>('error');
+  const noticeRef = React.useRef<HTMLDivElement | null>(null);
+  const setPaymentError = React.useCallback((text: string | null, tone: 'error' | 'info' = 'error') => {
+    setPaymentErrorText(text);
+    setPaymentNoticeTone(tone);
+  }, []);
+  React.useEffect(() => {
+    if (paymentError && noticeRef.current) {
+      try { noticeRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch { /* ignore */ }
+    }
+  }, [paymentError]);
 
   React.useEffect(() => {
     if (configMismatch) {
@@ -373,17 +386,20 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
   };
 
   const handleCustomerDetailsContinue = async () => {
-    if (!car || !firstName || !lastName || !email || !phoneNumber) {
-      alert("Please fill in all required driver details.");
+    const missing = [!firstName && 'first name', !lastName && 'last name', !email && 'email', !phoneNumber && 'phone number'].filter(Boolean) as string[];
+    if (!car || missing.length) {
+      setPaymentError(missing.length
+        ? `Please enter the driver's ${missing.length > 1 ? `${missing.slice(0, -1).join(', ')} and ${missing[missing.length - 1]}` : missing[0]}.`
+        : 'Please fill in all required driver details.');
       return;
     }
     if (createAccount && accountPassword && accountPassword.length < 8) {
-      alert("Please use at least 8 characters for the account password.");
+      setPaymentError('Please use at least 8 characters for the account password.');
       return;
     }
 
     if (!search.pickupCode || !search.dropoffCode) {
-      alert("Pickup/Dropoff location code is missing. Please start your search again.");
+      setPaymentError('The pick-up or drop-off location is missing. Please start your search again.');
       return;
     }
     setPaymentError(null);
@@ -482,7 +498,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
       return;
     }
     if (!firstName || !lastName || !email || !phoneNumber) {
-      alert("Please complete the customer details page first.");
+      setPaymentError('Please complete the driver details first.');
       navigate(`/book/${id}/details${bookingQuery}`);
       return;
     }
@@ -536,8 +552,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
             if (stripeErrorCode === 'payment_intent_unexpected_state') {
               if (paymentIntentStatus === 'processing' || paymentIntentStatus === 'requires_capture') {
                 const waitMessage = 'Your payment is still being processed. Please wait a moment before trying again.';
-                setPaymentError(waitMessage);
-                alert(waitMessage);
+                setPaymentError(waitMessage, 'info');
                 return;
               }
 
@@ -553,8 +568,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
               setBookingDraft(refreshedBooking);
               safeSessionStorageSetItem("hogicar_pending_booking", JSON.stringify(refreshedBooking));
               const refreshMessage = 'Your secure payment session was refreshed. Please click confirm again.';
-              setPaymentError(refreshMessage);
-              alert(refreshMessage);
+              setPaymentError(refreshMessage, 'info');
               return;
             }
 
@@ -602,11 +616,9 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
             console.warn('Stale payment intent detected in catch. Clearing draft...');
             sessionStorage.removeItem('hogicar_pending_booking');
             setBookingDraft(null);
-            setPaymentError('Your payment session has expired or the payment gateway has been updated. Please try again.');
-            alert('Your payment session has expired or the gateway has been updated. Please try confirming your booking again.');
+            setPaymentError('Your payment session has expired. Please press the button again to pay.');
         } else {
             setPaymentError(message);
-            alert(`Payment failed: ${message}`);
         }
     } finally {
         paymentSubmitInFlightRef.current = false;
@@ -648,7 +660,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
     : priceDetails.payNow > 0 ? 'Pay and book now' : 'Confirm booking';
   const isActionBusy = isSubmitting || isAdvancingToPayment;
   const money = (amount: number) => `${getCurrencySymbol()}${convertPrice(amount).toFixed(2)}`;
-  const carName = car.displayName || `${car.make} ${car.model}`;
+  const carName = cleanCarName(car.displayName) || carNameOf(car.make, car.model);
   const isChoiceBrand = supplierLogo === 'HOGICAR_CHOICE_LOGO' || car.supplier?.name === 'Hogi Car Choice';
   const isInstant = !car?.supplier?.bookingMode || car?.supplier?.bookingMode === 'FREE_SALE';
   const selectedExtras = (car.extras?.filter(e => selectedExtraIds.includes(e.id)) || []).map(e => ({ ...e, quantity: countSelected(selectedExtraIds, e.id) }));
@@ -769,7 +781,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                       <p className="mt-1 text-xs text-slate-500">Include your country code.</p>
                     </div>
                     <div className="group sm:col-span-2">
-                      <label htmlFor="flight" className={labelClass}>Flight number <span className="font-normal text-slate-400">(optional)</span></label>
+                      <label htmlFor="flight" className={labelClass}>Flight number <span className="font-normal text-slate-500">(optional)</span></label>
                       <FormInput id="flight" icon={Plane} type="text" placeholder="e.g. BA123" autoComplete="off" autoCapitalize="characters" autoCorrect="off" spellCheck={false} value={flightNumber} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFlightNumber(e.target.value.toUpperCase())} />
                       <p className="mt-1 flex items-start gap-1.5 text-xs text-slate-500"><Info className="mt-px h-3.5 w-3.5 shrink-0" /> Lets the supplier track your arrival and hold the car if your flight is delayed.</p>
                     </div>
@@ -856,9 +868,6 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                       )}
                       <p className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500"><Lock className="h-3.5 w-3.5" /> Encrypted and processed securely by Stripe.</p>
                     </div>
-                    {paymentError && (
-                      <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-3 text-sm text-red-700">{paymentError}</div>
-                    )}
                     {bookingDraft && (
                       <p className="rounded-lg bg-amber-50 px-3 py-2.5 text-sm text-amber-900">
                         Booking reference <strong>{bookingDraft.bookingRef || bookingDraft.id}</strong> is reserved and waiting for payment.
@@ -867,6 +876,20 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                   </div>
                 </section>
               </>
+            )}
+
+            {paymentError && (
+              <div
+                ref={noticeRef}
+                role={paymentNoticeTone === 'error' ? 'alert' : 'status'}
+                aria-live={paymentNoticeTone === 'error' ? 'assertive' : 'polite'}
+                className={`flex items-start gap-2.5 rounded-xl border px-4 py-3 text-sm ${paymentNoticeTone === 'error'
+                  ? 'border-red-200 bg-red-50 text-red-800'
+                  : 'border-sky-200 bg-sky-50 text-sky-900'}`}
+              >
+                <span aria-hidden="true" className={`mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${paymentNoticeTone === 'error' ? 'bg-red-500' : 'bg-sky-500'}`}>{paymentNoticeTone === 'error' ? '!' : 'i'}</span>
+                <span>{paymentError}</span>
+              </div>
             )}
 
             {/* Desktop action */}

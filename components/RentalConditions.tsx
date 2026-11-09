@@ -82,9 +82,9 @@ export const ConditionsChip: React.FC<{ car: Car; onClick: (e: React.MouseEvent)
       type="button"
       onClick={onClick}
       className={`group inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 py-1.5 pl-3 pr-2.5 text-sm transition-colors hover:border-slate-300 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 ${className}`}
-      aria-label={`${LEVEL[level].word} rental conditions. Show details`}
+      aria-label={`${LEVEL[level].word} conditions: show the rental conditions`}
     >
-      <span className="font-semibold text-accent group-hover:underline group-hover:underline-offset-2">{LEVEL[level].word} conditions</span>
+      <span className="font-semibold text-accent-700 group-hover:underline group-hover:underline-offset-2">{LEVEL[level].word} conditions</span>
       <Segments level={level} segment="h-1.5 w-4" />
     </button>
   );

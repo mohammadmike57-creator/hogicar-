@@ -78,6 +78,7 @@ import { discountOf, promotionHighlights } from '../utils/promotions';
 import { validatePromoCode, rememberedPromo, rememberPromo, promoLabel } from '../utils/promoCodes';
 import { buildCarAddons, countSelected, extraUnitTotal, loadAddonSettings, withAddons } from '../utils/addons';
 import { jsonLd } from '../utils/safeHtml';
+import { cleanCarName, carNameOf } from '../utils/carName';
 
 // ==================== Helper Components ====================
 
@@ -535,7 +536,7 @@ const CarDetails: React.FC = () => {
 
   const ratingToDisplay = parseFloat(normalizeRatingScore(car.supplier.rating).toFixed(1));
   const money = (amount: number) => `${getCurrencySymbol()}${convertPrice(amount).toFixed(2)}`;
-  const carName = (car.displayName || `${car.make} ${car.model}`).replace(/\s+or similar\s*$/i, '');
+  const carName = cleanCarName(car.displayName) || carNameOf(car.make, car.model);
   const fuelLabel = car.fuelPolicy === 'FULL_TO_FULL' ? 'Full to full' : car.fuelPolicy.replace(/_/g, ' ').toLowerCase().replace(/^\w/, c => c.toUpperCase());
   const isInstant = car.supplier.bookingMode === 'FREE_SALE' || !car.supplier.bookingMode;
   const isChoiceBrand = supplierLogo === 'HOGICAR_CHOICE_LOGO' || car.supplier.name === 'Hogi Car Choice';
@@ -754,7 +755,7 @@ const CarDetails: React.FC = () => {
                     return (
                       <label key={opt.id} className={`relative flex cursor-pointer flex-col rounded-lg border p-4 transition-colors ${active ? 'border-accent bg-accent-50/40 ring-1 ring-accent' : 'border-slate-200 hover:border-slate-300'}`}>
                         <input type="radio" name="insurance" className="sr-only" checked={active} onChange={() => setInsuranceOption(opt.id)} />
-                        {opt.badge && <span className="absolute -top-2.5 right-3 rounded-full bg-emerald-600 px-2 py-0.5 text-[11px] font-semibold text-white">{opt.badge}</span>}
+                        {opt.badge && <span className="absolute -top-2.5 right-3 rounded-full bg-emerald-700 px-2 py-0.5 text-[11px] font-semibold text-white">{opt.badge}</span>}
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex items-start gap-3">
                             <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${active ? 'border-accent' : 'border-slate-300'}`}>

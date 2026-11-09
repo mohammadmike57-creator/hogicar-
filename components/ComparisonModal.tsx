@@ -31,6 +31,7 @@ import { Car, PickupType } from '../types';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { calcPricing } from '../utils/pricing';
 import { persistSelectedCar } from '../utils/storage';
+import { cleanCarName, carNameOf } from '../utils/carName';
 
 interface ComparisonModalProps {
     selectedCars: Car[];
@@ -62,7 +63,7 @@ const getPickupLabel = (car: Car) => {
     return car.locationDetail || 'Pickup details at desk';
 };
 
-const getVehicleName = (car: Car) => car.displayName || `${car.make} ${car.model}`;
+const getVehicleName = (car: Car) => cleanCarName(car.displayName) || carNameOf(car.make, car.model);
 
 const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose, onRemove, days, startDate, endDate }) => {
     const { convertPrice, getCurrencySymbol } = useCurrency();
@@ -395,7 +396,7 @@ const ComparisonModal: React.FC<ComparisonModalProps> = ({ selectedCars, onClose
                         icon={<Info className="h-4 w-4" />}
                         values={selectedCars.map(car => (
                             <ValueBlock
-                                primary={`${car.make} ${car.model}`}
+                                primary={carNameOf(car.make, car.model)}
                                 secondary={`${car.year || 'Year not listed'} ${formatEnum(car.category)} class, SIPP ${car.sippCode || 'not listed'}`}
                             />
                         ))}

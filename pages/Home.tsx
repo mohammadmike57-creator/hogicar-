@@ -397,10 +397,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
   }, [seoConfig, location.pathname]);
 
   const handleSearch = (params: any) => {
-    if (!params.pickup || !params.dropoff) {
-      alert("Please select a pickup and dropoff location.");
-      return;
-    }
+    // The search box checks the locations and shows the message itself.
+    if (!params.pickup || !params.dropoff) return;
     const { pickup, pickupName, dropoff, dropoffName, pickupDate, dropoffDate, startTime, endTime } = params;
 
     const searchParams = new URLSearchParams();
@@ -611,7 +609,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
 
   const sectionHeading = (eyebrow: string, title: string, subtitle?: string) => (
     <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-12">
-      <p className="text-sm font-semibold text-accent">{eyebrow}</p>
+      <p className="text-sm font-semibold text-accent-700">{eyebrow}</p>
       <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{title}</h2>
       {subtitle && <p className="mt-3 text-base text-slate-600 sm:text-lg">{subtitle}</p>}
     </div>

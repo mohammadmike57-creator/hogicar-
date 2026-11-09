@@ -46,6 +46,7 @@ import AuthPanel, { AuthResult } from '../components/rewards/AuthPanel';
 import CircleUser from 'lucide-react/dist/esm/icons/circle-user-round';
 import RewardsDashboard from '../components/rewards/RewardsDashboard';
 import { rewards, rewardsSession } from '../api';
+import { cleanCarName, carNameOf } from '../utils/carName';
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -323,6 +324,7 @@ const BookingDetailView = ({ booking, email, onBookingModified, onBack, initialA
   const navigate = useNavigate();
   const [changeTab, setChangeTab] = React.useState<null | 'dates' | 'contact'>(null);
   const [withdrawing, setWithdrawing] = React.useState(false);
+  const [withdrawError, setWithdrawError] = React.useState<string | null>(null);
   const [copied, setCopied] = React.useState(false);
   const [toast, setToast] = React.useState<string | null>(null);
   React.useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(null), 3200); return () => clearTimeout(t); }, [toast]);
@@ -337,7 +339,7 @@ const BookingDetailView = ({ booking, email, onBookingModified, onBack, initialA
   const isPast = end ? end < now : false;
   const active = status !== 'cancelled' && status !== 'completed' && status !== 'unpaid' && !isPast;
   const daysToPickup = start ? Math.ceil((start.getTime() - now.getTime()) / 86400000) : null;
-  const carName = [b.carMake, b.carModel].filter(Boolean).join(' ') || b.carName || 'Your car';
+  const carName = carNameOf(b.carMake, b.carModel, '') || cleanCarName(b.carName) || 'Your car';
   const displayImage = imageError || !b.carImage ? null : b.carImage;
   const currency = b.currency || 'USD';
   const price = (amount?: number) => {
@@ -368,8 +370,9 @@ const BookingDetailView = ({ booking, email, onBookingModified, onBack, initialA
 
   const withdraw = async () => {
     setWithdrawing(true);
+    setWithdrawError(null);
     try { updated(await manageBooking.withdrawChange(email, String(ref)), 'Change request withdrawn'); }
-    catch (e: any) { alert(e?.response?.data?.message || 'We couldn’t withdraw the request. Please try again.'); }
+    catch (e: any) { setWithdrawError(e?.response?.data?.message || 'We couldn’t withdraw the request. Please try again.'); }
     finally { setWithdrawing(false); }
   };
 
@@ -407,7 +410,7 @@ const BookingDetailView = ({ booking, email, onBookingModified, onBack, initialA
         <button onClick={onBack} className="inline-flex h-10 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-white px-3.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200 hover:text-accent">
           <ArrowLeft className="h-4 w-4" /> <span className="sm:hidden">Back</span><span className="hidden sm:inline">{signedIn ? 'Back to my account' : 'Find another booking'}</span>
         </button>
-        <button onClick={copyRef} className="inline-flex h-10 items-center gap-2 rounded-full bg-white px-3.5 text-sm shadow-sm ring-1 ring-slate-200 hover:ring-slate-300" aria-label="Copy booking reference">
+        <button onClick={copyRef} className="inline-flex h-10 items-center gap-2 rounded-full bg-white px-3.5 text-sm shadow-sm ring-1 ring-slate-200 hover:ring-slate-300" aria-label={`Ref ${ref}: copy booking reference`}>
           <span className="text-slate-500">Ref</span> <span className="font-mono font-bold text-slate-900">{ref}</span>
           {copied ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4 text-slate-400" />}
         </button>
@@ -464,15 +467,18 @@ const BookingDetailView = ({ booking, email, onBookingModified, onBack, initialA
                     </p>
                     {changeStatus === 'REQUESTED' && (
                       <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                        <div className="rounded-xl bg-white/80 p-3 ring-1 ring-amber-100"><p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Requested pick-up</p><p className="mt-0.5 text-sm font-semibold text-slate-900">{fmtDay(change.pickupDate, change.startTime)}</p></div>
-                        <div className="rounded-xl bg-white/80 p-3 ring-1 ring-amber-100"><p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Requested drop-off</p><p className="mt-0.5 text-sm font-semibold text-slate-900">{fmtDay(change.dropoffDate, change.endTime)}</p></div>
+                        <div className="rounded-xl bg-white/80 p-3 ring-1 ring-amber-100"><p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Requested pick-up</p><p className="mt-0.5 text-sm font-semibold text-slate-900">{fmtDay(change.pickupDate, change.startTime)}</p></div>
+                        <div className="rounded-xl bg-white/80 p-3 ring-1 ring-amber-100"><p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Requested drop-off</p><p className="mt-0.5 text-sm font-semibold text-slate-900">{fmtDay(change.dropoffDate, change.endTime)}</p></div>
                       </div>
                     )}
                     {change.decisionMessage && changeStatus !== 'REQUESTED' && <p className="mt-2 text-sm italic text-slate-700">“{change.decisionMessage}”</p>}
                     {changeStatus === 'REQUESTED' && (
+                      <>
                       <button onClick={withdraw} disabled={withdrawing} className="mt-3 inline-flex h-10 items-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-slate-800 ring-1 ring-slate-300 hover:bg-slate-50 disabled:opacity-60">
                         {withdrawing ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700" /> : <X className="h-4 w-4" />} Withdraw request
                       </button>
+                      {withdrawError && <p role="alert" className="mt-2 text-sm font-medium text-red-700">{withdrawError}</p>}
+                      </>
                     )}
                   </div>
                 </div>
@@ -521,7 +527,7 @@ const BookingDetailView = ({ booking, email, onBookingModified, onBack, initialA
               ].map(s => (
                 <li key={s.label} className="relative">
                   <span className={`absolute -left-8 top-0.5 flex h-6 w-6 items-center justify-center rounded-full ring-4 ${s.dot}`}><span className="h-2 w-2 rounded-full bg-white" /></span>
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{s.label}</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{s.label}</p>
                   <p className="mt-0.5 text-base font-semibold text-slate-900">{fmtLong(s.date)}{s.time ? <span className="font-normal text-slate-500"> · {String(s.time).slice(0, 5)}</span> : null}</p>
                   {s.place && <p className="mt-0.5 flex items-start gap-1.5 text-sm text-slate-600"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" /> {s.place}</p>}
                 </li>
