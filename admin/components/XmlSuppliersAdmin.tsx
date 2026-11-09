@@ -23,6 +23,27 @@ type Conn = {
   pickupType?: string; pickupLabel?: string;
   active: boolean; bookingEnabled: boolean; timeoutSeconds?: number; webhookHeaderPrefix?: string; hasApiKey: boolean; hasWebhookSecret: boolean;
   webhookUrl?: string; supplierId?: string; lastPingAt?: string; lastPingOk?: boolean | null; lastError?: string; encryptionReady?: boolean;
+  protocol?: string; otaVersion?: string; otaNamespace?: string; urlTemplate?: string; username?: string; apiKeyHeader?: string; oauthTokenUrl?: string;
+  signRequests?: boolean; signingHeaderPrefix?: string; hasSigningSecret?: boolean; customMapping?: string;
+};
+type Preset = { id: string; label: string; description: string; protocol: string; otaVersion?: string | null; urlTemplate?: string | null; authMode: string; customMapping?: string | null };
+
+const PROTOCOLS: Record<string, string> = {
+  OTA: 'OpenTravel (OTA) XML', OTA_SOAP11: 'OTA in SOAP 1.1', OTA_SOAP12: 'OTA in SOAP 1.2', NATIVE_XML: 'UR-Drive / NCT native XML', CUSTOM_XML: 'Custom XML mapping',
+};
+const AUTH: Record<string, string> = {
+  BEARER: 'Authorization: Bearer', API_KEY_HEADER: 'API key header', OTA_POS: 'OTA POS MessagePassword', WS_SECURITY: 'WS-Security UsernameToken',
+  BASIC: 'Basic (username + password)', OAUTH2: 'OAuth 2.0 client credentials', BODY_CREDENTIALS: 'Key inside the message', NONE: 'None / in the mapping',
+};
+const authFits = (mode: string, protocol: string) => {
+  const ota = protocol.startsWith('OTA');
+  if (mode === 'OTA_POS') return ota;
+  if (mode === 'WS_SECURITY') return protocol === 'OTA_SOAP11' || protocol === 'OTA_SOAP12';
+  return true;
+};
+const formatLine = (c: Conn) => {
+  const p = c.protocol || 'OTA';
+  return p.startsWith('OTA') ? `${PROTOCOLS[p]} ${c.otaVersion || '2.000'}` : PROTOCOLS[p] || p;
 };
 type Offer = { offerId?: string; offerExpiresAt?: string; sipp?: string; makeModel?: string; seats?: number; bags?: number; doors?: number; transmission?: string;
   airConditioning?: boolean; total?: number; currency?: string; deposit?: number; unlimitedMileage?: boolean; cancellationPolicy?: string; paymentType?: string; availableCount?: number; pictureUrl?: string };
@@ -71,18 +92,34 @@ const statusTone = (s?: string) => ({
 
 const EMPTY = { name: '', baseUrl: '', channelCode: 'HGC', supplierCode: '', authMode: 'BEARER', environment: 'SANDBOX', currency: 'USD', locationCodes: '',
   defaultDriverAge: 30, commissionPercent: 0, logoUrl: '', replacesVendorCodes: '', pickupType: '', pickupLabel: '', active: false, bookingEnabled: true, timeoutSeconds: 20,
-  webhookHeaderPrefix: 'X-NCT', apiKey: '', webhookSecret: '' };
+  webhookHeaderPrefix: 'X-NCT', apiKey: '', webhookSecret: '',
+  protocol: 'OTA', otaVersion: '2.000', otaNamespace: '', urlTemplate: '', username: '', apiKeyHeader: '', oauthTokenUrl: '',
+  signRequests: false, signingHeaderPrefix: '', signingSecret: '', customMapping: '' };
 
 /** The connection form, used to add a connection and in its Settings tab. */
 const ConnectionForm: React.FC<{ initial?: Conn | null; busy: boolean; onSave: (v: any) => void; onDelete?: () => void }> = ({ initial, busy, onSave, onDelete }) => {
-  const [v, setV] = React.useState<any>(() => initial ? { ...EMPTY, ...initial, apiKey: '', webhookSecret: '',
+  const [v, setV] = React.useState<any>(() => initial ? { ...EMPTY, ...initial, apiKey: '', webhookSecret: '', signingSecret: '',
     replacesVendorCodes: initial.replacesVendorCodes || '', logoUrl: initial.logoUrl || '', locationCodes: initial.locationCodes || '',
-    pickupType: initial.pickupType || '', pickupLabel: initial.pickupLabel || '' } : { ...EMPTY });
+    pickupType: initial.pickupType || '', pickupLabel: initial.pickupLabel || '', protocol: initial.protocol || 'OTA', otaVersion: initial.otaVersion || '2.000',
+    otaNamespace: initial.otaNamespace || '', urlTemplate: initial.urlTemplate || '', username: initial.username || '', apiKeyHeader: initial.apiKeyHeader || '',
+    oauthTokenUrl: initial.oauthTokenUrl || '', signRequests: !!initial.signRequests, signingHeaderPrefix: initial.signingHeaderPrefix || '',
+    customMapping: initial.customMapping || '' } : { ...EMPTY });
   const set = (k: string, val: any) => setV((x: any) => ({ ...x, [k]: val }));
+  const [presets, setPresets] = React.useState<Preset[]>([]);
+  const [advanced, setAdvanced] = React.useState(() => !!(initial?.urlTemplate || initial?.otaNamespace));
+  React.useEffect(() => { adminFetch('/api/admin/xml-suppliers/presets').then(setPresets).catch(() => setPresets([])); }, []);
+  const usePreset = (p: Preset) => setV((x: any) => ({ ...x, protocol: p.protocol, otaVersion: p.otaVersion || x.otaVersion || '2.000', urlTemplate: p.urlTemplate || '',
+    authMode: p.authMode, customMapping: p.protocol === 'CUSTOM_XML' ? (x.customMapping || p.customMapping || '') : x.customMapping }));
+  const isOta = String(v.protocol).startsWith('OTA');
+  const mappingError = React.useMemo(() => {
+    if (v.protocol !== 'CUSTOM_XML' || !v.customMapping.trim()) return '';
+    try { const j = JSON.parse(v.customMapping); return j && typeof j.operations === 'object' ? '' : 'Needs an "operations" section.'; }
+    catch (e: any) { return `Not valid JSON: ${e?.message || ''}`; }
+  }, [v.protocol, v.customMapping]);
   const save = () => {
     const body: any = { ...v };
-    if (!body.apiKey) delete body.apiKey;
-    if (!body.webhookSecret) delete body.webhookSecret;
+    for (const k of ['apiKey', 'webhookSecret', 'signingSecret']) if (!body[k]) delete body[k];
+    if (body.protocol !== 'CUSTOM_XML') delete body.customMapping;
     onSave(body);
   };
   return (
@@ -95,10 +132,60 @@ const ConnectionForm: React.FC<{ initial?: Conn | null; busy: boolean; onSave: (
         </div>
       </section>
       <section className="space-y-3">
-        <h3 className="text-sm font-semibold text-slate-900">Connection</h3>
-        <Field label="OTA address" hint="The message name is added to it, e.g. …/HGC/OTA_VehAvailRate">
-          <input className={`${inputCls} font-mono`} value={v.baseUrl} onChange={e => set('baseUrl', e.target.value)} placeholder="https://www.nctrental.com/ota/v1/HGC" />
+        <h3 className="text-sm font-semibold text-slate-900">Message format</h3>
+        {presets.length > 0 && (
+          <div className="grid gap-2 sm:grid-cols-2">
+            {presets.map(p => {
+              const on = v.protocol === p.protocol && (p.urlTemplate || '') === (v.urlTemplate || '') && (!p.protocol.startsWith('OTA') || (p.otaVersion || '2.000') === v.otaVersion);
+              return (
+                <button key={p.id} type="button" onClick={() => usePreset(p)} aria-pressed={on}
+                  className={`rounded-xl p-3 text-left ring-1 ring-inset ${on ? 'bg-white ring-2 ring-[#007ac2]' : 'bg-white ring-slate-200 hover:bg-slate-50'}`}>
+                  <span className="block text-sm font-semibold text-slate-900">{p.label}</span>
+                  <span className="block text-xs text-slate-500">{p.description}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label="Format">
+            <select className={inputCls} value={v.protocol} onChange={e => { const p = e.target.value; setV((x: any) => ({ ...x, protocol: p, authMode: authFits(x.authMode, p) ? x.authMode : 'BEARER' })); }}>
+              {Object.entries(PROTOCOLS).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
+            </select>
+          </Field>
+          {isOta && (
+            <Field label="OTA version" hint="The Version attribute on every message, as their guide says.">
+              <input className={`${inputCls} font-mono`} list="ota-versions" value={v.otaVersion} onChange={e => set('otaVersion', e.target.value)} placeholder="2.000" />
+              <datalist id="ota-versions">{['2.000', '1.003', '1.002', '1.000', '3.000', '4.000', '5.000', '6.000', '2018.1', '2024.1'].map(x => <option key={x} value={x} />)}</datalist>
+            </Field>
+          )}
+        </div>
+        <Field label={v.protocol === 'OTA_SOAP11' || v.protocol === 'OTA_SOAP12' ? 'SOAP address' : 'Address'}
+          hint={v.urlTemplate ? 'Used as {base} in the address pattern below.' : v.protocol === 'OTA_SOAP11' || v.protocol === 'OTA_SOAP12' ? 'Every message is posted to this one address.' : isOta ? 'The message name is added to it, e.g. …/HGC/OTA_VehAvailRate' : v.protocol === 'CUSTOM_XML' ? 'Each operation\'s "path" from the mapping is added to it.' : 'The operation name is added to it, e.g. …/xml/v1/Availability'}>
+          <input className={`${inputCls} font-mono`} value={v.baseUrl} onChange={e => set('baseUrl', e.target.value)} placeholder="https://api.supplier.com/ota/v1/HGC" />
         </Field>
+        <button type="button" onClick={() => setAdvanced(a => !a)} className="inline-flex items-center gap-1 text-xs font-semibold text-[#007ac2]">
+          <ChevronDown className={`h-3.5 w-3.5 transition ${advanced ? 'rotate-180' : ''}`} /> Address pattern and namespace
+        </button>
+        {advanced && (
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label="Address pattern (optional)" hint="{base} {message} {messageRQ} {channel} {version}">
+              <input className={`${inputCls} font-mono`} value={v.urlTemplate} onChange={e => set('urlTemplate', e.target.value)} placeholder="{base}/ota/2024A/{channel}/{message}" />
+            </Field>
+            {isOta && (
+              <Field label="OTA namespace (optional)" hint="Leave empty for the standard OpenTravel namespace.">
+                <input className={`${inputCls} font-mono`} value={v.otaNamespace} onChange={e => set('otaNamespace', e.target.value)} placeholder="http://www.opentravel.org/OTA/2003/05" />
+              </Field>
+            )}
+          </div>
+        )}
+        {v.protocol === 'CUSTOM_XML' && (
+          <Field label="Custom mapping (JSON)" hint="Request templates and where to read each answer. Paths use element names with / and @attribute. Operations left out are reported as not supported.">
+            <textarea spellCheck={false} rows={14} className={`${inputCls} h-auto font-mono text-xs leading-5`} value={v.customMapping} onChange={e => set('customMapping', e.target.value)}
+              placeholder='{"operations": {"availability": {"path": "Search", "request": "<Search>…</Search>", "list": "Cars/Car", "fields": {"offerId": "@id", "total": "Price/@total"}}}}' />
+            {mappingError && <span className="mt-1 block text-xs font-medium text-rose-700">{mappingError}</span>}
+          </Field>
+        )}
         <div className="grid gap-3 sm:grid-cols-3">
           <Field label="Our channel code"><input className={`${inputCls} font-mono uppercase`} value={v.channelCode} onChange={e => set('channelCode', e.target.value.toUpperCase())} placeholder="HGC" /></Field>
           <Field label="Their supplier code"><input className={`${inputCls} font-mono uppercase`} value={v.supplierCode || ''} onChange={e => set('supplierCode', e.target.value.toUpperCase())} placeholder="NCT" /></Field>
@@ -118,19 +205,55 @@ const ConnectionForm: React.FC<{ initial?: Conn | null; busy: boolean; onSave: (
         </div>
       </section>
       <section className="space-y-3">
-        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-900"><KeyRound className="h-4 w-4 text-slate-400" /> API key</h3>
-        <div className="grid gap-3 sm:grid-cols-[12rem_minmax(0,1fr)]">
-          <Field label="Sent as">
+        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-900"><KeyRound className="h-4 w-4 text-slate-400" /> Sign-in</h3>
+        <div className="grid gap-3 sm:grid-cols-[14rem_minmax(0,1fr)]">
+          <Field label="Method">
             <select className={inputCls} value={v.authMode} onChange={e => set('authMode', e.target.value)}>
-              <option value="BEARER">Authorization: Bearer</option>
-              <option value="API_KEY_HEADER">X-Api-Key header</option>
-              <option value="OTA_POS">OTA POS MessagePassword</option>
+              {Object.entries(AUTH).filter(([k]) => authFits(k, v.protocol)).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
             </select>
           </Field>
-          <Field label={initial?.hasApiKey ? 'New API key (leave empty to keep the saved one)' : 'API key'} hint="Stored encrypted. It is never shown again or written to the request log.">
-            <input type="password" autoComplete="new-password" className={`${inputCls} font-mono`} value={v.apiKey} onChange={e => set('apiKey', e.target.value)} placeholder={initial?.hasApiKey ? '•••••••• saved' : 'Paste the key they sent you'} />
-          </Field>
+          {v.authMode !== 'NONE' && (
+            <Field label={`${initial?.hasApiKey ? 'New ' : ''}${v.authMode === 'BASIC' || v.authMode === 'WS_SECURITY' ? 'password' : v.authMode === 'OAUTH2' ? 'client secret' : 'API key'}${initial?.hasApiKey ? ' (leave empty to keep the saved one)' : ''}`}
+              hint="Stored encrypted. It is never shown again or written to the request log.">
+              <input type="password" autoComplete="new-password" className={`${inputCls} font-mono`} value={v.apiKey} onChange={e => set('apiKey', e.target.value)} placeholder={initial?.hasApiKey ? '•••••••• saved' : 'Paste what they sent you'} />
+            </Field>
+          )}
         </div>
+        {v.authMode === 'NONE' && <p className="text-xs text-slate-500">No sign-in header is sent. For a custom mapping, put {'{apiKey}'} in the request templates instead; the key above is still stored encrypted.</p>}
+        {v.authMode === 'NONE' && (
+          <Field label={initial?.hasApiKey ? 'New key for {apiKey} (optional)' : 'Key for {apiKey} (optional)'}>
+            <input type="password" autoComplete="new-password" className={`${inputCls} font-mono`} value={v.apiKey} onChange={e => set('apiKey', e.target.value)} placeholder={initial?.hasApiKey ? '•••••••• saved' : ''} />
+          </Field>
+        )}
+        <div className="grid gap-3 sm:grid-cols-2">
+          {['BASIC', 'WS_SECURITY', 'OAUTH2'].includes(v.authMode) && (
+            <Field label={v.authMode === 'OAUTH2' ? 'Client ID' : 'Username'} hint="Leave empty to use our channel code.">
+              <input className={`${inputCls} font-mono`} value={v.username} onChange={e => set('username', e.target.value)} placeholder={v.channelCode || 'HGC'} />
+            </Field>
+          )}
+          {v.authMode === 'API_KEY_HEADER' && (
+            <Field label="Header name"><input className={`${inputCls} font-mono`} value={v.apiKeyHeader} onChange={e => set('apiKeyHeader', e.target.value)} placeholder="X-Api-Key" /></Field>
+          )}
+          {v.authMode === 'OAUTH2' && (
+            <Field label="Token address"><input className={`${inputCls} font-mono`} value={v.oauthTokenUrl} onChange={e => set('oauthTokenUrl', e.target.value)} placeholder="https://auth.supplier.com/oauth/token" /></Field>
+          )}
+        </div>
+        <label className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+          <span><span className="block text-sm font-semibold text-slate-900">Sign every request (HMAC-SHA256)</span><span className="mt-0.5 block text-xs text-slate-500">Adds a timestamp and signature header, for suppliers that require signed requests.</span></span>
+          <span className="relative shrink-0">
+            <input type="checkbox" className="peer sr-only" checked={!!v.signRequests} onChange={e => set('signRequests', e.target.checked)} />
+            <span className="block h-7 w-12 rounded-full bg-slate-300 transition peer-checked:bg-emerald-500" />
+            <span className="absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow transition peer-checked:translate-x-5" />
+          </span>
+        </label>
+        {v.signRequests && (
+          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_10rem]">
+            <Field label={initial?.hasSigningSecret ? 'New request-signing secret (leave empty to keep)' : 'Request-signing secret'}>
+              <input type="password" autoComplete="new-password" className={`${inputCls} font-mono`} value={v.signingSecret} onChange={e => set('signingSecret', e.target.value)} placeholder={initial?.hasSigningSecret ? '•••••••• saved' : 'From the supplier'} />
+            </Field>
+            <Field label="Header prefix"><input className={`${inputCls} font-mono`} value={v.signingHeaderPrefix} onChange={e => set('signingHeaderPrefix', e.target.value)} placeholder="X-URD" /></Field>
+          </div>
+        )}
       </section>
       <section className="space-y-3">
         <h3 className="text-sm font-semibold text-slate-900">Selling</h3>
@@ -248,9 +371,19 @@ const XmlSuppliersAdmin: React.FC = () => {
     catch (e: any) { notify(errorText(e, 'Could not delete.'), 'err'); }
   };
 
+  const [rules, setRules] = React.useState<Record<string, any>>({});
+  const checkPrice = async (o: Offer) => {
+    if (!open) return;
+    const k = o.offerId || o.sipp || '';
+    setRules(r => ({ ...r, [k]: { loading: true } }));
+    try {
+      const res = await adminFetch(`/api/admin/xml-suppliers/${open.id}/rate-rule`, { method: 'POST', body: JSON.stringify({ ...search, offerId: o.offerId, sipp: o.sipp }) });
+      setRules(r => ({ ...r, [k]: res }));
+    } catch (e: any) { setRules(r => ({ ...r, [k]: { ok: false, message: errorText(e, 'The check failed.') } })); }
+  };
   const runSearch = async () => {
     if (!open) return;
-    setBusy(true); setResult(null);
+    setBusy(true); setResult(null); setRules({});
     try { setResult(await adminFetch(`/api/admin/xml-suppliers/${open.id}/test-search`, { method: 'POST', body: JSON.stringify(search) })); }
     catch (e: any) { setResult({ ok: false, message: errorText(e, 'The search failed.') }); }
     finally { setBusy(false); }
@@ -261,8 +394,8 @@ const XmlSuppliersAdmin: React.FC = () => {
   const failing = items.filter(c => c.lastPingOk === false).length;
 
   const checklist = (c: Conn) => [
-    { done: !!c.baseUrl, label: 'OTA address set', hint: c.baseUrl || 'Add the address from their guide' },
-    { done: c.hasApiKey, label: 'API key saved (encrypted)', hint: c.hasApiKey ? `Sent as ${c.authMode === 'BEARER' ? 'Authorization: Bearer' : c.authMode === 'API_KEY_HEADER' ? 'X-Api-Key' : 'OTA MessagePassword'}` : 'Paste the key they send you separately' },
+    { done: !!c.baseUrl, label: 'Address and format set', hint: c.baseUrl ? `${formatLine(c)} · ${c.baseUrl}` : 'Add the address from their guide' },
+    { done: c.hasApiKey || c.authMode === 'NONE', label: 'Sign-in saved (encrypted)', hint: c.hasApiKey ? `${AUTH[c.authMode || 'BEARER'] || c.authMode}${c.signRequests ? ' · signed requests' : ''}` : c.authMode === 'NONE' ? 'No sign-in header' : 'Paste the key they send you separately' },
     { done: c.lastPingOk === true, label: 'Connection check passed', hint: c.lastPingAt ? `${c.lastPingOk ? 'OK' : 'Failed'} ${ago(c.lastPingAt)}${c.lastError ? ` · ${c.lastError}` : ''}` : 'Run "Test connection"' },
     { done: !!c.locationCodes, label: 'Locations to sell', hint: c.locationCodes || 'e.g. AMM' },
     { done: c.hasWebhookSecret, label: 'Webhook secret saved', hint: c.hasWebhookSecret ? 'Their status updates are verified' : 'Optional: for cancellations and no-shows from their counter' },
@@ -274,7 +407,7 @@ const XmlSuppliersAdmin: React.FC = () => {
     <div className="space-y-5">
       <Hero
         eyebrow="Supplier connections" eyebrowIcon={Plug} title="XML suppliers"
-        subtitle="Rental companies connected through their own booking API (OpenTravel OTA XML): live prices in search, bookings and cancellations in their system, status updates back to Hogicar."
+        subtitle="Rental companies connected through their own XML booking API (OpenTravel OTA in any version, SOAP, or their own XML format): live prices in search, bookings and cancellations in their system, status updates back to Hogicar."
         loading={list === null}
         actions={<>
           <button onClick={load} className={heroButton}><RefreshCw className="h-4 w-4" /> Refresh</button>
@@ -293,7 +426,7 @@ const XmlSuppliersAdmin: React.FC = () => {
         <div className="flex flex-col items-center rounded-2xl bg-white px-6 py-14 text-center ring-1 ring-slate-200">
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100"><Plug className="h-6 w-6 text-slate-400" /></span>
           <p className="mt-3 text-base font-semibold text-slate-900">No XML suppliers yet</p>
-          <p className="mt-1 max-w-md text-sm text-slate-500">Add a rental company that sent you an OTA XML integration guide, such as UR-Drive Jordan. Start in their sandbox; switch it on when their certification passes.</p>
+          <p className="mt-1 max-w-md text-sm text-slate-500">Add a rental company that sent you an XML integration guide (OTA, SOAP or their own format), such as UR-Drive Jordan. Start in their sandbox; switch it on when their certification passes.</p>
           <button onClick={() => setAdding(true)} className="mt-5 inline-flex h-11 items-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white"><Plus className="h-4 w-4" /> Add connection</button>
         </div>
       ) : (
@@ -306,7 +439,7 @@ const XmlSuppliersAdmin: React.FC = () => {
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2"><p className="truncate text-base font-semibold text-slate-900">{c.name}</p><EnvPill env={c.environment} /></div>
-                  <p className="mt-0.5 font-mono text-xs text-slate-500">{c.channelCode || '—'} → {c.supplierCode || '—'} · OTA 2003/05</p>
+                  <p className="mt-0.5 font-mono text-xs text-slate-500">{c.channelCode || '—'} → {c.supplierCode || '—'} · {formatLine(c)}</p>
                 </div>
                 <StatusDot c={c} />
               </div>
@@ -392,7 +525,7 @@ const XmlSuppliersAdmin: React.FC = () => {
                     <div className="overflow-x-auto">
                       <table className="min-w-full text-sm">
                         <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                          <tr><th className="px-4 py-2">Picture</th><th className="px-4 py-2">Group</th><th className="px-4 py-2">Car</th><th className="px-4 py-2">Capacity</th><th className="px-4 py-2 text-right">Total</th><th className="px-4 py-2 text-right">Deposit</th><th className="px-4 py-2">Terms</th></tr>
+                          <tr><th className="px-4 py-2">Picture</th><th className="px-4 py-2">Group</th><th className="px-4 py-2">Car</th><th className="px-4 py-2">Capacity</th><th className="px-4 py-2 text-right">Total</th><th className="px-4 py-2 text-right">Deposit</th><th className="px-4 py-2">Terms</th><th className="px-4 py-2">Final price</th></tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                           {result.offers.map((o: Offer, i: number) => (
@@ -413,6 +546,19 @@ const XmlSuppliersAdmin: React.FC = () => {
                               <td className="whitespace-nowrap px-4 py-2.5 text-right font-semibold">{money(o.total, o.currency)}</td>
                               <td className="whitespace-nowrap px-4 py-2.5 text-right text-slate-600">{money(o.deposit, o.currency)}</td>
                               <td className="px-4 py-2.5 text-xs text-slate-600">{o.cancellationPolicy || '—'} · {o.paymentType || '—'}{o.availableCount != null && <span className="block">{o.availableCount} free</span>}</td>
+                              {(() => {
+                                const r = rules[o.offerId || o.sipp || ''];
+                                if (!r) return <td className="px-4 py-2.5"><button onClick={() => checkPrice(o)} className="whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-inset ring-slate-200 hover:bg-slate-50">Check</button></td>;
+                                if (r.loading) return <td className="px-4 py-2.5"><Spinner /></td>;
+                                if (!r.ok) return <td className="px-4 py-2.5 text-xs text-rose-700"><b>{r.errorCode || 'Failed'}</b> {r.message}</td>;
+                                const same = r.rule?.total == null || Number(r.rule.total) === Number(o.total);
+                                return (
+                                  <td className="whitespace-nowrap px-4 py-2.5 text-xs">
+                                    <span className={`font-semibold ${same ? 'text-emerald-700' : 'text-amber-800'}`}>{r.rule?.total == null ? 'No price returned' : money(r.rule.total, r.rule.currency)}</span>
+                                    <span className="block text-slate-500">{same ? 'Same as search' : 'Changed since search'}{r.rule?.minDriverAge ? ` · age ${r.rule.minDriverAge}+` : ''}</span>
+                                  </td>
+                                );
+                              })()}
                             </tr>
                           ))}
                         </tbody>

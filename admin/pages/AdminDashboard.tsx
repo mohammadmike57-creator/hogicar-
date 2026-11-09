@@ -309,7 +309,7 @@ const SECTION_META: Record<string, { title: string; description: string; group: 
   promotions: { title: 'Promotions', description: 'Promo codes for checkout and every supplier promotion.', group: 'Commercial' },
   carlibrary: { title: 'Car library', description: 'Car models, images and specifications used across the site.', group: 'Commercial' },
   apipartners: { title: 'Integrations', description: 'Partner API keys and connected services.', group: 'Commercial' },
-  xmlsuppliers: { title: 'XML suppliers', description: 'Rental companies connected through their own booking API (OTA XML).', group: 'Operations' },
+  xmlsuppliers: { title: 'XML suppliers', description: 'Rental companies connected through their own XML booking API (OTA, SOAP or their own format).', group: 'Operations' },
   affiliates: { title: 'Affiliates', description: 'Partners who earn commission on the bookings they send.', group: 'Commercial' },
   affiliatenetworks: { title: 'Affiliate networks', description: 'Awin and other affiliate networks: tracking, conversions and reconciliation.', group: 'Commercial' },
   distribution: { title: 'Distribution network', description: 'Skyscanner, KAYAK and partner channels: onboarding, inventory, pricing, deeplinks and monitoring.', group: 'Commercial' },
