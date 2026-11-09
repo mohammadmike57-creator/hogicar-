@@ -306,7 +306,7 @@ const ConnectionForm: React.FC<{ initial?: Conn | null; busy: boolean; onSave: (
         <div className="grid gap-3 sm:grid-cols-3">
           <Field label="Locations they serve" hint="Codes, comma separated"><input className={`${inputCls} font-mono uppercase`} value={v.locationCodes} onChange={e => set('locationCodes', e.target.value.toUpperCase())} placeholder="AMM" /></Field>
           <Field label="Driver age in searches"><input type="number" className={inputCls} value={v.defaultDriverAge} onChange={e => set('defaultDriverAge', e.target.value)} /></Field>
-          <Field label="Hogicar commission %" hint="Paid online by the customer; the rest at the counter"><input type="number" step="0.1" className={inputCls} value={v.commissionPercent} onChange={e => set('commissionPercent', e.target.value)} /></Field>
+          <Field label="Hogicar markup %" hint="Added on top of their price and paid online; their full price is paid at the counter"><input type="number" step="0.1" className={inputCls} value={v.commissionPercent} onChange={e => set('commissionPercent', e.target.value)} /></Field>
         </div>
         <div className="grid gap-3 sm:grid-cols-[12rem_minmax(0,1fr)]">
           <Field label="Pick-up type">
@@ -513,7 +513,7 @@ const XmlSuppliersAdmin: React.FC = () => {
                 <div className="flex flex-wrap items-center gap-1.5">
                   {(c.locationCodes || '').split(',').filter(Boolean).map(l => <span key={l} className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 font-mono text-xs font-semibold text-slate-700"><MapPin className="h-3 w-3" />{l}</span>)}
                   {!c.locationCodes && <span className="text-xs text-slate-400">No locations yet</span>}
-                  <span className="ml-auto text-xs text-slate-500">{Number(c.commissionPercent || 0)}% online · rest at counter</span>
+                  <span className="ml-auto text-xs text-slate-500">+{Number(c.commissionPercent || 0)}% markup online · their price at counter</span>
                 </div>
                 <div className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs ${c.health?.status === 'PAUSED' ? 'bg-rose-50 text-rose-800' : c.lastPingOk === false ? 'bg-rose-50 text-rose-800' : c.lastPingOk ? 'bg-emerald-50 text-emerald-800' : 'bg-slate-50 text-slate-500'}`}>
                   {c.health?.status === 'PAUSED' ? <PauseCircle className="h-4 w-4 shrink-0" /> : c.lastPingOk === false ? <XCircle className="h-4 w-4 shrink-0" /> : c.lastPingOk ? <CheckCircle className="h-4 w-4 shrink-0" /> : <Circle className="h-4 w-4 shrink-0" />}
@@ -549,7 +549,7 @@ const XmlSuppliersAdmin: React.FC = () => {
               const h = open.health;
               const pct = Number(open.commissionPercent || 0);
               const example = 100;
-              const online = Math.round(example * pct) / 100;
+              const markup = Math.round(example * pct) / 100;
               return (
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center gap-2">
@@ -581,13 +581,13 @@ const XmlSuppliersAdmin: React.FC = () => {
                 </div>
 
                 <div className={panelCls}>
-                  <PanelHead icon={Wallet} title="How customers pay" text="The price customers see is the supplier's own price. Hogicar's commission is paid online; the rest at the counter." />
+                  <PanelHead icon={Wallet} title="How customers pay" text="Hogicar's markup is added on top of the supplier's price and paid online; the supplier's full price is paid at their counter." />
                   <div className="grid gap-3 sm:grid-cols-3">
-                    {[['Customer sees', money(example, open.currency), 'Supplier price, unchanged'], ['Pays online to Hogicar', money(online, open.currency), `${pct}% commission`], ['Pays at the counter', money(example - online, open.currency), 'Written on the booking sent to them']].map(([k, v, n]) => (
+                    {[['Customer sees', money(example + markup, open.currency), 'Their price + Hogicar markup'], ['Pays online to Hogicar', money(markup, open.currency), `${pct}% markup`], ['Pays at their counter', money(example, open.currency), 'Their full price (net rate)']].map(([k, v, n]) => (
                       <div key={k} className="rounded-xl bg-slate-50 px-3 py-2.5"><p className="text-xs text-slate-500">{k}</p><p className="mt-0.5 text-lg font-semibold text-slate-900">{v}</p><p className="text-[11px] text-slate-400">{n}</p></div>
                     ))}
                   </div>
-                  <p className="text-xs text-slate-500">Example for a {money(example, open.currency)} rental. Every booking tells the supplier the amount prepaid to Hogicar and the amount to collect.{pct <= 0 ? ' With 0% commission nothing is paid online, so these cars cannot be booked on the website.' : ''}</p>
+                  <p className="text-xs text-slate-500">Example when their price is {money(example, open.currency)}. They are always asked for, and collect, their own full price; every booking sent to them says so.{pct <= 0 ? ' With a 0% markup nothing is paid online, so these cars cannot be booked on the website.' : ''}</p>
                 </div>
 
                 <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
