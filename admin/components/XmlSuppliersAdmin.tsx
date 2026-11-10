@@ -32,12 +32,14 @@ type Conn = {
   webhookUrl?: string; supplierId?: string; lastPingAt?: string; lastPingOk?: boolean | null; lastError?: string; encryptionReady?: boolean;
   protocol?: string; otaVersion?: string; otaNamespace?: string; urlTemplate?: string; username?: string; apiKeyHeader?: string; oauthTokenUrl?: string;
   signRequests?: boolean; signingHeaderPrefix?: string; hasSigningSecret?: boolean; customMapping?: string;
-  health?: Health;
+  health?: Health; xmlVersion?: string; versionLabel?: string; versionRules?: string[];
 };
 type Health = { status: 'HEALTHY' | 'DEGRADED' | 'PAUSED' | 'TESTING' | 'UNKNOWN'; searches: number; successRate?: number | null; medianMs?: number | null;
   p95Ms?: number | null; failuresInARow: number; pausedUntil?: string | null; lastError?: string | null; lastErrorAt?: string | null; lastOkAt?: string | null;
-  recent: { at: string; ok: boolean; ms: number; error?: string }[] };
-type Preset = { id: string; label: string; description: string; protocol: string; otaVersion?: string | null; urlTemplate?: string | null; authMode: string; customMapping?: string | null };
+  recent: { at: string; ok: boolean; ms: number; error?: string }[];
+  lastCheck?: { at: string; ok: boolean; ms: number; message: string; error?: string }; checks?: number; checksOk?: number };
+type Preset = { id: string; xmlVersion: string; label: string; description: string; protocol: string; otaVersion?: string | null; urlTemplate?: string | null;
+  authMode: string; customMapping?: string | null; rules: string[] };
 
 const PROTOCOLS: Record<string, string> = {
   OTA: 'OpenTravel (OTA) XML', OTA_SOAP11: 'OTA in SOAP 1.1', OTA_SOAP12: 'OTA in SOAP 1.2', NATIVE_XML: 'UR-Drive / NCT native XML', CUSTOM_XML: 'Custom XML mapping',
@@ -53,6 +55,7 @@ const authFits = (mode: string, protocol: string) => {
   return true;
 };
 const formatLine = (c: Conn) => {
+  if (c.versionLabel) return c.versionLabel;
   const p = c.protocol || 'OTA';
   return p.startsWith('OTA') ? `${PROTOCOLS[p]} ${c.otaVersion || '2.000'}` : PROTOCOLS[p] || p;
 };
@@ -140,7 +143,7 @@ const EMPTY = { name: '', baseUrl: '', channelCode: 'HGC', supplierCode: '', aut
   defaultDriverAge: 30, commissionPercent: 0, logoUrl: '', replacesVendorCodes: '', pickupType: '', pickupLabel: '', active: false, bookingEnabled: true, timeoutSeconds: 20,
   webhookHeaderPrefix: 'X-NCT', apiKey: '', webhookSecret: '',
   protocol: 'OTA', otaVersion: '2.000', otaNamespace: '', urlTemplate: '', username: '', apiKeyHeader: '', oauthTokenUrl: '',
-  signRequests: false, signingHeaderPrefix: '', signingSecret: '', customMapping: '' };
+  signRequests: false, signingHeaderPrefix: '', signingSecret: '', customMapping: '', xmlVersion: 'OTA_2_000' };
 
 /** The connection form, used to add a connection and in its Settings tab. */
 const ConnectionForm: React.FC<{ initial?: Conn | null; busy: boolean; onSave: (v: any) => void; onDelete?: () => void }> = ({ initial, busy, onSave, onDelete }) => {
@@ -149,12 +152,12 @@ const ConnectionForm: React.FC<{ initial?: Conn | null; busy: boolean; onSave: (
     pickupType: initial.pickupType || '', pickupLabel: initial.pickupLabel || '', protocol: initial.protocol || 'OTA', otaVersion: initial.otaVersion || '2.000',
     otaNamespace: initial.otaNamespace || '', urlTemplate: initial.urlTemplate || '', username: initial.username || '', apiKeyHeader: initial.apiKeyHeader || '',
     oauthTokenUrl: initial.oauthTokenUrl || '', signRequests: !!initial.signRequests, signingHeaderPrefix: initial.signingHeaderPrefix || '',
-    customMapping: initial.customMapping || '' } : { ...EMPTY });
+    customMapping: initial.customMapping || '', xmlVersion: initial.xmlVersion || '' } : { ...EMPTY });
   const set = (k: string, val: any) => setV((x: any) => ({ ...x, [k]: val }));
   const [presets, setPresets] = React.useState<Preset[]>([]);
   const [advanced, setAdvanced] = React.useState(() => !!(initial?.urlTemplate || initial?.otaNamespace));
   React.useEffect(() => { adminFetch('/api/admin/xml-suppliers/presets').then(setPresets).catch(() => setPresets([])); }, []);
-  const usePreset = (p: Preset) => setV((x: any) => ({ ...x, protocol: p.protocol, otaVersion: p.otaVersion || x.otaVersion || '2.000', urlTemplate: p.urlTemplate || '',
+  const usePreset = (p: Preset) => setV((x: any) => ({ ...x, xmlVersion: p.xmlVersion, protocol: p.protocol, otaVersion: p.otaVersion || x.otaVersion || '2.000', urlTemplate: p.urlTemplate || '',
     authMode: p.authMode, customMapping: p.protocol === 'CUSTOM_XML' ? (x.customMapping || p.customMapping || '') : x.customMapping }));
   const isOta = String(v.protocol).startsWith('OTA');
   const mappingError = React.useMemo(() => {
@@ -182,7 +185,7 @@ const ConnectionForm: React.FC<{ initial?: Conn | null; busy: boolean; onSave: (
         {presets.length > 0 && (
           <div className="grid gap-2 sm:grid-cols-2">
             {presets.map(p => {
-              const on = v.protocol === p.protocol && (p.urlTemplate || '') === (v.urlTemplate || '') && (!p.protocol.startsWith('OTA') || (p.otaVersion || '2.000') === v.otaVersion);
+              const on = v.xmlVersion === p.xmlVersion;
               return (
                 <button key={p.id} type="button" onClick={() => usePreset(p)} aria-pressed={on}
                   className={`rounded-xl p-3 text-left ring-1 ring-inset ${on ? 'bg-white ring-2 ring-[#007ac2]' : 'bg-white ring-slate-200 hover:bg-slate-50'}`}>
@@ -193,9 +196,20 @@ const ConnectionForm: React.FC<{ initial?: Conn | null; busy: boolean; onSave: (
             })}
           </div>
         )}
+        {(() => {
+          const p = presets.find(x => x.xmlVersion === v.xmlVersion);
+          return p ? (
+            <div className="rounded-xl bg-slate-50 p-3 ring-1 ring-inset ring-slate-200">
+              <p className="text-xs font-semibold text-slate-700">How Hogicar speaks {p.label}</p>
+              <ul className="mt-1.5 grid gap-1 sm:grid-cols-2">
+                {p.rules.map(r => <li key={r} className="flex items-start gap-1.5 text-xs text-slate-600"><CheckCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" />{r}</li>)}
+              </ul>
+            </div>
+          ) : null;
+        })()}
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label="Format">
-            <select className={inputCls} value={v.protocol} onChange={e => { const p = e.target.value; setV((x: any) => ({ ...x, protocol: p, authMode: authFits(x.authMode, p) ? x.authMode : 'BEARER' })); }}>
+            <select className={inputCls} value={v.protocol} onChange={e => { const p = e.target.value; setV((x: any) => ({ ...x, protocol: p, xmlVersion: '', authMode: authFits(x.authMode, p) ? x.authMode : 'BEARER' })); }}>
               {Object.entries(PROTOCOLS).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
             </select>
           </Field>
@@ -399,7 +413,7 @@ const XmlSuppliersAdmin: React.FC = () => {
     setPinging(c.id);
     try {
       const r = await adminFetch(`/api/admin/xml-suppliers/${c.id}/ping`, { method: 'POST' });
-      notify(r.ok ? `${c.name}: connected (${r.ms} ms)` : `${c.name}: ${r.errorCode} ${r.message || ''}`, r.ok ? 'ok' : 'err');
+      notify(r.ok ? `${c.name}: ${r.sent} answered in ${r.ms} ms` : `${c.name}: ${r.errorCode} ${r.message || ''}`, r.ok ? 'ok' : 'err');
       await load();
     } catch (e: any) { notify(errorText(e, 'The check failed.'), 'err'); }
     finally { setPinging(null); }
@@ -517,7 +531,7 @@ const XmlSuppliersAdmin: React.FC = () => {
                 </div>
                 <div className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs ${c.health?.status === 'PAUSED' ? 'bg-rose-50 text-rose-800' : c.lastPingOk === false ? 'bg-rose-50 text-rose-800' : c.lastPingOk ? 'bg-emerald-50 text-emerald-800' : 'bg-slate-50 text-slate-500'}`}>
                   {c.health?.status === 'PAUSED' ? <PauseCircle className="h-4 w-4 shrink-0" /> : c.lastPingOk === false ? <XCircle className="h-4 w-4 shrink-0" /> : c.lastPingOk ? <CheckCircle className="h-4 w-4 shrink-0" /> : <Circle className="h-4 w-4 shrink-0" />}
-                  <span className="truncate">{c.health?.status === 'PAUSED' ? `Left out of search until ${new Date(c.health.pausedUntil!).toLocaleTimeString()} · ${c.health.lastError || ''}` : c.lastPingAt ? `Connection check ${c.lastPingOk ? 'passed' : 'failed'} ${ago(c.lastPingAt)}${c.lastError ? ` · ${c.lastError}` : ''}` : 'Connection not checked yet'}</span>
+                  <span className="truncate">{c.health?.status === 'PAUSED' ? `Left out of search until ${new Date(c.health.pausedUntil!).toLocaleTimeString()} · ${c.health.lastError || ''}` : c.lastPingAt ? `Health check ${c.lastPingOk ? 'passed' : 'failed'} ${ago(c.lastPingAt)}${c.health?.lastCheck ? ` · ${fmtMs(c.health.lastCheck.ms)}` : ''}${c.lastError ? ` · ${c.lastError}` : ''}` : 'Not checked yet (runs every 5 minutes)'}</span>
                 </div>
                 <div className="flex gap-2">
                   <button onClick={() => ping(c)} disabled={pinging === c.id} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl text-sm font-semibold text-slate-700 ring-1 ring-inset ring-slate-200 hover:bg-slate-50 disabled:opacity-60">
@@ -577,6 +591,13 @@ const XmlSuppliersAdmin: React.FC = () => {
                     ))}
                   </div>
                   <SearchStrip h={h} slots={40} />
+                  <div className={`flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl px-3 py-2 text-xs ${h?.lastCheck ? (h.lastCheck.ok ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800') : 'bg-slate-50 text-slate-600'}`}>
+                    {h?.lastCheck?.ok === false ? <XCircle className="h-4 w-4 shrink-0" /> : h?.lastCheck ? <CheckCircle className="h-4 w-4 shrink-0" /> : <Circle className="h-4 w-4 shrink-0" />}
+                    <span className="font-semibold">Automatic check every 5 minutes</span>
+                    <span>{h?.lastCheck ? `Last: ${h.lastCheck.message} · ${h.lastCheck.ok ? 'answered' : 'failed'} in ${fmtMs(h.lastCheck.ms)} · ${ago(h.lastCheck.at)}` : 'Not run yet since the server started'}</span>
+                    {h?.checks ? <span className="ml-auto">{h.checksOk}/{h.checks} passed</span> : null}
+                    {h?.lastCheck?.error && <span className="basis-full font-mono">{h.lastCheck.error}</span>}
+                  </div>
                   <p className="text-xs text-slate-500">{h?.lastError ? <>Last error {h.lastErrorAt ? ago(h.lastErrorAt) : ''}: <span className="font-mono text-slate-700">{h.lastError}</span>. </> : null}After 3 failed searches in a row the supplier is paused automatically (1 minute, doubling up to 15), so a supplier that is down never slows the site.</p>
                 </div>
 
