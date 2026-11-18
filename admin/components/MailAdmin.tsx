@@ -131,14 +131,13 @@ const SignatureDrawer: React.FC<{ settings: Settings; fromOptions: string[]; onC
           {html ? <MailFrame html={html} minHeight={420} title="Signature preview" /> : <div className="h-[420px] animate-pulse bg-slate-50" />}
         </section>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Full name"><input className={inputCls} value={s.signatureName} onChange={set('signatureName')} placeholder="Mohammad Ahmad" /></Field>
-          <Field label="Job title"><input className={inputCls} value={s.signatureTitle} onChange={set('signatureTitle')} placeholder="Business Development Manager" /></Field>
+          <Field label="Department" hint="Emails are signed by the department, not a person. Empty means Business Development."><input className={inputCls} value={s.signatureTitle} onChange={set('signatureTitle')} placeholder="Business Development" /></Field>
           <Field label="Phone"><input className={inputCls} value={s.signaturePhone} onChange={set('signaturePhone')} placeholder="+962 7 9000 0000" inputMode="tel" /></Field>
           <Field label="Email"><input className={inputCls} value={s.signatureEmail} onChange={set('signatureEmail')} placeholder="business@hogicar.com" inputMode="email" /></Field>
           <Field label="Website"><input className={inputCls} value={s.signatureWebsite} onChange={set('signatureWebsite')} placeholder="www.hogicar.com" /></Field>
           <Field label="Office address" hint="Optional."><input className={inputCls} value={s.signatureAddress || ''} onChange={set('signatureAddress')} placeholder="Amman, Jordan" /></Field>
         </div>
-        <Field label="Sender name" hint="Shown as the sender in the inbox, e.g. “Mohammad Mike | Hogicar”."><input className={inputCls} value={s.senderName} onChange={set('senderName')} placeholder="Hogicar" /></Field>
+        <Field label="Sender name" hint="Shown as the sender in the inbox, e.g. “Hogicar Business Development”."><input className={inputCls} value={s.senderName} onChange={set('senderName')} placeholder="Hogicar" /></Field>
         <Field label="Small print" hint="Optional, e.g. a confidentiality note. Shown in small grey text under the signature.">
           <textarea className={`${inputCls} min-h-[80px] py-2.5`} value={s.signatureNote} onChange={set('signatureNote')} maxLength={500} />
         </Field>
@@ -300,7 +299,7 @@ export const MailAdmin: React.FC = () => {
     setTab('compose');
   };
 
-  const sigReady = !!settings && !!(settings.signatureName || settings.signatureTitle || settings.signaturePhone);
+  const sigReady = !!settings && !!(settings.signatureTitle || settings.signaturePhone || settings.signatureEmail);
 
   return (
     <div className="space-y-5">
@@ -317,7 +316,7 @@ export const MailAdmin: React.FC = () => {
           { label: 'Unread', value: num(inboxStatus?.unread), Icon: Mail, note: inboxStatus?.openContact ? `${inboxStatus.openContact} contact request${inboxStatus.openContact === 1 ? '' : 's'} to answer` : undefined },
           { label: 'Sent', value: num(counts.sent), Icon: MailCheck, note: counts.failed ? `${counts.failed} not sent` : undefined },
           { label: 'Sending from', value: from ? from.split('@')[0] : '…', Icon: AtSign, note: from || undefined },
-          { label: 'Signature', value: sigReady ? 'Ready' : 'Not set', Icon: Signature, note: sigReady ? settings?.signatureName || undefined : 'Add your name and phone' },
+          { label: 'Signature', value: sigReady ? 'Ready' : 'Not set', Icon: Signature, note: sigReady ? settings?.signatureTitle || 'Business Development' : 'Add your department and phone' },
         ]}
         loading={!settings && !loadErr}
       />
