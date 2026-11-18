@@ -137,7 +137,7 @@ const SignatureDrawer: React.FC<{ settings: Settings; fromOptions: string[]; onC
           <Field label="Website"><input className={inputCls} value={s.signatureWebsite} onChange={set('signatureWebsite')} placeholder="www.hogicar.com" /></Field>
           <Field label="Office address" hint="Optional."><input className={inputCls} value={s.signatureAddress || ''} onChange={set('signatureAddress')} placeholder="Amman, Jordan" /></Field>
         </div>
-        <Field label="Sender name" hint="Shown as the sender in the inbox, e.g. “Hogicar Business Development”."><input className={inputCls} value={s.senderName} onChange={set('senderName')} placeholder="Hogicar" /></Field>
+        <Field label="Sender name" hint="Shown as the sender in the inbox, e.g. “Hogicar Business Development”."><input className={inputCls} value={s.senderName} onChange={set('senderName')} placeholder="Hogicar Business Development" /></Field>
         <Field label="Small print" hint="Optional, e.g. a confidentiality note. Shown in small grey text under the signature.">
           <textarea className={`${inputCls} min-h-[80px] py-2.5`} value={s.signatureNote} onChange={set('signatureNote')} maxLength={500} />
         </Field>
