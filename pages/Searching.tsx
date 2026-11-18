@@ -129,7 +129,7 @@ const Searching: React.FC = () => {
     'Free cancellation on most bookings.',
     'All mandatory taxes and fees are included in the price you see.',
     'Every supplier shows real customer ratings to help you choose.',
-    'Our support team is available 24/7 before and during your rental.',
+    'Our team helps by email before and during your rental.',
     'Booking early usually means better prices and more choice.',
   ];
 
@@ -259,7 +259,7 @@ const Searching: React.FC = () => {
   const included = [
     { icon: ShieldCheck, title: 'Free cancellation', text: 'On most bookings' },
     { icon: Receipt, title: 'No hidden fees', text: 'Taxes and fees shown up front' },
-    { icon: Headphones, title: '24/7 support', text: 'Before and during your rental' },
+    { icon: Headphones, title: 'Help when you need it', text: 'Before and during your rental' },
   ];
 
   // Pin the screen between the site header and the bottom of the viewport, and scale the

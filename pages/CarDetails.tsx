@@ -841,7 +841,7 @@ const CarDetails: React.FC = () => {
                 </div>
                 <ul className="mt-4 grid grid-cols-2 gap-2 text-sm text-slate-600 sm:grid-cols-4">
                   <li className="flex items-center gap-2"><Shield className="h-4 w-4 text-accent" /> Verified partner</li>
-                  <li className="flex items-center gap-2"><Headphones className="h-4 w-4 text-accent" /> 24/7 support</li>
+                  <li className="flex items-center gap-2"><Headphones className="h-4 w-4 text-accent" /> Help before and during your rental</li>
                   <li className="flex items-center gap-2"><Zap className="h-4 w-4 text-accent" /> {isInstant ? 'Instant confirmation' : 'On request'}</li>
                   <li className="flex items-center gap-2"><Building className="h-4 w-4 text-accent" /> {car.locationDetail || 'Local desk'}</li>
                 </ul>
@@ -983,7 +983,7 @@ const CarDetails: React.FC = () => {
                   <div className="mt-4 flex items-center justify-center gap-2 border-t border-slate-100 pt-4"><VisaIcon /><MastercardIcon /><AmexIcon /></div>
                 </section>
                 <p className="hidden items-center justify-center gap-2 text-xs text-slate-500 lg:flex">
-                  <Headphones className="h-4 w-4" /> Need help? Our support team is available 24/7.
+                  <Headphones className="h-4 w-4" /> Need help? Email business@hogicar.com and our team will help.
                 </p>
               </div>
             </aside>

@@ -57,8 +57,14 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
   const dynamicSEO = getRouteSEO(routeType, locationSlug, path);
 
   // 2. Resolve final values
-  const title = propTitle || config?.title || (routeType ? dynamicSEO.title : "Hogicar - Compare Car Rental Deals Worldwide");
-  const description = propDescription || config?.description || (routeType ? dynamicSEO.description : "Compare and book affordable car rentals worldwide with Hogicar. Find trusted rental cars, airport rentals, and travel deals.");
+  // When a page has nothing of its own: the homepage wording, in Arabic on /ar pages (the same as the server sends).
+  const arabic = path === '/ar' || path.startsWith('/ar/');
+  const fallbackTitle = arabic ? 'تأجير سيارات | قارن عروض تأجير السيارات | هوجيكار' : 'Car Rental Comparison | Compare Car Hire Deals | Hogicar';
+  const fallbackDescription = arabic
+    ? 'قارن عروض تأجير السيارات من شركات محلية ودولية في المطارات والمدن، واطلع على ما يشمله السعر واحجز عبر الإنترنت مع هوجيكار.'
+    : 'Compare car rental from local and international suppliers at airports and city locations. See what is included, choose your car and book online with Hogicar.';
+  const title = propTitle || config?.title || (routeType ? dynamicSEO.title : fallbackTitle);
+  const description = propDescription || config?.description || (routeType ? dynamicSEO.description : fallbackDescription);
   const keywords = propKeywords || config?.keywords || "car rental, car hire, rent a car, hogicar";
   
   let ogImage = propOgImage || config?.ogImage;
@@ -98,7 +104,7 @@ const SEOMetadata: React.FC<SEOMetadataProps> = ({
     }
   };
 
-  const lang = config?.lang || 'en';
+  const lang = config?.lang || (arabic ? 'ar' : 'en');
   const alternateRoute = config?.alternateRoute;
   const countryTag = config?.countryTag;
 

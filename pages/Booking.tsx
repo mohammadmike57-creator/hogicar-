@@ -973,7 +973,7 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
                 <ul className="space-y-2 text-sm text-slate-600">
                   <li className="flex items-center gap-2"><Check className="h-4 w-4 shrink-0 text-emerald-600" /> {freeCancellationLine(car)}</li>
                   <li className="flex items-center gap-2">{isInstant ? <Zap className="h-4 w-4 shrink-0 text-emerald-600" /> : <Clock className="h-4 w-4 shrink-0 text-amber-600" />} {isInstant ? 'Instant confirmation' : 'Supplier confirms your request shortly'}</li>
-                  <li className="flex items-center gap-2"><Headphones className="h-4 w-4 shrink-0 text-emerald-600" /> 24/7 customer support</li>
+                  <li className="flex items-center gap-2"><Headphones className="h-4 w-4 shrink-0 text-emerald-600" /> Help before and during your rental</li>
                 </ul>
                 <p className="mt-3 border-t border-slate-100 pt-3 text-xs text-slate-500">At pick-up bring your driving licence, passport or ID, and a credit card in the main driver's name.</p>
               </section>

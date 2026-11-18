@@ -276,6 +276,106 @@ async function serveStatic(req, res, url) {
   send(res, 200, html, { 'Content-Type': contentTypes['.html'], 'Cache-Control': 'no-cache' }, req);
 }
 
+// ---------------------------------------------------------------- server-side SEO
+// Each page is sent with its own title, description, canonical, hreflang, structured data and readable text
+// from the backend (/api/seo/head), merged into index.html, so search engines and AI tools that do not run
+// JavaScript read the real page. The app replaces all of it once it runs. Safety first: a slow (over 1.5 s)
+// or failing backend, or any error here, serves the plain index.html exactly as before, and SEO_SSR=off
+// turns the whole feature off without a deploy.
+
+const SEO_ENABLED = String(process.env.SEO_SSR || 'on').toLowerCase() !== 'off';
+const SEO_TTL_MS = 5 * 60 * 1000;
+const SEO_TIMEOUT_MS = 1500;
+const seoCache = new Map();
+const NON_PAGE_PREFIXES = ['/api/', '/uploads/', '/assets/', '/logos/', '/icons/', '/images/', '/brands/', '/wallet/'];
+
+function isPageRoute(pathname) {
+  if (NON_PAGE_PREFIXES.some(p => pathname.startsWith(p))) return false;
+  const last = pathname.split('/').pop() || '';
+  return !last.includes('.');
+}
+
+async function fetchSeoHead(pagePath) {
+  const hit = seoCache.get(pagePath);
+  if (hit && Date.now() - hit.at < SEO_TTL_MS) return hit.data;
+  try {
+    const target = new URL('/api/seo/head', backendOrigin);
+    target.searchParams.set('path', pagePath);
+    const headers = { accept: 'application/json' };
+    if (proxySecret) headers['x-hogicar-proxy-key'] = proxySecret;
+    const response = await fetch(target, { signal: AbortSignal.timeout(SEO_TIMEOUT_MS), headers });
+    if (!response.ok) return null;
+    const data = await response.json();
+    if (!data || typeof data.status !== 'number' || typeof data.head !== 'string') return null;
+    if (seoCache.size > 2000) seoCache.delete(seoCache.keys().next().value);
+    seoCache.set(pagePath, { at: Date.now(), data });
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+// Tags in index.html that each page replaces with its own.
+const SEO_TAG_PATTERNS = [
+  /<title\b[^>]*>[\s\S]*?<\/title>\s*/gi,
+  /<meta\s[^>]*name=["'](?:description|keywords|robots|googlebot|twitter:[^"']+)["'][^>]*>\s*/gi,
+  /<meta\s[^>]*property=["'](?:og|article):[^"']+["'][^>]*>\s*/gi,
+  /<link\s[^>]*rel=["']canonical["'][^>]*>\s*/gi,
+  /<link\s[^>]*rel=["']alternate["'][^>]*hreflang=[^>]*>\s*/gi,
+];
+
+// The app removes tags marked data-ssr and adds its own once it runs (see SEOMetadata).
+function markServerTags(head) {
+  return head.replace(/<(title|meta|link|script)\b(?![^>]*\bdata-ssr\b)/gi, '<$1 data-ssr');
+}
+
+const SSR_STYLE = 'max-width:72rem;margin:0 auto;padding:96px 16px 48px;font-family:Inter,system-ui,-apple-system,sans-serif;color:#0f172a;line-height:1.6';
+
+function mergeSeo(indexHtml, seo, isHome) {
+  const headEnd = indexHtml.search(/<\/head>/i);
+  if (headEnd < 0) return indexHtml;
+  let head = indexHtml.slice(0, headEnd);
+  let rest = indexHtml.slice(headEnd);
+  for (const re of SEO_TAG_PATTERNS) head = head.replace(re, '');
+  let html = `${head}${markServerTags(seo.head || '')}\n${rest}`;
+  const lang = /^[a-z]{2}(-[A-Za-z]{2})?$/.test(seo.lang || '') ? seo.lang : 'en';
+  html = html.replace(/<html\b[^>]*>/i, `<html lang="${lang}"${lang.startsWith('ar') ? ' dir="rtl"' : ''}>`);
+  if (!isHome) {
+    // The instant-paint copy of the homepage is only used on "/": elsewhere crawlers would read it as this page.
+    html = html.replace(/<!-- boot-shell:start[\s\S]*?<!-- boot-shell:end -->/, '');
+  } else {
+    // On "/" the instant-paint header and hero cover the page; the readable text stays hidden behind it.
+    html = html.replace(/<\/head>/i, '<style>body:has(#boot-shell) [data-ssr-body]{display:none}</style>\n</head>');
+  }
+  if (seo.root) html = html.replace('<div id="root"></div>', () => `<div id="root"><div data-ssr-body style="${SSR_STYLE}">${seo.root}</div></div>`);
+  return html;
+}
+
+/** True when the page was sent with its SEO; false means "serve the plain index.html as before". */
+async function serveSeoPage(req, res, url) {
+  if (!SEO_ENABLED) return false;
+  try {
+    let pagePath;
+    try { pagePath = decodeURIComponent(url.pathname); } catch { pagePath = url.pathname; }
+    const seo = await fetchSeoHead(pagePath);
+    if (!seo) return false;
+    if ([301, 302, 307, 308].includes(seo.status) && seo.location) {
+      const location = seo.location.startsWith('http') || seo.location.startsWith('/') ? seo.location : `/${seo.location}`;
+      send(res, seo.status === 302 || seo.status === 307 ? seo.status : 301, '', { Location: encodeURI(location) + (url.search || ''), 'Cache-Control': 'public, max-age=300' });
+      return true;
+    }
+    const indexHtml = (await readFile(path.join(distDir, 'index.html'))).toString('utf8');
+    const headers = { 'Content-Type': contentTypes['.html'], 'Cache-Control': 'no-cache' };
+    if (seo.noindex) headers['X-Robots-Tag'] = 'noindex, follow';
+    // Only a page the backend knows is missing gets 404; every other answer is 200 so the app can always load.
+    send(res, seo.status === 404 || seo.status === 410 ? seo.status : 200, Buffer.from(mergeSeo(indexHtml, seo, pagePath === '/'), 'utf8'), headers, req);
+    return true;
+  } catch (error) {
+    console.error('[frontend-server] SEO merge failed, plain page served', error?.message || error);
+    return false;
+  }
+}
+
 createServer(async (req, res) => {
   try {
     const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
@@ -298,6 +398,13 @@ createServer(async (req, res) => {
     if (shouldProxy(url.pathname)) {
       await proxyToBackend(req, res, url);
       return;
+    }
+
+    if ((req.method === 'GET' || req.method === 'HEAD') && isPageRoute(url.pathname) && !res.headersSent) {
+      let decoded = url.pathname;
+      try { decoded = decodeURIComponent(url.pathname); } catch { /* keep raw */ }
+      const onDisk = decoded !== '/' && existsSync(path.join(distDir, path.normalize(decoded)));
+      if (!onDisk && await serveSeoPage(req, res, url)) return;
     }
 
     await serveStatic(req, res, url);

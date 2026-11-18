@@ -17,6 +17,8 @@ import { API_BASE_URL } from '../lib/config';
 import { detectRouteType, getRouteSEO } from '../utils/seo';
 import { lazyRetry } from '../utils/lazyRetry';
 import { safeHtml } from '../utils/safeHtml';
+import { Helmet } from 'react-helmet-async';
+import { faqsFromHtml, faqPageSchema } from '../utils/faqSchema';
 
 const Home = lazyRetry(() => import('./Home'));
 const Reviews = lazyRetry(() => import('../components/Reviews'));
@@ -386,7 +388,7 @@ const DynamicPage: React.FC = () => {
       <section className="py-16 bg-slate-900 text-white">
         <div className="max-w-4xl mx-auto px-4 text-center">
             <h2 className="text-3xl font-extrabold mb-6">Ready to hit the road?</h2>
-            <p className="text-slate-400 mb-8 text-lg">Compare over 900+ suppliers and find your perfect car today.</p>
+            <p className="text-slate-400 mb-8 text-lg">Compare local and international suppliers and find your car today.</p>
             <Link to="/" className="inline-flex items-center gap-2 bg-[#007ac2] hover:bg-blue-600 text-white px-8 py-4 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg shadow-blue-500/20">
                 Start Searching Now <ChevronRight className="w-5 h-5" />
             </Link>
@@ -395,8 +397,24 @@ const DynamicPage: React.FC = () => {
     </div>
   );
 
+  // The questions and answers shown on this page (its own FAQ section and the general ones below it), as a
+  // FAQPage for search engines and answer engines, unless the page's structured data already has one.
+  const faqSchema = React.useMemo(() => {
+    const configured = String(seoConfig?.structuredData || '');
+    if (configured.includes('FAQPage')) return null;
+    const shown = (seoConfig?.showFaq ?? true) && Array.isArray(homepageContent?.faqs?.items)
+      ? homepageContent.faqs.items.slice(0, 5).filter((f: any) => f?.question && f?.answer).map((f: any) => ({ question: String(f.question), answer: String(f.answer) }))
+      : [];
+    return faqPageSchema([...faqsFromHtml(page?.content || ''), ...shown]);
+  }, [page?.content, seoConfig?.structuredData, seoConfig?.showFaq, homepageContent]);
+
   return (
     <>
+      {faqSchema && (
+        <Helmet>
+          <script type="application/ld+json" id="faq-schema">{JSON.stringify(faqSchema)}</script>
+        </Helmet>
+      )}
       <SEOMetadata 
         title={seoConfig?.title || (page ? `${page.title} | Hogicar` : undefined)} 
         description={seoConfig?.description || (page ? page.content.substring(0, 160) : undefined)} 

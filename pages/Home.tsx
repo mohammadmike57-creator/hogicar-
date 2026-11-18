@@ -50,6 +50,8 @@ import { fetchLocations, fetchPublicSuppliers, fetchHomepageLogos, fetchSiteSett
 import { LocationSuggestion } from '../api';
 import { API_BASE_URL } from '../lib/config';
 import { safeHtml } from '../utils/safeHtml';
+import { Helmet } from 'react-helmet-async';
+import { faqPageSchema } from '../utils/faqSchema';
 
 // Desktop-only hero photo, AI-upscaled to 2448px. Every file is under 150 KB (AVIF, WebP fallback).
 // Phones never download it; the tiny base64 preview shows on desktop while it loads.
@@ -105,14 +107,14 @@ const normalizeHomepageContent = (content: any) => {
         {
           id: 'f1',
           icon: 'Shield',
-          title: '900+ Suppliers',
-          description: 'Compare deals from over 900 global and local car rental companies in one place.'
+          title: 'Local & International Suppliers',
+          description: 'Compare deals from local and international car rental companies in one place.'
         },
         {
           id: 'f2',
           icon: 'MapPin',
-          title: '60,000+ Locations',
-          description: 'Pick up your car at airports, city centers, and stations in over 160 countries.'
+          title: 'Airports & City Locations',
+          description: 'Pick up your car at the airport or in the city, across Jordan and the Middle East.'
         },
         {
           id: 'f3',
@@ -129,8 +131,8 @@ const normalizeHomepageContent = (content: any) => {
         {
           id: 'f5',
           icon: 'Clock',
-          title: '24/7 Support',
-          description: 'Our customer excellence team is available around the clock to assist you anywhere.'
+          title: 'Help Before & During Your Rental',
+          description: 'Our team helps with your booking by email at business@hogicar.com, before and during your rental.'
         },
         {
           id: 'f6',
@@ -155,7 +157,7 @@ const normalizeHomepageContent = (content: any) => {
   const rawTop = safeContent.topDestinations || {};
   const topDestinations = {
     title: rawTop.title || 'Top Destinations Worldwide',
-    subtitle: rawTop.subtitle || 'Compare car rental deals in over 60,000 locations',
+    subtitle: rawTop.subtitle || 'Compare car rental deals at airports and city locations',
     countries: Array.isArray(rawTop.countries) && rawTop.countries.length > 0 
       ? rawTop.countries 
       : [
@@ -470,6 +472,17 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
     return contentFaqs.length > 0 ? contentFaqs : globalFaqs;
   }, [seoConfig, content.faqs.items]);
 
+  // The FAQ shown on this page as a FAQPage for search and answer engines: only questions written for this
+  // page or set in the admin (not the built-in general list), and only when the page's own structured data
+  // does not already include one.
+  const faqSchema = React.useMemo(() => {
+    if (!sections.faq || String(seoConfig?.structuredData || '').includes('FAQPage')) return null;
+    let own: any[] = [];
+    try { const parsed = seoConfig?.faqJson ? JSON.parse(seoConfig.faqJson) : null; if (Array.isArray(parsed)) own = parsed; } catch { /* invalid JSON: nothing */ }
+    if (own.length === 0) own = content.faqs.items || [];
+    return faqPageSchema(own.filter((f: any) => f?.question && f?.answer).map((f: any) => ({ question: String(f.question), answer: String(f.answer) })));
+  }, [sections.faq, seoConfig?.structuredData, seoConfig?.faqJson, content.faqs.items]);
+
   const destinations = content.popularDestinations.destinations;
   const [heroLoaded, setHeroLoaded] = React.useState(false);
   // The static boot shell from index.html (scripts/generate-boot-shell.mjs) paints the header and
@@ -521,7 +534,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
   const shouldPreloadHeroImage = sections.hero && !heroVideo && !useDesktopHero && !!heroBackgroundImage && (!isCustomLanding || !!seoConfig?.heroImage);
 
   const displayH1 = seoConfig?.h1Title || content.hero.title || 'Search, Compare & Save on Car Rentals';
-  const displaySubtitle = seoConfig?.heroSubtitle || seoConfig?.introText || content.hero.subtitle || 'Compare prices from 900+ car rental suppliers worldwide with transparent pricing and flexible terms.';
+  const displaySubtitle = seoConfig?.heroSubtitle || seoConfig?.introText || content.hero.subtitle || 'Compare prices from local and international car rental suppliers with transparent pricing and flexible terms.';
 
   const iconMap: { [key: string]: React.ElementType } = {
       Globe, Tag, Star, Award, Search: SearchIcon, FileSymlink, BookCheck, CheckCircle, Shield, Sparkles, Zap, MapPin, Mail, ArrowRight, Plane, CreditCard, Wallet, User, Clock, HelpCircle
@@ -583,14 +596,14 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
   const heroHighlights = [
     { icon: CheckCircle, text: 'Free cancellation on most bookings' },
     { icon: ShieldCheck, text: 'No hidden fees' },
-    { icon: Clock, text: '24/7 customer support' },
+    { icon: Clock, text: 'Help before and during your rental' },
   ];
 
   const stats = [
-    { value: '900+', label: 'Rental companies' },
-    { value: '60,000+', label: 'Pick-up locations' },
-    { value: '2M+', label: 'Verified ratings' },
-    { value: '24/7', label: 'Customer support' },
+    { value: 'Local + global', label: 'Rental companies' },
+    { value: 'Airport & city', label: 'Pick-up points' },
+    { value: 'EN · AR', label: 'Languages' },
+    { value: 'Online', label: 'Change or cancel' },
   ];
 
   const featureTones = [
@@ -627,6 +640,11 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
 
   return (
     <div className="bg-white font-sans text-slate-900">
+      {!skipSEO && faqSchema && (
+        <Helmet>
+          <script type="application/ld+json" id="faq-schema">{JSON.stringify(faqSchema)}</script>
+        </Helmet>
+      )}
       {!skipSEO && (
         <SEOMetadata
           title={seoConfig?.title}
@@ -742,8 +760,8 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
               ) : !isCustomLanding && (
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-sm font-medium text-white backdrop-blur">
                   <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                  <span className="sm:hidden">900+ rental companies</span>
-                  <span className="hidden sm:inline">900+ rental companies · 60,000+ locations</span>
+                  <span className="sm:hidden">Local & international suppliers</span>
+                  <span className="hidden sm:inline">Local & international suppliers · Airports & cities</span>
                 </span>
               )}
               <h1 className={`mx-auto mt-5 font-extrabold leading-[1.1] tracking-tight drop-shadow-sm ${displayH1.length <= 40
@@ -862,7 +880,7 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#003580] to-[#0b5cc4] p-8 text-white shadow-xl sm:p-10">
               <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10" />
               <div className="relative">
-                <p className="text-sm font-medium text-white/70">Hogicar in numbers</p>
+                <p className="text-sm font-medium text-white/70">Hogicar at a glance</p>
                 <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-8">
                   {stats.map(stat => (
                     <div key={stat.label}>
