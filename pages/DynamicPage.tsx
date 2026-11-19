@@ -399,14 +399,15 @@ const DynamicPage: React.FC = () => {
 
   // The questions and answers shown on this page (its own FAQ section and the general ones below it), as a
   // FAQPage for search engines and answer engines, unless the page's structured data already has one.
-  const faqSchema = React.useMemo(() => {
+  // A plain calculation, not a hook: this runs after the early returns above (loading, landing page, error).
+  const faqSchema = (() => {
     const configured = String(seoConfig?.structuredData || '');
     if (configured.includes('FAQPage')) return null;
     const shown = (seoConfig?.showFaq ?? true) && Array.isArray(homepageContent?.faqs?.items)
       ? homepageContent.faqs.items.slice(0, 5).filter((f: any) => f?.question && f?.answer).map((f: any) => ({ question: String(f.question), answer: String(f.answer) }))
       : [];
     return faqPageSchema([...faqsFromHtml(page?.content || ''), ...shown]);
-  }, [page?.content, seoConfig?.structuredData, seoConfig?.showFaq, homepageContent]);
+  })();
 
   return (
     <>
