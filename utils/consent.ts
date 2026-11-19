@@ -63,6 +63,10 @@ export function openCookieSettings() {
 function pushToDataLayer(choice: ConsentChoice) {
   const w = window as any;
   w.dataLayer = w.dataLayer || [];
+  // Google consent mode (Ads and Analytics tags read this; the defaults are set in index.html).
+  const ads = choice.marketing ? 'granted' : 'denied';
+  const gtag = function (..._args: any[]) { w.dataLayer.push(arguments); };
+  gtag('consent', 'update', { ad_storage: ads, ad_user_data: ads, ad_personalization: ads, analytics_storage: choice.analytics ? 'granted' : 'denied' });
   w.dataLayer.push({
     event: 'hogicar_consent_update',
     analytics_consent: choice.analytics ? 'granted' : 'denied',

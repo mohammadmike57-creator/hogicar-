@@ -53,6 +53,7 @@ import { countSelected, extraUnitTotal } from '../utils/addons';
 import { api } from '../api';
 import { compactCarForStorage, safeSessionStorageSetItem } from '../utils/storage';
 import { cleanCarName, carNameOf } from '../utils/carName';
+import { trackBeginCheckout, trackAddPaymentInfo } from '../utils/adsTracking';
 
 
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '';
@@ -307,6 +308,17 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
     }
     return calcPricing(car, { pickupDate: startDate, dropoffDate: endDate }, selectedExtraIds, insuranceOption, appliedPromo);
   }, [car, startDate, endDate, selectedExtraIds, insuranceOption, appliedPromo]);
+
+  // Google Ads / Analytics: "begin_checkout" on the driver details step, "add_payment_info" on the payment step.
+  const trackedStep = React.useRef('');
+  React.useEffect(() => {
+    if (!car) return;
+    const key = `${car.id}|${routeStep}`;
+    if (trackedStep.current === key) return;
+    trackedStep.current = key;
+    if (routeStep === 'details') trackBeginCheckout(car, priceDetails.finalTotal, (car as any).currency);
+    else trackAddPaymentInfo(car, priceDetails.payNow, (car as any).currency);
+  }, [car, routeStep, priceDetails.finalTotal, priceDetails.payNow]);
   
   const [imageError, setImageError] = React.useState(false);
   const displayImage = imageError ? 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle' : (car?.image || car?.imageUrl || 'https://placehold.co/400x250/64748b/ffffff?text=Vehicle');

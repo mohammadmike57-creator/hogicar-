@@ -79,6 +79,7 @@ import { validatePromoCode, rememberedPromo, rememberPromo, promoLabel } from '.
 import { buildCarAddons, countSelected, extraUnitTotal, loadAddonSettings, withAddons } from '../utils/addons';
 import { jsonLd } from '../utils/safeHtml';
 import { cleanCarName, carNameOf } from '../utils/carName';
+import { trackViewItem } from '../utils/adsTracking';
 
 // ==================== Helper Components ====================
 
@@ -225,6 +226,13 @@ const CarDetails: React.FC = () => {
   const { convertPrice, getCurrencySymbol, selectedCurrency } = useCurrency();
 
   const [car, setCar] = React.useState<Car | null>(null);
+  // Google Ads / Analytics: "view_item" once per car shown.
+  const trackedCar = React.useRef<string | null>(null);
+  React.useEffect(() => {
+    if (!car || trackedCar.current === String(car.id)) return;
+    trackedCar.current = String(car.id);
+    trackViewItem(car);
+  }, [car]);
   const [cars, setCars] = React.useState<Car[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);

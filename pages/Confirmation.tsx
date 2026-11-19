@@ -23,6 +23,7 @@ import BookingStepper from '../components/BookingStepper';
 import { Logo } from '../components/Logo';
 import { api } from '../api';
 import { fireConversionTags } from '../utils/affiliateTracking';
+import { trackPurchase } from '../utils/adsTracking';
 import { cleanCarName, carNameOf } from '../utils/carName';
 
 const Confirmation: React.FC = () => {
@@ -43,6 +44,11 @@ const Confirmation: React.FC = () => {
   React.useEffect(() => {
     if (bookingRefForTags) fireConversionTags(bookingRefForTags);
   }, [bookingRefForTags]);
+
+  // Google Ads / Analytics: "purchase" once per booking, after the booking's real status has loaded.
+  React.useEffect(() => {
+    if (!loading && booking) trackPurchase(booking);
+  }, [loading, booking]);
 
   React.useEffect(() => {
     const bookingRefFromQuery = searchParams.get('bookingRef');

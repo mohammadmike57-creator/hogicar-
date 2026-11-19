@@ -92,6 +92,23 @@
       />
     </noscript>
     <script>
+      // Google consent mode: advertising and analytics storage stay off until the visitor accepts them in the
+      // cookie banner (the same rule the site applies to its partners). A choice made on an earlier visit is
+      // applied straight away; utils/consent.ts updates it when the visitor changes it.
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied', wait_for_update: 500 });
+      gtag('set', 'ads_data_redaction', true);
+      gtag('set', 'url_passthrough', true);
+      try {
+        var hc = JSON.parse(localStorage.getItem('hogicar_consent') || 'null');
+        if (hc && hc.v === 1) {
+          var ads = hc.marketing ? 'granted' : 'denied';
+          gtag('consent', 'update', { ad_storage: ads, ad_user_data: ads, ad_personalization: ads, analytics_storage: hc.analytics ? 'granted' : 'denied' });
+        }
+      } catch (e) {}
+    </script>
+    <script>
       (function() {
         // The page's nonce, passed on to Google Tag Manager so it may run under the strict script policy.
         var nonce = (document.currentScript && (document.currentScript.nonce || document.currentScript.getAttribute('nonce'))) || '';
@@ -104,6 +121,9 @@
           'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
           })(window,document,'script','dataLayer','GTM-MHN6Q99H');
         };
+        // A visitor arriving from an ad (Google's click id in the address) gets Tag Manager straight away, so the
+        // click id is read before the visitor moves on and the booking can be credited to the ad.
+        if (/[?&](gclid|gbraid|wbraid|dclid)=/.test(location.search)) window.loadGTM();
         // Load GTM after window.load + interaction or fallback delay
         window.addEventListener('load', function() {
           const loadOnInteraction = () => {

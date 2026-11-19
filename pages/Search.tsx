@@ -43,6 +43,7 @@ import { fetchPublicSuppliers } from '../api';
 import { formatCategoryName } from '../utils/ratings';
 import { clearMatchingPrefetchedResults, getMatchingPrefetchedResults, waitForMatchingSearchPrefetch, getPrefetchParamsFromUrl } from '../utils/searchPrefetch';
 import PickupTypeIcon from '../components/PickupTypeIcon';
+import { trackSearch } from '../utils/adsTracking';
 
 // The advisor and the compare panel are only needed once results are on screen, so they load separately.
 const AiAdvisor = lazyRetry(() => import('../components/AiAdvisor'));
@@ -392,6 +393,14 @@ export const Search: React.FC = () => {
   const [allLocationSuppliers, setAllLocationSuppliers] = useState<any[]>([]);
   const [categoryImages, setCategoryImages] = useState<Record<string, string>>(CATEGORY_IMAGES as Record<string, string>);
   const [selectedCompareCars, setSelectedCompareCars] = useState<Car[]>([]);
+  // Google Ads / Analytics: one "search" event per search, once the results are in.
+  const trackedSearch = React.useRef('');
+  React.useEffect(() => {
+    const key = `${pickupIata}|${searchParams.get('pickupDate')}|${searchParams.get('dropoffDate')}`;
+    if (loading || !pickupIata || trackedSearch.current === key) return;
+    trackedSearch.current = key;
+    trackSearch(pickupIata, searchParams.get('pickupDate') || undefined, searchParams.get('dropoffDate') || undefined, apiCars.length);
+  }, [loading, pickupIata, searchParams, apiCars.length]);
   const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
   const [isCompareMode, setIsCompareMode] = useState(false);
 
