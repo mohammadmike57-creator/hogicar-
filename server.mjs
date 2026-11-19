@@ -366,9 +366,10 @@ async function serveSeoPage(req, res, url) {
     }
     const indexHtml = (await readFile(path.join(distDir, 'index.html'))).toString('utf8');
     const headers = { 'Content-Type': contentTypes['.html'], 'Cache-Control': 'no-cache' };
-    if (seo.noindex) headers['X-Robots-Tag'] = 'noindex, follow';
-    // Only a page the backend knows is missing gets 404; every other answer is 200 so the app can always load.
-    send(res, seo.status === 404 || seo.status === 410 ? seo.status : 200, Buffer.from(mergeSeo(indexHtml, seo, pagePath === '/'), 'utf8'), headers, req);
+    // Always 200, exactly as before this feature: hosting health checks and every app route must load. A page
+    // the backend does not know is kept out of search with noindex instead of a 404 status.
+    if (seo.noindex || seo.status === 404 || seo.status === 410) headers['X-Robots-Tag'] = 'noindex, follow';
+    send(res, 200, Buffer.from(mergeSeo(indexHtml, seo, pagePath === '/'), 'utf8'), headers, req);
     return true;
   } catch (error) {
     console.error('[frontend-server] SEO merge failed, plain page served', error?.message || error);
@@ -382,6 +383,12 @@ createServer(async (req, res) => {
     const typoRedirect = sitemapTypoTarget(url.pathname, url.search);
     if (typoRedirect) {
       send(res, 301, '', { Location: typoRedirect });
+      return;
+    }
+
+    // Health checks for the hosting platform: answered straight away, without the backend.
+    if (url.pathname === '/healthz' || url.pathname === '/health') {
+      send(res, 200, 'ok', { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' });
       return;
     }
 
