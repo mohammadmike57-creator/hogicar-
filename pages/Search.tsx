@@ -317,22 +317,33 @@ export const Search: React.FC = () => {
       let nextPage = pageRef.current + 1;
       let more = hasNextRef.current;
       setIsFetchingMore(more);
+      const fetchPage = (pageNo: number) => loadCars({
+        locationsOptions: [],
+        pickupCode: searchPrefetchParams.pickupCode,
+        dropoffCode: searchPrefetchParams.dropoffCode,
+        pickupDate: searchPrefetchParams.pickupDate,
+        dropoffDate: searchPrefetchParams.dropoffDate,
+        startTime: searchPrefetchParams.startTime,
+        endTime: searchPrefetchParams.endTime,
+        page: pageNo,
+        size: 20,
+        sort: sortBy,
+      });
       // One page at a time, with a short pause, and each page shown as soon as it arrives.
       for (let i = 0; more && i < 30; i++, nextPage++) {
         if (i > 0) await new Promise(r => setTimeout(r, 300));
         try {
-          const data = await loadCars({
-            locationsOptions: [],
-            pickupCode: searchPrefetchParams.pickupCode,
-            dropoffCode: searchPrefetchParams.dropoffCode,
-            pickupDate: searchPrefetchParams.pickupDate,
-            dropoffDate: searchPrefetchParams.dropoffDate,
-            startTime: searchPrefetchParams.startTime,
-            endTime: searchPrefetchParams.endTime,
-            page: nextPage,
-            size: 20,
-            sort: sortBy,
-          });
+          let data = await fetchPage(nextPage);
+          // The car feed refused this page: ask again (twice, 2 s apart) before giving up on the rest.
+          for (let retry = 0; retry < 2 && data.incomplete && data.cars.length === 0; retry++) {
+            await new Promise(r => setTimeout(r, 2000));
+            data = await fetchPage(nextPage);
+          }
+          if (data.incomplete && data.cars.length === 0) {
+            // Still no answer: keep "more results" open, so scrolling down tries again later.
+            setHasNext(true);
+            break;
+          }
           const fresh = apiCarsToCars(data.cars);
           if (fresh.length) {
             setApiCars(prev => {
@@ -1071,6 +1082,12 @@ export const Search: React.FC = () => {
 
                 {filterSection('Supplier', 'Rental company', (
                   <div>
+                    {isFetchingMore && (
+                      <p className="mb-2 flex items-center gap-2 text-xs text-slate-500">
+                        <span className="h-3 w-3 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+                        Loading more suppliers…
+                      </p>
+                    )}
                     {allSuppliers.length === 0 && <p className="text-sm text-slate-500">No suppliers found for this search.</p>}
                     {allSuppliers.map(name => checkboxRow(name, selectedSuppliers.includes(name), () => handleSupplierChange(name), (
                       <>
