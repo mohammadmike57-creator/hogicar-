@@ -56,7 +56,7 @@ const FAQSection: React.FC<FAQSectionProps> = ({ faqs, title, subtitle }) => {
           <p className="mt-2 text-base text-slate-600">{subtitle}</p>
           <div className="mt-6 hidden rounded-xl border border-slate-200 bg-white p-5 lg:block">
             <p className="text-sm font-semibold text-slate-900">Still have questions?</p>
-            <p className="mt-1 text-sm text-slate-600">Our support team is here to help, day and night.</p>
+            <p className="mt-1 text-sm text-slate-600">Email our team and we will help with your booking.</p>
             <a href="mailto:business@hogicar.com" className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-accent-700 hover:underline">
               <Mail className="h-4 w-4" /> Contact support
             </a>

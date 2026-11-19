@@ -429,31 +429,31 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
     const globalFaqs = [
       {
         question: "What do I need to rent a car?",
-        answer: "Firstly, you need a valid driver’s license. In most cases, you must have held it for at least one (1) year. You also need a credit (or debit, where accepted) card to pay for the rental and leave a deposit and the voucher received after your booking is confirmed. When renting in a foreign country, you often need another form of identification, usually a passport.",
+        answer: "A valid driving licence (most suppliers ask that you have held it for at least a year), your passport or ID, and a card in the main driver's name for the deposit. Bring your Hogicar booking voucher too. The exact requirements for each car are in its rental conditions, which you can read before you book.",
         icon: 'BookCheck',
         color: 'bg-blue-500'
       },
       {
         question: "At what age can I rent a car?",
-        answer: "This depends on where you would like to rent a car. Though you can rent a car at the age of 18 in many European countries and the states of New York and Michigan in the United States, in many locations you must be 21 to rent a car. You can conveniently check this by entering your age before clicking 'Search now'. Note that most rental suppliers charge an additional Young Driver Fee for renters under the age of 25, though this age varies by supplier and location. If you enter your age before searching, we include this fee in the total, allowing for the simplest comparison.",
+        answer: "It depends on the supplier and the car. Many suppliers rent from 21 and some ask for 23 or 25, and drivers under 25 or over 70 can pay an extra fee. If the driver is not between 30 and 65, untick the age box in the search form and enter the age, so the cars and prices you see apply to you.",
         icon: 'User',
         color: 'bg-purple-500'
       },
       {
         question: "What should I look for when choosing a rental supplier?",
-        answer: "There are two things you should use to determine which supplier to rent from - reviews and the Rental Conditions. We ask every customer to rate their rental experience after they drop off the car and show their ratings when you search for a car. If you want to be sure you get great service, look for the Excellent Car Rental Service badge which we award to the top three suppliers in each location with an average rating of 8 or higher. You should also check the Rental Conditions to make sure the rental supplier you choose works best for your requirements.",
+        answer: "Compare more than the price: what is included (insurance, mileage, fuel policy), the deposit amount, how you pick up the car (in the terminal or by shuttle, for example) and the cancellation terms. Every car on Hogicar shows these details and its full rental conditions before you book.",
         icon: 'Star',
         color: 'bg-yellow-500'
       },
       {
         question: "Can I rent a car without a credit card?",
-        answer: "Though just a few years ago it was impossible to rent a car without a credit card, things have changed quickly. Many suppliers, especially global companies such as Avis, Dollar, Hertz, etc., allow renters to both pay and leave a deposit with a debit card (though the card must be a Mastercard or Visa). If you do not have a credit card, be sure to check the Payment Policy section of the Rental Conditions prior to booking to see if the supplier accepts debit cards.",
+        answer: "Most suppliers need a credit card in the main driver's name for the deposit. Some also accept debit cards. Check the payment and deposit section of the rental conditions before you book to see what the supplier accepts.",
         icon: 'CreditCard',
         color: 'bg-green-500'
       },
       {
         question: "What if my plans change?",
-        answer: "When you book a car through Hogicar.com, you can make changes or cancel your booking for free at any point prior to 48 hours before you are scheduled to pick up the car.",
+        answer: "You can change or cancel your booking online in Manage Booking. Most cars have free cancellation; the deadline and any fee for your car are shown in its cancellation policy before you book and in your confirmation email.",
         icon: 'Clock',
         color: 'bg-rose-500'
       }
@@ -472,16 +472,12 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
     return contentFaqs.length > 0 ? contentFaqs : globalFaqs;
   }, [seoConfig, content.faqs.items]);
 
-  // The FAQ shown on this page as a FAQPage for search and answer engines: only questions written for this
-  // page or set in the admin (not the built-in general list), and only when the page's own structured data
-  // does not already include one.
+  // The FAQ shown on this page as a FAQPage for search and answer engines (the same questions visitors see),
+  // unless the page's own structured data already includes one.
   const faqSchema = React.useMemo(() => {
     if (!sections.faq || String(seoConfig?.structuredData || '').includes('FAQPage')) return null;
-    let own: any[] = [];
-    try { const parsed = seoConfig?.faqJson ? JSON.parse(seoConfig.faqJson) : null; if (Array.isArray(parsed)) own = parsed; } catch { /* invalid JSON: nothing */ }
-    if (own.length === 0) own = content.faqs.items || [];
-    return faqPageSchema(own.filter((f: any) => f?.question && f?.answer).map((f: any) => ({ question: String(f.question), answer: String(f.answer) })));
-  }, [sections.faq, seoConfig?.structuredData, seoConfig?.faqJson, content.faqs.items]);
+    return faqPageSchema((faqs || []).filter((f: any) => f?.question && f?.answer).map((f: any) => ({ question: String(f.question), answer: String(f.answer) })));
+  }, [sections.faq, seoConfig?.structuredData, faqs]);
 
   const destinations = content.popularDestinations.destinations;
   const [heroLoaded, setHeroLoaded] = React.useState(false);
@@ -980,7 +976,11 @@ const Home: React.FC<HomeProps> = ({ seoConfig, skipSEO }) => {
           <FAQSection
             faqs={faqs}
             title="Frequently asked questions"
-            subtitle={`Everything you need to know about renting a car in ${seoConfig?.destinationName || displayH1.replace(/^.*\b(?:Rental|Hire) in /, '')}.`}
+            subtitle={(() => {
+              // Destination pages name the place ("…renting a car in Amman"); the homepage speaks about Hogicar.
+              const place = seoConfig?.destinationName || (/\b(?:Rental|Hire) in /.test(displayH1) ? displayH1.replace(/^.*\b(?:Rental|Hire) in /, '') : '');
+              return place ? `Everything you need to know about renting a car ${/airport/i.test(place) ? 'at' : 'in'} ${place}.` : 'Everything you need to know about renting a car with Hogicar.';
+            })()}
           />
         </React.Suspense>
       )}
