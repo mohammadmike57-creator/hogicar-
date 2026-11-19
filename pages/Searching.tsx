@@ -2,11 +2,10 @@
 import * as React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchPublicSuppliers, fetchSearchingLogos, fetchSiteSettings } from '../api';
-import { getMatchingPrefetchedResults, startCarSearchPrefetch, waitForMatchingSearchPrefetch, getPrefetchParamsFromUrl, getPrefetchStatus } from '../utils/searchPrefetch';
+import { startCarSearchPrefetch, waitForMatchingSearchPrefetch, getPrefetchParamsFromUrl, getPrefetchStatus } from '../utils/searchPrefetch';
 import SEOMetadata from '../components/SEOMetadata';
 import { Logo } from '../components/Logo';
 import Check from 'lucide-react/dist/esm/icons/check';
-import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 import CarIcon from 'lucide-react/dist/esm/icons/car';
 import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
 import Headphones from 'lucide-react/dist/esm/icons/headphones';
@@ -215,8 +214,6 @@ const Searching: React.FC = () => {
     const checkDataInterval = setInterval(() => {
       const status = getPrefetchStatus(searchPrefetchParams);
       if (status === 'fulfilled' || status === 'failed') {
-        if (!isDataFinished) {
-        }
         isDataFinished = true;
         tryNavigate();
       }

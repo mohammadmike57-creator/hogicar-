@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Star from 'lucide-react/dist/esm/icons/star';
 import User from 'lucide-react/dist/esm/icons/user';
 import Quote from 'lucide-react/dist/esm/icons/quote';

@@ -1,5 +1,4 @@
 
-import { Car, Booking } from './types';
 
 interface SearchState {
     pickupCode?: string;

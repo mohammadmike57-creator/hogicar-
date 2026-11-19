@@ -10,7 +10,6 @@ import Users from 'lucide-react/dist/esm/icons/users';
 import LogOut from 'lucide-react/dist/esm/icons/log-out';
 import Settings from 'lucide-react/dist/esm/icons/settings';
 import Settings2 from 'lucide-react/dist/esm/icons/settings-2';
-import Target from 'lucide-react/dist/esm/icons/target';
 import Package from 'lucide-react/dist/esm/icons/package';
 import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 import Zap from 'lucide-react/dist/esm/icons/zap';
@@ -20,44 +19,36 @@ import Plus from 'lucide-react/dist/esm/icons/plus';
 import Edit from 'lucide-react/dist/esm/icons/edit';
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import Search from 'lucide-react/dist/esm/icons/search';
-import Filter from 'lucide-react/dist/esm/icons/filter';
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import History from 'lucide-react/dist/esm/icons/history';
-import TrendingUp from 'lucide-react/dist/esm/icons/trending-up';
 import Download from 'lucide-react/dist/esm/icons/download';
 import Upload from 'lucide-react/dist/esm/icons/upload';
 import FileText from 'lucide-react/dist/esm/icons/file-text';
 import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
-import XCircle from 'lucide-react/dist/esm/icons/x-circle';
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import Info from 'lucide-react/dist/esm/icons/info';
 import Menu from 'lucide-react/dist/esm/icons/menu';
 import X from 'lucide-react/dist/esm/icons/x';
 import Bell from 'lucide-react/dist/esm/icons/bell';
 import Briefcase from 'lucide-react/dist/esm/icons/briefcase';
-import Gift from 'lucide-react/dist/esm/icons/gift';
 import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
-import BarChart3 from 'lucide-react/dist/esm/icons/bar-chart-3';
 import Lock from 'lucide-react/dist/esm/icons/lock';
 import Globe from 'lucide-react/dist/esm/icons/globe';
 import Layers from 'lucide-react/dist/esm/icons/layers';
 import Check from 'lucide-react/dist/esm/icons/check';
 import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
 import { useNavigate } from 'react-router-dom';
-import { format, parseISO, isAfter, isBefore, addDays, subDays } from 'date-fns';
+import { format, parseISO, addDays, subDays } from 'date-fns';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, 
-  ResponsiveContainer, BarChart, Bar, Cell, PieChart, Pie
+  ResponsiveContainer, Cell, PieChart, Pie
 } from 'recharts';
-import { supplierApi, getPublicLocations } from '../api';
-import { API_BASE_URL } from '../lib/config';
+import { supplierApi } from '../api';
 import { CURRENCIES } from '../contexts/CurrencyContext';
 import { 
-  Supplier, Car as CarType, Booking, CarCategory, Transmission, FuelPolicy, 
-  BookingMode, TemplateConfig, Extra, RateTier, CarModel, CarRateTier,
+  Supplier, Car as CarType, Booking, CarCategory, TemplateConfig, CarModel, CarRateTier,
   ExcelDownloadHistory, BandConfig
 } from '../types';
-import { Logo } from '../components/Logo';
 import AddonIcon from '../components/AddonIcon';
 import { RateUploadsSection } from '../components/supplier/RateUploads';
 import { VoucherModal } from '../components/RentalVoucher';

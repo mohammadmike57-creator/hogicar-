@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Menu from 'lucide-react/dist/esm/icons/menu';
 import X from 'lucide-react/dist/esm/icons/x';
@@ -12,9 +12,6 @@ import Save from 'lucide-react/dist/esm/icons/save';
 import Plus from 'lucide-react/dist/esm/icons/plus';
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import Edit from 'lucide-react/dist/esm/icons/edit';
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
-import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import DollarSign from 'lucide-react/dist/esm/icons/dollar-sign';
 import ExternalLink from 'lucide-react/dist/esm/icons/external-link';
@@ -24,7 +21,6 @@ import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
 import Shield from 'lucide-react/dist/esm/icons/shield';
 import TrendingUp from 'lucide-react/dist/esm/icons/trending-up';
 import MailQuestion from 'lucide-react/dist/esm/icons/mail-question';
-import Rss from 'lucide-react/dist/esm/icons/rss';
 import Link2 from 'lucide-react/dist/esm/icons/link-2';
 import Plug from 'lucide-react/dist/esm/icons/plug';
 import XCircle from 'lucide-react/dist/esm/icons/x-circle';
@@ -34,32 +30,20 @@ import Share2 from 'lucide-react/dist/esm/icons/share-2';
 import Waypoints from 'lucide-react/dist/esm/icons/waypoints';
 import RadioTower from 'lucide-react/dist/esm/icons/radio-tower';
 import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
-import Power from 'lucide-react/dist/esm/icons/power';
 import Tag from 'lucide-react/dist/esm/icons/tag';
 import ImageIcon from 'lucide-react/dist/esm/icons/image';
 import PlusCircle from 'lucide-react/dist/esm/icons/plus-circle';
 import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
 import FileText from 'lucide-react/dist/esm/icons/file-text';
 import Globe from 'lucide-react/dist/esm/icons/globe';
-import Users from 'lucide-react/dist/esm/icons/users';
 import Search from 'lucide-react/dist/esm/icons/search';
-import Loader from 'lucide-react/dist/esm/icons/loader';
-import PowerOff from 'lucide-react/dist/esm/icons/power-off';
-import Key from 'lucide-react/dist/esm/icons/key';
-import Code from 'lucide-react/dist/esm/icons/code';
 import Mail from 'lucide-react/dist/esm/icons/mail';
 import Send from 'lucide-react/dist/esm/icons/send';
-import CheckSquare from 'lucide-react/dist/esm/icons/check-square';
-import XSquare from 'lucide-react/dist/esm/icons/x-square';
-import Clock from 'lucide-react/dist/esm/icons/clock';
-import History from 'lucide-react/dist/esm/icons/history';
 import Zap from 'lucide-react/dist/esm/icons/zap';
 import Gift from 'lucide-react/dist/esm/icons/gift';
 import Megaphone from 'lucide-react/dist/esm/icons/megaphone';
-import PieChart from 'lucide-react/dist/esm/icons/pie-chart';
 import Activity from 'lucide-react/dist/esm/icons/activity';
 import Percent from 'lucide-react/dist/esm/icons/percent';
-import Coins from 'lucide-react/dist/esm/icons/coins';
 import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 import Lock from 'lucide-react/dist/esm/icons/lock';
 import Eye from 'lucide-react/dist/esm/icons/eye';
@@ -71,17 +55,9 @@ import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
 import Award from 'lucide-react/dist/esm/icons/award';
 import Star from 'lucide-react/dist/esm/icons/star';
 import Bell from 'lucide-react/dist/esm/icons/bell';
-import Moon from 'lucide-react/dist/esm/icons/moon';
-import Sun from 'lucide-react/dist/esm/icons/sun';
 import Home from 'lucide-react/dist/esm/icons/home';
-import Briefcase from 'lucide-react/dist/esm/icons/briefcase';
-import Truck from 'lucide-react/dist/esm/icons/truck';
-import CreditCard from 'lucide-react/dist/esm/icons/credit-card';
 import MessageSquare from 'lucide-react/dist/esm/icons/message-square';
-import Upload from 'lucide-react/dist/esm/icons/upload';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Logo } from '../../components/Logo';
 import ImageUploadField from '../components/ImageUploadField';
 import BlogManagement from '../components/BlogManagement';
 import SitemapManagement from '../components/SitemapManagement';
@@ -89,14 +65,11 @@ import SeoAuditManagement from '../components/SeoAuditManagement';
 import PushNotificationManagement from '../components/PushNotificationManagement';
 import { fetchLocations, LocationSuggestion } from '../../api';
 import { 
-    adminFetch, 
-    getAdminToken,
+    adminFetch,
     getSupplierCars,
     getSupplierRates,
-    getAllSupplierRates,
     updateHogicarChoice 
 } from '../../lib/adminApi';
-import { VoucherModal } from '../../components/RentalVoucher';
 import PromotionsAdmin from '../components/PromotionsAdmin';
 import AffiliatesAdmin from '../components/AffiliatesAdmin';
 import IntegrationsAdmin from '../components/IntegrationsAdmin';
@@ -114,17 +87,12 @@ const BannersAdmin = React.lazy(() => import('../components/BannersAdmin'));
 const XmlSuppliersAdmin = React.lazy(() => import('../components/XmlSuppliersAdmin'));
 const EmailCampaignsAdmin = React.lazy(() => import('../components/EmailCampaignsAdmin'));
 const MailAdmin = React.lazy(() => import('../components/MailAdmin'));
-import ChangeDecisionModal from '../../components/manage/ChangeDecisionModal';
-import { changeStatusOf } from '../../utils/changeRequest';
 import { API_BASE_URL } from '../../lib/config';
 import ExternalSuppliersPage from './ExternalSuppliers';
-import { calculatePrice } from '../../utils/bookingUtils';
 import { detectRouteType, getDefaultSEOPage } from '../../utils/seo';
 import { 
-  Supplier, CommissionType, BookingMode, PickupType, ApiConnection, ApiPartner, 
-  PageContent, SEOConfig, HomepageContent, CarModel, CarCategory, 
-  CarType as VehicleType, Affiliate, SupplierApplication, Car as CarType, 
-  RateTier, FeatureItem, StepItem, FaqItem, Booking
+  Supplier, CommissionType, BookingMode, SEOConfig, CarCategory, 
+  RateTier, Booking
 } from '../../types';
 
 // Mock data stubs (Real mock data removed)

@@ -157,7 +157,7 @@ const ConnectionForm: React.FC<{ initial?: Conn | null; busy: boolean; onSave: (
   const [presets, setPresets] = React.useState<Preset[]>([]);
   const [advanced, setAdvanced] = React.useState(() => !!(initial?.urlTemplate || initial?.otaNamespace));
   React.useEffect(() => { adminFetch('/api/admin/xml-suppliers/presets').then(setPresets).catch(() => setPresets([])); }, []);
-  const usePreset = (p: Preset) => setV((x: any) => ({ ...x, xmlVersion: p.xmlVersion, protocol: p.protocol, otaVersion: p.otaVersion || x.otaVersion || '2.000', urlTemplate: p.urlTemplate || '',
+  const applyPreset = (p: Preset) => setV((x: any) => ({ ...x, xmlVersion: p.xmlVersion, protocol: p.protocol, otaVersion: p.otaVersion || x.otaVersion || '2.000', urlTemplate: p.urlTemplate || '',
     authMode: p.authMode, customMapping: p.protocol === 'CUSTOM_XML' ? (x.customMapping || p.customMapping || '') : x.customMapping }));
   const isOta = String(v.protocol).startsWith('OTA');
   const mappingError = React.useMemo(() => {
@@ -187,7 +187,7 @@ const ConnectionForm: React.FC<{ initial?: Conn | null; busy: boolean; onSave: (
             {presets.map(p => {
               const on = v.xmlVersion === p.xmlVersion;
               return (
-                <button key={p.id} type="button" onClick={() => usePreset(p)} aria-pressed={on}
+                <button key={p.id} type="button" onClick={() => applyPreset(p)} aria-pressed={on}
                   className={`rounded-xl p-3 text-left ring-1 ring-inset ${on ? 'bg-white ring-2 ring-[#007ac2]' : 'bg-white ring-slate-200 hover:bg-slate-50'}`}>
                   <span className="block text-sm font-semibold text-slate-900">{p.label}</span>
                   <span className="block text-xs text-slate-500">{p.description}</span>

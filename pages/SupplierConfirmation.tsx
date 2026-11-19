@@ -1,11 +1,9 @@
 import * as React from 'react';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Car, CheckCircle, AlertTriangle, FileText, Calendar, 
-  User, Hash, Send, LoaderCircle, XCircle, Printer, 
-  MapPin, Clock, Phone, Mail, Shield, Zap, Info, 
-  CreditCard, ChevronRight, MessageSquare, HelpCircle, 
-  Download, ExternalLink, Globe, Award
+  Car, CheckCircle, AlertTriangle, Calendar, 
+  User, Hash, LoaderCircle, XCircle, Printer, 
+  MapPin, Clock, Mail, Zap, Award
 } from 'lucide-react';
 import SEOMetadata from '../components/SEOMetadata';
 import { api, API_BASE_URL } from '../api';

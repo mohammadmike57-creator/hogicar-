@@ -22,6 +22,7 @@ const normalCapitals = (s: string) => s.split(' ').map(word => {
 
 export function cleanCarName(name?: string | null): string {
   if (!name) return '';
+  // eslint-disable-next-line no-control-regex -- removes control characters from supplier car names
   let s = String(name).replace(/[\u0000-\u001f]/g, ' ').replace(/\s+/g, ' ').trim();
   for (let i = 0; i < 3; i++) {
     const next = s.replace(OR_SIMILAR, '').trim();

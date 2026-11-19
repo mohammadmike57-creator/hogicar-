@@ -2,17 +2,13 @@
 import * as React from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { completeCheckout } from '../utils/checkoutTracker';
-import { Booking, Car } from '../types';
+import { Car } from '../types';
 import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
-import Printer from 'lucide-react/dist/esm/icons/printer';
 import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
 import User from 'lucide-react/dist/esm/icons/user';
 import CreditCard from 'lucide-react/dist/esm/icons/credit-card';
 import FileText from 'lucide-react/dist/esm/icons/file-text';
-import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 import Calendar from 'lucide-react/dist/esm/icons/calendar';
-import Mail from 'lucide-react/dist/esm/icons/mail';
-import CarIcon from 'lucide-react/dist/esm/icons/car';
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
 import Award from 'lucide-react/dist/esm/icons/award';

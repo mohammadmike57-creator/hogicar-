@@ -8,8 +8,6 @@ import { loadStripe } from '@stripe/stripe-js';
 import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
 import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
 import User from 'lucide-react/dist/esm/icons/user';
-import CreditCard from 'lucide-react/dist/esm/icons/credit-card';
-import Shield from 'lucide-react/dist/esm/icons/shield';
 import Info from 'lucide-react/dist/esm/icons/info';
 import Mail from 'lucide-react/dist/esm/icons/mail';
 import Phone from 'lucide-react/dist/esm/icons/phone';
@@ -17,16 +15,9 @@ import Plane from 'lucide-react/dist/esm/icons/plane';
 import Clock from 'lucide-react/dist/esm/icons/clock';
 import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
 import Check from 'lucide-react/dist/esm/icons/check';
-import MapPin from 'lucide-react/dist/esm/icons/map-pin';
-import CalendarDays from 'lucide-react/dist/esm/icons/calendar-days';
 import Headphones from 'lucide-react/dist/esm/icons/headphones';
-import BadgeCheck from 'lucide-react/dist/esm/icons/badge-check';
-import Award from 'lucide-react/dist/esm/icons/award';
 import Zap from 'lucide-react/dist/esm/icons/zap';
 import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
-import UserPlus from 'lucide-react/dist/esm/icons/user-plus';
-import Users from 'lucide-react/dist/esm/icons/users';
-import Briefcase from 'lucide-react/dist/esm/icons/briefcase';
 import Lock from 'lucide-react/dist/esm/icons/lock';
 import { Car, PromoCode } from '../types';
 import { promotionSummary } from '../utils/promotions';
@@ -41,8 +32,6 @@ const AutomaticIcon = ({ className = "w-4 h-4 text-slate-500" }: { className?: s
     <path d="M12 2v2.34"/><path d="M12 10.32v1.34"/><path d="M7.11 4.41 8 6.1"/><path d="M16 6.1l.89-1.69"/><path d="M4.41 16.89l1.69-.89"/><path d="M17.9 16l1.69.89"/><path d="M2 12h2.34"/><path d="M19.66 12H22"/><path d="M12 14.66V16"/><path d="M12 22v-2.34"/><path d="m15 12-3-3-3 3"/><path d="M12 9v13"/>
   </svg>
 );
-import { DetailedRatingsTooltip } from '../components/DetailedRatingsTooltip';
-import { getRatingDescription, getRatingColor, getRatingTextColor, getCarRatings, normalizeRatingScore } from '../utils/ratings';
 import { RatingBadge } from '../components/RatingBadge';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';

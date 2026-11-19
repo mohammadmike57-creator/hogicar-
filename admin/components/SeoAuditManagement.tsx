@@ -10,23 +10,17 @@ import Search from 'lucide-react/dist/esm/icons/search';
 import ExternalLink from 'lucide-react/dist/esm/icons/external-link';
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import BarChart from 'lucide-react/dist/esm/icons/bar-chart';
-import FileText from 'lucide-react/dist/esm/icons/file-text';
-import LinkIcon from 'lucide-react/dist/esm/icons/link';
 import Activity from 'lucide-react/dist/esm/icons/activity';
 import Layers from 'lucide-react/dist/esm/icons/layers';
 import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
-import XCircle from 'lucide-react/dist/esm/icons/x-circle';
 import Wrench from 'lucide-react/dist/esm/icons/wrench';
 import Play from 'lucide-react/dist/esm/icons/play';
 import RotateCcw from 'lucide-react/dist/esm/icons/rotate-ccw';
 import Ban from 'lucide-react/dist/esm/icons/ban';
-import Filter from 'lucide-react/dist/esm/icons/filter';
 import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
-import Archive from 'lucide-react/dist/esm/icons/archive';
-import LogIn from 'lucide-react/dist/esm/icons/log-in';
 import { motion, AnimatePresence } from 'framer-motion';
-import { adminFetch, performSeoAudit, fixOneSeoIssue, fixAllSeoIssues, getSeoFixJob, fixPageSeo, dismissSeoIssue, rollbackSeoFixJob, runSeoAuditJob, getSeoAuditJob, getSeoAuditResults, fixCountrySeo, fixSiteSeo, generateJordanSeoRoutes, setRouteLifecycleStatus, deleteSeoRoute } from '../../lib/adminApi';
+import { adminFetch, performSeoAudit, fixOneSeoIssue, getSeoFixJob, fixPageSeo, dismissSeoIssue, rollbackSeoFixJob, runSeoAuditJob, getSeoAuditJob, getSeoAuditResults, fixCountrySeo, fixSiteSeo, generateJordanSeoRoutes, setRouteLifecycleStatus, deleteSeoRoute } from '../../lib/adminApi';
 
 const SeoAuditManagement: React.FC = () => {
     const [report, setReport] = useState<any>(null);

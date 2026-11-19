@@ -21,7 +21,7 @@ export const CITY_CONTENT: Record<string, CitySEOContent> = {
         <p>Finding a reliable <a href="/car-rental-amman">car rental in Amman</a> is essential for travelers who want to explore Jordan beyond the city limits. Amman is a vibrant city with a rich history, and having a rental car allows you to visit major landmarks like the Citadel and the Roman Theater with ease.</p>
         
         <h3>Queen Alia International Airport Car Rental</h3>
-        <p>Most travelers choose to pick up their rental car at <a href="/queen-alia-airport-car-rental">Queen Alia International Airport (AMM)</a>. All major international and local car rental companies have desks at the airport, providing convenient access to your vehicle immediately upon arrival. Alternatively, city locations in West Amman and Abdali offer flexible pickup options.</p>
+        <p>Most travelers choose to pick up their rental car at <a href="/amman-airport-car-rental">Queen Alia International Airport (AMM)</a>. All major international and local car rental companies have desks at the airport, providing convenient access to your vehicle immediately upon arrival. Alternatively, city locations in West Amman and Abdali offer flexible pickup options.</p>
         
         <h3>Driving Tips for Amman</h3>
         <p>Driving in Amman can be a unique experience with its hilly terrain and busy traffic. Main areas like Abdoun and Shmeisani are well-connected, but be prepared for congestion during peak hours. Road rules follow international standards, but local driving habits can be assertive. Tolls are generally not common within the city, but keep an eye out for signage on major highways. Parking in downtown Amman is challenging, so using designated parking lots or hotel valet services is recommended.</p>
@@ -739,7 +739,7 @@ export const CITY_CONTENT: Record<string, CitySEOContent> = {
         <p>Aqaba is Jordan's only coastal city, offering beautiful beaches and world-class diving. A <a href="/car-rental-aqaba">rental car in Aqaba</a> is perfect for visiting the South Beach, Tala Bay, and the ancient city of Ayla.</p>
         
         <h3>Airport Pickup Info</h3>
-        <p>King Hussein International Airport (AQJ) has car rental options available. Pre-booking <a href="/airport-car-rental-aqaba">airport car rental in Aqaba</a> is recommended, as it is a smaller airport and availability can be limited during peak season.</p>
+        <p>King Hussein International Airport (AQJ) has car rental options available. Pre-booking <a href="/aqaba-airport-car-rental">airport car rental in Aqaba</a> is recommended, as it is a smaller airport and availability can be limited during peak season.</p>
         
         <h3>Driving Tips for Aqaba</h3>
         <p>Aqaba is easy to navigate with relatively light traffic. The city is a Special Economic Zone, so be aware of the customs checkpoints when leaving the city. Parking is generally easy to find near the city center and beaches.</p>

@@ -8,7 +8,7 @@ import Plane from 'lucide-react/dist/esm/icons/plane';
 import Building from 'lucide-react/dist/esm/icons/building';
 import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
 import { getAllLocations } from '../utils/locations';
-import { fetchLocations, LocationSuggestion } from '../api';
+import { LocationSuggestion } from '../api';
 
 interface SearchOverlayProps {
   isOpen: boolean;

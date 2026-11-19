@@ -1,12 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import Globe from 'lucide-react/dist/esm/icons/globe';
 import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
 import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
-import ExternalLink from 'lucide-react/dist/esm/icons/external-link';
-import FileText from 'lucide-react/dist/esm/icons/file-text';
-import Route from 'lucide-react/dist/esm/icons/route';
-import MessageSquare from 'lucide-react/dist/esm/icons/message-square';
 import Layers from 'lucide-react/dist/esm/icons/layers';
 import Search from 'lucide-react/dist/esm/icons/search';
 import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
@@ -14,7 +9,7 @@ import Clock from 'lucide-react/dist/esm/icons/clock';
 import Send from 'lucide-react/dist/esm/icons/send';
 import XCircle from 'lucide-react/dist/esm/icons/x-circle';
 import Filter from 'lucide-react/dist/esm/icons/filter';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { adminFetch } from '../../lib/adminApi';
 
 interface SitemapStats {

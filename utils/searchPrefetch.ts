@@ -1,4 +1,3 @@
-import { ApiSearchResult } from '../types';
 import { loadCars, PaginatedCars } from './loadCars';
 import { compactPrefetchedResults, PREFETCHED_RESULTS_KEY, safeSessionStorageSetItem } from './storage';
 

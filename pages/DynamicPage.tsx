@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import { useParams, Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import SEOMetadata from '../components/SEOMetadata';
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -11,8 +11,6 @@ import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
 import Shield from 'lucide-react/dist/esm/icons/shield';
 import Award from 'lucide-react/dist/esm/icons/award';
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
-import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 import { API_BASE_URL } from '../lib/config';
 import { detectRouteType, getRouteSEO } from '../utils/seo';
 import { lazyRetry } from '../utils/lazyRetry';

@@ -7,8 +7,6 @@ import Building from 'lucide-react/dist/esm/icons/building';
 import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
 import SearchIcon from 'lucide-react/dist/esm/icons/search';
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
-import X from 'lucide-react/dist/esm/icons/x';
-import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
 import { fetchLocations, LocationSuggestion } from '../api';
 import { startCarSearchPrefetch } from '../utils/searchPrefetch';
 import { lazyRetry } from '../utils/lazyRetry';
@@ -317,7 +315,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
         if (saved) {
             try {
                 setRecentLocations(JSON.parse(saved));
-            } catch (e) {}
+            } catch { /* unreadable saved list: start empty */ }
         }
     }, []);
 

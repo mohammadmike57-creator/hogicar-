@@ -13,7 +13,7 @@ import Search from 'lucide-react/dist/esm/icons/search';
 import Info from 'lucide-react/dist/esm/icons/info';
 import { useToast, Toast, ErrorBanner } from '../commercialUi';
 import {
-  Badge, Card, Callout, EmptyState, FilterBar, FilterField, Modal, SkeletonRows, TableCard, btnPrimary, btnSecondary,
+  Badge, Callout, EmptyState, FilterBar, FilterField, Modal, SkeletonRows, TableCard, btnPrimary, btnSecondary,
   filterCls, filterSelectCls, inputCls, selectCls, td, tdRight, th, thRight,
 } from '../affiliateNetworks/ui';
 import { distributionApi, errorText, type Adapter, type Channel, type Meta, type Permission } from './api';

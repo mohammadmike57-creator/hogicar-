@@ -2,15 +2,10 @@ import * as React from 'react';
 import { 
   Image as ImageIcon, 
   Search, 
-  Filter, 
   X, 
-  Plus, 
-  Check, 
-  Trash2, 
-  Info,
+  Check,
   MapPin,
-  Tag,
-  Hash
+  Tag
 } from 'lucide-react';
 import { adminFetch } from '../../lib/adminApi';
 

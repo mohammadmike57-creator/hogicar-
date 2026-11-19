@@ -299,7 +299,7 @@ const DescriptionWriter: React.FC<{ onClose: () => void; onApplied: (n: number) 
     }
   };
 
-  const toggle = (id: number) => setPicked(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const toggle = (id: number) => setPicked(prev => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; });
   const all = items || [];
   const allPicked = all.length > 0 && all.every(p => picked.has(p.id));
 

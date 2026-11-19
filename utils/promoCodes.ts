@@ -9,7 +9,7 @@ export const rememberedPromo = (): string => {
   try { return sessionStorage.getItem(KEY) || ''; } catch { return ''; }
 };
 export const rememberPromo = (code: string | null) => {
-  try { code ? sessionStorage.setItem(KEY, code.toUpperCase()) : sessionStorage.removeItem(KEY); } catch { /* storage blocked */ }
+  try { if (code) sessionStorage.setItem(KEY, code.toUpperCase()); else sessionStorage.removeItem(KEY); } catch { /* storage blocked */ }
 };
 
 /** Checks a code with the server for this trip; throws an Error with the reason to show. */

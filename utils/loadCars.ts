@@ -1,6 +1,6 @@
 
 
-import { ApiSearchResult, CarCategory } from '../types';
+import { ApiSearchResult } from '../types';
 import { LocationSuggestion } from '../api';
 import { appState } from '../appState';
 import { API_BASE_URL } from '../lib/config';

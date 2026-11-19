@@ -9,7 +9,7 @@ import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
 import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 import RotateCcw from 'lucide-react/dist/esm/icons/rotate-ccw';
 import { CarRatings } from '../types';
-import { RatingBadge, reviewCountText } from './RatingBadge';
+import { RatingBadge } from './RatingBadge';
 
 interface RatingsModalProps {
   open: boolean;

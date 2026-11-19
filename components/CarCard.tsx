@@ -5,43 +5,23 @@
 
 import * as React from 'react';
 import Users from 'lucide-react/dist/esm/icons/users';
-import Info from 'lucide-react/dist/esm/icons/info';
-import GaugeCircle from 'lucide-react/dist/esm/icons/gauge-circle';
 import Briefcase from 'lucide-react/dist/esm/icons/briefcase';
-import Fuel from 'lucide-react/dist/esm/icons/fuel';
-import Plane from 'lucide-react/dist/esm/icons/plane';
 import PickupTypeIcon from './PickupTypeIcon';
 import PromotionWrap, { PromotionSticker } from './PromotionWrap';
 import { discountOf, promotionHighlights } from '../utils/promotions';
 import Gift from 'lucide-react/dist/esm/icons/gift';
-import X from 'lucide-react/dist/esm/icons/x';
-import FileText from 'lucide-react/dist/esm/icons/file-text';
-import Shield from 'lucide-react/dist/esm/icons/shield';
-import CreditCardIcon from 'lucide-react/dist/esm/icons/credit-card';
-import Handshake from 'lucide-react/dist/esm/icons/handshake';
-import Truck from 'lucide-react/dist/esm/icons/truck';
-import Zap from 'lucide-react/dist/esm/icons/zap';
 import Clock from 'lucide-react/dist/esm/icons/clock';
-import MapPin from 'lucide-react/dist/esm/icons/map-pin';
-import Phone from 'lucide-react/dist/esm/icons/phone';
-import Building from 'lucide-react/dist/esm/icons/building';
-import Bus from 'lucide-react/dist/esm/icons/bus';
 import Award from 'lucide-react/dist/esm/icons/award';
-import Tag from 'lucide-react/dist/esm/icons/tag';
 import Check from 'lucide-react/dist/esm/icons/check';
-import CalendarCheck from 'lucide-react/dist/esm/icons/calendar-check';
 import Wind from 'lucide-react/dist/esm/icons/wind';
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
-import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
-import { Car as CarType, Supplier, CarRatings } from '../types';
+import { Car as CarType } from '../types';
 import { RatingsModal } from './RatingsModal';
-import { getRatingDescription, getRatingTextColor, getRatingColor, normalizeRatingScore, formatCategoryName, getCarRatings } from '../utils/ratings';
+import { normalizeRatingScore, formatCategoryName, getCarRatings } from '../utils/ratings';
 import { RatingBadge } from './RatingBadge';
 import { RentalConditionsModal, ConditionsChip } from './RentalConditions';
 import { Link } from 'react-router-dom';
-import { calculatePrice } from '../utils/bookingUtils';
 import { useCurrency } from '../contexts/CurrencyContext';
-import { calcPricing } from '../utils/pricing';
 import { persistSelectedCar } from '../utils/storage';
 
 // --- ICONS ---

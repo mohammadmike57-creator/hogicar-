@@ -79,7 +79,7 @@ const DESTINATIONS = [
                         links: [
                             { name: 'Car Rental Dubai', path: '/car-rental-dubai' },
                             { name: 'Car Rental Abu Dhabi', path: '/car-rental-abu-dhabi' },
-                            { name: 'Airport Car Rental Dubai', path: '/airport-car-rental-dubai' },
+                            { name: 'Airport Car Rental Dubai', path: '/car-rental-dxb-airport' },
                             { name: 'Cheap Car Rental Dubai', path: '/cheap-car-rental-dubai' },
                             { name: 'Luxury Car Rental Dubai', path: '/luxury-car-rental-dubai' },
                             { name: 'Car Rental Sharjah', path: '/car-rental-sharjah' },
@@ -112,7 +112,7 @@ const DESTINATIONS = [
                         country: 'Jordan & Others',
                         links: [
                             { name: 'Car Rental Amman', path: '/car-rental-amman' },
-                            { name: 'Airport Car Rental Amman', path: '/airport-car-rental-amman' },
+                            { name: 'Airport Car Rental Amman', path: '/amman-airport-car-rental' },
                             { name: 'Car Rental Aqaba', path: '/car-rental-aqaba' },
                             { name: 'Car Rental Doha', path: '/car-rental-doha' },
                             { name: 'Car Rental Muscat', path: '/car-rental-muscat' },

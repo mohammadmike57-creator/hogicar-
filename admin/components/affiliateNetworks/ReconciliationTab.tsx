@@ -33,7 +33,7 @@ const ImportDialog: React.FC<{ onClose: () => void; onDone: () => void; defaultN
     if (!f) return;
     if (f.size > 5 * 1024 * 1024) { setError('That file is larger than 5 MB.'); return; }
     const reader = new FileReader();
-    reader.onload = () => { setCsv(String(reader.result || '').replace(/^﻿/, '')); setFileName(f.name); setResult(null); setError(null); };
+    reader.onload = () => { setCsv(String(reader.result || '').replace(/^\uFEFF/, '')); setFileName(f.name); setResult(null); setError(null); };
     reader.onerror = () => setError('Could not read the file.');
     reader.readAsText(f);
   };

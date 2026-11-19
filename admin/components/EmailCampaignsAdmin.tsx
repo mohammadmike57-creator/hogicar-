@@ -604,7 +604,7 @@ const ContactsTab = ({ onEmail, notify, onChanged }: { onEmail: (emails: string[
 
   const selectable = rows.filter(r => !r.unsubscribedAt);
   const allPicked = selectable.length > 0 && selectable.every(r => picked.has(r.email));
-  const togglePick = (e: string) => setPicked(prev => { const n = new Set(prev); n.has(e) ? n.delete(e) : n.add(e); return n; });
+  const togglePick = (e: string) => setPicked(prev => { const n = new Set(prev); if (n.has(e)) n.delete(e); else n.add(e); return n; });
 
   const resubscribe = async (r: Contact) => {
     if (!window.confirm(`Subscribe ${r.email} to offers again? Only do this if they asked you to.`)) return;

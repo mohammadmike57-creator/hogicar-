@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CATEGORY_IMAGES } from '../constants';
 import { loadCars } from '../utils/loadCars';
 import { apiCarsToCars } from '../utils/apiCarToCar';
@@ -12,27 +12,19 @@ import { applyPickupOverrides, loadPickupOverrides, PickupOverrideMap } from '..
 import SlidersHorizontal from 'lucide-react/dist/esm/icons/sliders-horizontal';
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
-import Filter from 'lucide-react/dist/esm/icons/filter';
 import ArrowUpDown from 'lucide-react/dist/esm/icons/arrow-up-down';
 import CarIcon from 'lucide-react/dist/esm/icons/car';
-import Truck from 'lucide-react/dist/esm/icons/truck';
-import Gem from 'lucide-react/dist/esm/icons/gem';
-import Users from 'lucide-react/dist/esm/icons/users';
-import Briefcase from 'lucide-react/dist/esm/icons/briefcase';
 import Gift from 'lucide-react/dist/esm/icons/gift';
-import CreditCard from 'lucide-react/dist/esm/icons/credit-card';
-import Shield from 'lucide-react/dist/esm/icons/shield';
 import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 import Check from 'lucide-react/dist/esm/icons/check';
 import Edit from 'lucide-react/dist/esm/icons/edit';
 import Calendar from 'lucide-react/dist/esm/icons/calendar';
-import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
 import SearchIcon from 'lucide-react/dist/esm/icons/search';
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import X from 'lucide-react/dist/esm/icons/x';
 import ArrowLeftRight from 'lucide-react/dist/esm/icons/arrow-left-right';
 import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
-import { CarCategory, Car, Transmission, FuelPolicy, CommissionType, ApiSearchResult, Supplier, BookingMode, CarType, RateTier, PickupType } from '../types';
+import { CarCategory, Car, Transmission, FuelPolicy, CommissionType } from '../types';
 import { calculatePrice } from '../utils/bookingUtils';
 import SEOMetadata from '../components/SEOMetadata';
 import { useCurrency } from '../contexts/CurrencyContext';
@@ -733,7 +725,7 @@ export const Search: React.FC = () => {
     linkedCarDone.current = true;
     setRenderAllCars?.(true);
     window.setTimeout(() => showCarFromAdvisor(linkedCarId), 700);
-  }, [linkedCarId, sortedAndFilteredCars, showCarFromAdvisor]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [linkedCarId, sortedAndFilteredCars, showCarFromAdvisor]);
 
   // Partner deeplinks for third-party API cars carry &match=<supplier>|<vehicle> (their ids change on every search).
   const linkedMatch = searchParams.get('match');
@@ -747,7 +739,7 @@ export const Search: React.FC = () => {
     linkedMatchDone.current = true;
     setRenderAllCars?.(true);
     window.setTimeout(() => showCarFromAdvisor(String(hit.id)), 700);
-  }, [linkedMatch, sortedAndFilteredCars, showCarFromAdvisor]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [linkedMatch, sortedAndFilteredCars, showCarFromAdvisor]);
   
   const activeFilterCount =
     selectedCategories.length +
