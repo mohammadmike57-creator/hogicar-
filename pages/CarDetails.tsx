@@ -47,6 +47,7 @@ import { buildCarAddons, countSelected, extraUnitTotal, loadAddonSettings, withA
 import { jsonLd } from '../utils/safeHtml';
 import { cleanCarName, carNameOf } from '../utils/carName';
 import { trackViewItem } from '../utils/adsTracking';
+import { defaultPickupDate, defaultDropoffDate } from '../utils/dates';
 
 // ==================== Helper Components ====================
 
@@ -207,8 +208,8 @@ const CarDetails: React.FC = () => {
   const [lookupStep, setLookupStep] = React.useState(0);
 
   // Extract search params
-  const startDate = searchParams.get('pickupDate') || searchParams.get('startDate') || new Date().toISOString().split('T')[0];
-  const endDate = searchParams.get('dropoffDate') || searchParams.get('endDate') || new Date(new Date().setDate(new Date().getDate() + 5)).toISOString().split('T')[0];
+  const startDate = searchParams.get('pickupDate') || searchParams.get('startDate') || defaultPickupDate();
+  const endDate = searchParams.get('dropoffDate') || searchParams.get('endDate') || defaultDropoffDate();
   const startTime = searchParams.get('startTime') || '10:00';
   const endTime = searchParams.get('endTime') || '10:00';
   const pickupCode = searchParams.get('pickup');

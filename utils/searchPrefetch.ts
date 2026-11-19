@@ -1,3 +1,4 @@
+import { defaultPickupDate, defaultDropoffDate } from './dates';
 import { loadCars, PaginatedCars } from './loadCars';
 import { compactPrefetchedResults, PREFETCHED_RESULTS_KEY, safeSessionStorageSetItem } from './storage';
 
@@ -19,13 +20,9 @@ export const getPrefetchParamsFromUrl = (searchParams: URLSearchParams): CarSear
   const pickup = searchParams.get('pickup') || '';
   const dropoff = searchParams.get('dropoff') || pickup;
   
-  // Default dates: today and today + 3 days
-  const today = new Date();
-  const nextThreeDays = new Date(today);
-  nextThreeDays.setDate(today.getDate() + 3);
-  
-  const defaultStart = today.toISOString().split('T')[0];
-  const defaultEnd = nextThreeDays.toISOString().split('T')[0];
+  // Default dates: tomorrow and three days later (the visitor's own calendar)
+  const defaultStart = defaultPickupDate();
+  const defaultEnd = defaultDropoffDate();
 
   return {
     pickupCode: pickup,

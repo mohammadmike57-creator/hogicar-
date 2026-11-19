@@ -43,6 +43,7 @@ import { api } from '../api';
 import { compactCarForStorage, safeSessionStorageSetItem } from '../utils/storage';
 import { cleanCarName, carNameOf } from '../utils/carName';
 import { trackBeginCheckout, trackAddPaymentInfo } from '../utils/adsTracking';
+import { defaultPickupDate, defaultDropoffDate } from '../utils/dates';
 
 
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '';
@@ -267,8 +268,8 @@ const BookingPageContent: React.FC<BookingPageContentProps> = ({
     };
   }, [searchParams]);
 
-  const startDate = search.pickupDate || new Date().toISOString().split('T')[0];
-  const endDate = search.dropoffDate || new Date(new Date().setDate(new Date().getDate() + 5)).toISOString().split('T')[0];
+  const startDate = search.pickupDate || defaultPickupDate();
+  const endDate = search.dropoffDate || defaultDropoffDate();
   const startTime = search.startTime;
   const endTime = search.endTime;
   const days = rentalDays(startDate, endDate);

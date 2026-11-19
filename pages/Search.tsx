@@ -131,6 +131,8 @@ export const Search: React.FC = () => {
   // Pagination & Loading States
   const [page, setPage] = useState(0);
   const [hasNext, setHasNext] = useState(true);
+  // The car feed did not answer on the last search: say so and offer to try again, instead of "no cars".
+  const [incomplete, setIncomplete] = useState(false);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const resultsTopRef = useRef<HTMLDivElement>(null);
@@ -214,6 +216,7 @@ export const Search: React.FC = () => {
         if (apiCars.length === 0) {
             setApiCars(cars);
             setHasNext(prefetched.hasNext);
+            setIncomplete(Boolean(prefetched.incomplete) && cars.length === 0);
         }
         
         setLoading(false);
@@ -232,6 +235,7 @@ export const Search: React.FC = () => {
           const cars = apiCarsToCars(result.cars);
           setApiCars(cars);
           setHasNext(result.hasNext);
+          setIncomplete(Boolean(result.incomplete) && cars.length === 0);
           setLoading(false);
           
           setTimeout(() => clearMatchingPrefetchedResults(searchPrefetchParams), 2000);
@@ -272,6 +276,7 @@ export const Search: React.FC = () => {
       } else {
         setApiCars(apiCarsToCars(data.cars));
         setPage(0);
+        setIncomplete(Boolean(data.incomplete) && data.cars.length === 0);
       }
       setHasNext(data.hasNext);
       setError(null);
@@ -311,8 +316,10 @@ export const Search: React.FC = () => {
     loadAllPromise.current = (async () => {
       let nextPage = pageRef.current + 1;
       let more = hasNextRef.current;
-      const collected: Car[] = [];
+      setIsFetchingMore(more);
+      // One page at a time, with a short pause, and each page shown as soon as it arrives.
       for (let i = 0; more && i < 30; i++, nextPage++) {
+        if (i > 0) await new Promise(r => setTimeout(r, 300));
         try {
           const data = await loadCars({
             locationsOptions: [],
@@ -326,24 +333,35 @@ export const Search: React.FC = () => {
             size: 20,
             sort: sortBy,
           });
-          collected.push(...apiCarsToCars(data.cars));
+          const fresh = apiCarsToCars(data.cars);
+          if (fresh.length) {
+            setApiCars(prev => {
+              const seen = new Set(prev.map(c => c.id));
+              return [...prev, ...fresh.filter(c => !seen.has(c.id))];
+            });
+          }
+          setPage(nextPage);
           more = Boolean(data.hasNext) && data.cars.length > 0;
+          setHasNext(more);
         } catch (err) {
-          console.warn('Search: could not load all results for the advisor', err);
+          console.warn('Search: could not load the next results page', err);
           break;
         }
       }
-      if (collected.length) {
-        setApiCars(prev => {
-          const seen = new Set(prev.map(c => c.id));
-          return [...prev, ...collected.filter(c => !seen.has(c.id))];
-        });
-        setPage(nextPage - 1);
-      }
-      setHasNext(more);
+      setIsFetchingMore(false);
     })().finally(() => { loadAllPromise.current = null; });
     return loadAllPromise.current;
   }, [searchPrefetchParams, sortBy]);
+
+  // After the first results are shown, the remaining pages are loaded in the background, once per search,
+  // so filters, sorting and the price range work on every car without the visitor having to scroll.
+  const loadedAllFor = useRef('');
+  useEffect(() => {
+    const key = `${searchParamsString}|${sortBy}`;
+    if (loading || !hasNext || loadedAllFor.current === key) return;
+    loadedAllFor.current = key;
+    loadAllResults();
+  }, [loading, hasNext, searchParamsString, sortBy, loadAllResults]);
 
   // Infinite scroll observer
   useEffect(() => {
@@ -1282,8 +1300,20 @@ export const Search: React.FC = () => {
                   {sortedAndFilteredCars.length === 0 && !loading && (
                     <div className="rounded-xl border border-slate-200 bg-white px-6 py-12 text-center">
                       <CarIcon className="mx-auto mb-3 h-10 w-10 text-slate-400" />
-                      <h3 className="text-lg font-bold text-slate-900">No cars match your filters</h3>
-                      <p className="mt-1 text-sm text-slate-500">Try removing some filters or changing your dates.</p>
+                      {incomplete && apiCars.length === 0 ? (
+                        <>
+                          <h3 className="text-lg font-bold text-slate-900">We couldn't load the cars just now</h3>
+                          <p className="mt-1 text-sm text-slate-500">The rental companies' prices didn't come through this time. Please try again in a moment.</p>
+                          <button type="button" onClick={() => fetchApiCars(false)} className="mt-4 inline-flex h-10 items-center rounded-lg bg-accent px-5 text-sm font-semibold text-white hover:bg-accent-700">
+                            Try again
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <h3 className="text-lg font-bold text-slate-900">No cars match your filters</h3>
+                          <p className="mt-1 text-sm text-slate-500">Try removing some filters or changing your dates.</p>
+                        </>
+                      )}
                       {activeFilters.length > 0 && (
                         <button type="button" onClick={handleResetFilters} className="mt-4 inline-flex h-10 items-center rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:border-accent hover:text-accent">
                           Clear all filters

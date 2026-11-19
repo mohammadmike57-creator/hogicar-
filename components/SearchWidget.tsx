@@ -10,6 +10,7 @@ import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import { fetchLocations, LocationSuggestion } from '../api';
 import { startCarSearchPrefetch } from '../utils/searchPrefetch';
 import { lazyRetry } from '../utils/lazyRetry';
+import { defaultPickupDate, defaultDropoffDate, todayIsoDate } from '../utils/dates';
 
 const SearchOverlay = lazyRetry(() => import('./SearchOverlay'));
 const DateRangePicker = lazyRetry(() => import('./DateRangePicker'));
@@ -228,9 +229,6 @@ interface SearchWidgetProps {
 }
 
 const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, onSearch, showTitle = false, accentColor, style: widgetStyle = 'DEFAULT', customColor, buttonColor }) => {
-    const today = new Date();
-    const nextThreeDays = new Date(today);
-    nextThreeDays.setDate(today.getDate() + 3);
 
     const [pickupQuery, setPickupQuery] = React.useState(initialValues?.pickupName || initialValues?.location || '');
     const [pickupSelection, setPickupSelection] = React.useState<LocationSuggestion | null>(initialValues?.pickup ? { label: initialValues.pickupName || initialValues.location || '', value: initialValues.pickup, type: 'airport' as any } : null);
@@ -242,13 +240,13 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
     const [dropoffQuery, setDropoffQuery] = React.useState(initialValues?.dropoffName || initialValues?.dropoffLocation || '');
     const [dropoffSelection, setDropoffSelection] = React.useState<LocationSuggestion | null>(initialValues?.dropoff ? { label: initialValues.dropoffName || initialValues.dropoffLocation || '', value: initialValues.dropoff, type: 'airport' as any } : null);
 
-    const [pickupDate, setPickupDate] = React.useState(initialValues?.pickupDate || today.toISOString().split('T')[0]);
-    const [dropoffDate, setDropoffDate] = React.useState(initialValues?.dropoffDate || nextThreeDays.toISOString().split('T')[0]);
+    const [pickupDate, setPickupDate] = React.useState(initialValues?.pickupDate || defaultPickupDate());
+    const [dropoffDate, setDropoffDate] = React.useState(initialValues?.dropoffDate || defaultDropoffDate());
     const [pickupTime, setPickupTime] = React.useState(initialValues?.startTime || '10:00');
     const [dropoffTime, setDropoffTime] = React.useState(initialValues?.endTime || '10:00');
     const [calendarFor, setCalendarFor] = React.useState<'pickup' | 'dropoff' | null>(null);
     const desktopDatesRef = React.useRef<HTMLDivElement>(null);
-    const todayIso = today.toISOString().split('T')[0];
+    const todayIso = todayIsoDate();
     const closeCalendar = React.useCallback(() => setCalendarFor(null), []);
     const handleDatesChange = React.useCallback((start: string, end: string) => {
         setPickupDate(start);

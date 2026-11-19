@@ -57,6 +57,8 @@ export interface PaginatedCars {
     size: number;
     hasNext: boolean;
     total?: number;
+    /** The car feed did not answer this time (the page offers to try again instead of "no cars"). */
+    incomplete?: boolean;
 }
 
 export const loadCars = async (params: LoadCarsParams): Promise<PaginatedCars> => {
@@ -100,7 +102,7 @@ export const loadCars = async (params: LoadCarsParams): Promise<PaginatedCars> =
             throw new Error(`Failed to fetch cars. The server responded with status: ${response.status}`);
         }
 
-        const data: { cars: any[], page: number, size: number, hasNext: boolean, total?: number } = await response.json();
+        const data: { cars: any[], page: number, size: number, hasNext: boolean, total?: number, incomplete?: boolean } = await response.json();
         const rawCars = data.cars || [];
 
         const normalizedCars = rawCars.map(car => {
@@ -161,7 +163,8 @@ export const loadCars = async (params: LoadCarsParams): Promise<PaginatedCars> =
             page: data.page,
             size: data.size,
             hasNext: data.hasNext,
-            total: data.total
+            total: data.total,
+            incomplete: Boolean(data.incomplete)
         };
 
     } catch (error) {
