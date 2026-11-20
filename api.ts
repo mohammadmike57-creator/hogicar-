@@ -89,6 +89,16 @@ supplierAxios.interceptors.request.use(
 );
 
 // ---------- Standalone customer API functions (named exports) ----------
+/** What customers say about a rental company at one location (a short summary of its latest reviews). */
+export const fetchSupplierReviewSummary = async (supplierId: string, locationId: string): Promise<{ summary?: string; reviewCount?: number }> => {
+  try {
+    const response = await publicAxios.get(`${API_BASE_URL}/api/public/supplier-reviews`, { params: { supplierId, locationId } });
+    return response.data || {};
+  } catch {
+    return {};
+  }
+};
+
 export const fetchLocations = async (query: string, hint?: string): Promise<LocationSuggestion[]> => {
   if (!query || query.length < 2) return [];
   try {
@@ -101,21 +111,23 @@ export const fetchLocations = async (query: string, hint?: string): Promise<Loca
     const results = response.data.map((loc: any) => {
       // Determine type based on backend type or airport name
       const backendType = loc.type || loc.airportType;
-      const isAirport = (backendType && backendType.toLowerCase().includes('airport')) || 
+      const isAirport = (backendType && backendType.toLowerCase().includes('airport')) ||
                         (loc.name || '').toLowerCase().includes('airport');
-      
+
       let label = loc.name;
-      if (loc.municipality) {
+      if (loc.municipality && loc.municipality !== loc.name) {
         label += `, ${loc.municipality}`;
       }
       if (loc.iataCode) {
         label += ` (${loc.iataCode})`;
       }
-      if (loc.isoCountry) {
-        label += `, ${loc.isoCountry}`;
+      const country = loc.country || (loc.isoCountry && loc.isoCountry !== 'N/A' ? loc.isoCountry : '');
+      if (country) {
+        label += `, ${country}`;
       }
       return {
-        value: loc.iataCode || `LOC:${loc.id}`,
+        // An airport code, or the car feed's own place (a "lat,lng" position for cities, stations and hotels).
+        value: loc.iataCode || loc.searchLocation || `LOC:${loc.id}`,
         label: label,
         iataCode: loc.iataCode,
         name: loc.name,

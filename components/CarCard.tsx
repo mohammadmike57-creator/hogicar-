@@ -262,6 +262,8 @@ const CarCard: React.FC<CarCardProps> = ({
         supplierName={car.supplier.name}
         supplierLogo={supplierMark}
         reviewCount={reviewCount}
+        reviewSupplierId={car.supplier.reviewSupplierId}
+        reviewLocationId={car.supplier.reviewLocationId}
       />
 
       <PromotionWrap promo={promo} savingsText={promoSavings > 0 ? `You save ${money(promoSavings)}` : null} className={isComparing ? 'ring-2 ring-accent ring-offset-2' : ''}>

@@ -10,6 +10,8 @@ import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 import RotateCcw from 'lucide-react/dist/esm/icons/rotate-ccw';
 import { CarRatings } from '../types';
 import { RatingBadge } from './RatingBadge';
+import { fetchSupplierReviewSummary } from '../api';
+import MessageSquareQuote from 'lucide-react/dist/esm/icons/message-square-quote';
 
 interface RatingsModalProps {
   open: boolean;
@@ -19,6 +21,9 @@ interface RatingsModalProps {
   supplierName: string;
   supplierLogo?: React.ReactNode;
   reviewCount?: number;
+  /** When set, a short summary of this company's latest reviews at this location is shown. */
+  reviewSupplierId?: string;
+  reviewLocationId?: string;
 }
 
 const ratingItems: { key: keyof CarRatings; label: string; icon: React.ElementType }[] = [
@@ -44,8 +49,17 @@ const barColor = (percent: number) => {
  * Supplier rating breakdown shown as a centred dialog. Rendered into document.body so it
  * is never clipped or offset by a transformed/overflowing parent card.
  */
-export const RatingsModal: React.FC<RatingsModalProps> = ({ open, onClose, ratings, rating, supplierName, supplierLogo, reviewCount }) => {
+export const RatingsModal: React.FC<RatingsModalProps> = ({ open, onClose, ratings, rating, supplierName, supplierLogo, reviewCount, reviewSupplierId, reviewLocationId }) => {
   const closeRef = React.useRef<HTMLButtonElement>(null);
+  const [summary, setSummary] = React.useState<{ summary?: string; reviewCount?: number } | null>(null);
+
+  React.useEffect(() => {
+    if (!open || !reviewSupplierId || !reviewLocationId) return;
+    let alive = true;
+    setSummary(null);
+    fetchSupplierReviewSummary(reviewSupplierId, reviewLocationId).then(r => { if (alive) setSummary(r); });
+    return () => { alive = false; };
+  }, [open, reviewSupplierId, reviewLocationId]);
 
   React.useEffect(() => {
     if (!open) return;
@@ -101,9 +115,29 @@ export const RatingsModal: React.FC<RatingsModalProps> = ({ open, onClose, ratin
             rating={rating}
             size="lg"
             inline
+            reviewCount={reviewCount}
             fallbackText="Based on recent customer ratings"
           />
         </div>
+
+        {reviewSupplierId && reviewLocationId && (summary === null || summary.summary) && (
+          <div className="mx-5 mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <p className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+              <MessageSquareQuote className="h-4 w-4 text-accent" /> What customers say
+            </p>
+            {summary === null ? (
+              <div className="mt-2 space-y-1.5" aria-label="Loading reviews">
+                <div className="h-3 w-full animate-pulse rounded bg-slate-200" />
+                <div className="h-3 w-4/5 animate-pulse rounded bg-slate-200" />
+              </div>
+            ) : (
+              <>
+                <p className="mt-1.5 text-sm leading-relaxed text-slate-700">{summary.summary}</p>
+                {!!summary.reviewCount && <p className="mt-1.5 text-xs text-slate-500">Summary of the latest {summary.reviewCount} reviews at this location</p>}
+              </>
+            )}
+          </div>
+        )}
 
         <ul className="space-y-4 px-5 py-5">
           {ratingItems.map(item => {
@@ -126,7 +160,7 @@ export const RatingsModal: React.FC<RatingsModalProps> = ({ open, onClose, ratin
         </ul>
 
         <p className="border-t border-slate-100 px-5 py-4 text-xs leading-relaxed text-slate-500">
-          Scores come from customers who rented from this supplier's location in the last 12 months.
+          Scores come from customers who rented from this company at this location.
         </p>
       </div>
     </div>,

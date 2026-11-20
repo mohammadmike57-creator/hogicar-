@@ -603,6 +603,8 @@ const CarDetails: React.FC = () => {
         supplierName={car.supplier.name}
         supplierLogo={supplierMark}
         reviewCount={car.supplier.reviewCount ?? (car.supplier as any).ratingReviewCount}
+        reviewSupplierId={car.supplier.reviewSupplierId}
+        reviewLocationId={car.supplier.reviewLocationId}
       />
 
       <div className="min-h-screen bg-slate-50 pb-32 text-slate-900 lg:pb-16">
@@ -714,6 +716,12 @@ const CarDetails: React.FC = () => {
                   <p className="mt-4 flex items-start gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-600">
                     <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" /> {car.supplier.address}
                   </p>
+                )}
+                {(car.supplier.pickupInstructions || car.supplier.dropoffInstructions) && (
+                  <div className="mt-3 space-y-2 text-sm text-slate-600">
+                    {car.supplier.pickupInstructions && <p><span className="font-semibold text-slate-800">Pick-up: </span>{car.supplier.pickupInstructions}</p>}
+                    {car.supplier.dropoffInstructions && <p><span className="font-semibold text-slate-800">Return: </span>{car.supplier.dropoffInstructions}</p>}
+                  </div>
                 )}
               </section>
 

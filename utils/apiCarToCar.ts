@@ -31,7 +31,8 @@ export const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         // Only ratings from real reviews are shown; none is made up.
         rating: Number(apiCar.supplier?.rating) > 0 ? Number(apiCar.supplier?.rating) : 0,
         ratingReviewCount: apiCar.supplier?.ratingReviewCount,
-        detailedRatings: {
+        // Per-subject scores sent by the car feed (0–100) are used as they are; otherwise the overall score.
+        detailedRatings: (apiCar.supplier as any)?.detailedRatings || (apiCar as any).detailedRatings || {
             cleanliness: apiCar.supplier?.ratingCleanliness ?? ratingToPercent(apiCar.supplier?.rating),
             condition: apiCar.supplier?.ratingCondition ?? ratingToPercent(apiCar.supplier?.rating),
             valueForMoney: apiCar.supplier?.ratingValueForMoney ?? ratingToPercent(apiCar.supplier?.rating),
@@ -57,6 +58,11 @@ export const apiCarToCar = (apiCar: ApiSearchResult): Car => {
         termsAndConditions: (apiCar.supplier as any)?.termsAndConditions || '',
         address: (apiCar.supplier as any)?.address || undefined,
         phone: (apiCar.supplier as any)?.phone || undefined,
+        deskName: (apiCar.supplier as any)?.deskName || undefined,
+        pickupInstructions: (apiCar.supplier as any)?.pickupInstructions || undefined,
+        dropoffInstructions: (apiCar.supplier as any)?.dropoffInstructions || undefined,
+        reviewSupplierId: (apiCar.supplier as any)?.reviewSupplierId || undefined,
+        reviewLocationId: (apiCar.supplier as any)?.reviewLocationId || undefined,
         connectionType: 'api',
         includesCDW: (apiCar.supplier as any)?.includesCDW === true,
         includesTP: (apiCar.supplier as any)?.includesTP === true,

@@ -48,8 +48,8 @@ export const RatingBadge: React.FC<RatingBadgeProps> = ({ rating, reviewCount, s
   );
   if (tileOnly) return scoreBox;
 
-  // Rating counts are hidden for now; the line under the word stays the same for every supplier.
-  const count = '';
+  // The number of ratings, when there is a real count (a count of 1 was a placeholder of the old feed).
+  const count = Number(reviewCount || 0) > 1 ? reviewCountText(reviewCount) : '';
   return (
     <span className={inline ? 'inline-flex items-center gap-3' : 'inline-flex flex-col items-start gap-2'}>
       {scoreBox}

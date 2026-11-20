@@ -139,6 +139,13 @@ export interface Supplier {
   address?: string;
   phone?: string;
   workingHours?: WorkingHours;
+  /** The rental desk's name and how to find it / return the car (from the car feed). */
+  deskName?: string;
+  pickupInstructions?: string;
+  dropoffInstructions?: string;
+  /** Ids for the review summary of this company at this location (from the car feed). */
+  reviewSupplierId?: string;
+  reviewLocationId?: string;
   
   // Operational Settings
   gracePeriodHours: number; // For returns (Late tolerance)
