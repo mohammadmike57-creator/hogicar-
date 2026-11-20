@@ -640,7 +640,7 @@ const CarDetails: React.FC = () => {
                       onError={() => setImageError(true)}
                       referrerPolicy="no-referrer"
                       loading="eager"
-                      className="h-auto max-h-28 w-full max-w-[220px] object-contain sm:max-h-44 sm:max-w-[260px]"
+                      className="h-auto max-h-28 w-full max-w-[220px] object-contain mix-blend-multiply sm:max-h-44 sm:max-w-[260px]"
                     />
                     {car.tags?.[0] && (
                       <span className="absolute left-3 top-3 rounded-md bg-accent px-2 py-0.5 text-xs font-semibold text-white">{car.tags[0]}</span>

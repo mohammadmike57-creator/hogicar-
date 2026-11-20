@@ -308,7 +308,7 @@ const CarCard: React.FC<CarCardProps> = ({
               decoding="async"
               width="240"
               height="140"
-              className="h-auto max-h-32 w-full object-contain"
+              className="h-auto max-h-32 w-full object-contain mix-blend-multiply"
             />
             {promo ? (
               <PromotionSticker promo={promo} className="absolute left-3 top-3" />
