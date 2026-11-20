@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   website:
-    name: Website type check and build
+    name: Website type check, code check, tests and build
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -28,6 +28,10 @@ jobs:
       - run: npm ci
       - name: Type check
         run: npx tsc --noEmit -p .
+      - name: Code check (ESLint)
+        run: npm run lint
+      - name: Website tests
+        run: npm test
       - name: Production build
         run: npm run build
       - name: Website server starts

@@ -115,7 +115,7 @@ const inputCls = (bad?: boolean) =>
   `h-12 w-full rounded-xl border bg-white pl-11 pr-3.5 text-base text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:ring-4 ${bad ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/15' : 'border-slate-300 hover:border-slate-400 focus:border-accent focus:ring-accent/15'}`;
 
 /**
- * Sign in or join HogiCar Rewards: Continue with Google, email and password, or a new account with
+ * Sign in or join Hogicar Rewards: Continue with Google, email and password, or a new account with
  * email (confirmed with a 6-digit code). Also handles "Forgot password?" by email code.
  */
 const AuthPanel = ({ onAuthenticated, initialEmail = '', initialView = 'signin' }: {
@@ -190,7 +190,7 @@ const AuthPanel = ({ onAuthenticated, initialEmail = '', initialView = 'signin' 
 
   const titles: Record<View, [string, string]> = {
     signin: ['Sign in to your account', 'See all your trips and points in one place.'],
-    signup: ['Create your HogiCar account', cfg?.welcomeBonus ? `Join free and get ${cfg.welcomeBonus.toLocaleString()} welcome points.` : 'Join free and start collecting points.'],
+    signup: ['Create your Hogicar account', cfg?.welcomeBonus ? `Join free and get ${cfg.welcomeBonus.toLocaleString()} welcome points.` : 'Join free and start collecting points.'],
     verify: ['Check your email', `Enter the 6-digit code we sent to ${email.trim()}.`],
     forgot: ['Reset your password', 'We’ll email you a 6-digit code.'],
     reset: ['Choose a new password', `Enter the code we sent to ${email.trim()} and your new password.`],
@@ -289,7 +289,7 @@ const AuthPanel = ({ onAuthenticated, initialEmail = '', initialView = 'signin' 
         <div className="mt-6 flex items-start gap-3 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 p-4 ring-1 ring-amber-200/70">
           <Gift className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
           <div className="text-sm">
-            <p className="font-semibold text-slate-900">New to HogiCar Rewards?</p>
+            <p className="font-semibold text-slate-900">New to Hogicar Rewards?</p>
             <p className="text-slate-600">Earn points on every rental and swap them for money off.</p>
             <button type="button" onClick={() => go('signup')} className="mt-1.5 font-semibold text-accent hover:text-accent-700">Create a free account →</button>
           </div>

@@ -287,7 +287,7 @@ const OverviewTab: React.FC<{ bundle: ChannelBundle; reload: () => Promise<unkno
           {test && (
             <div className="mt-3 space-y-2">
               <Callout tone={test.result.verified ? 'ok' : 'warn'} title={`${humanize(test.env)}: ${test.result.verified ? 'ready' : 'not verified'}`}>
-                {test.result.summary}{test.result.mock ? ' (checked inside HogiCar; no provider was contacted)' : ''}
+                {test.result.summary}{test.result.mock ? ' (checked inside Hogicar; no provider was contacted)' : ''}
               </Callout>
               <ul className="list-disc space-y-1 pl-5 text-xs text-slate-600">{test.result.details.map((d: string) => <li key={d}>{d}</li>)}</ul>
               <p className="text-[11px] text-slate-400">Correlation id {test.correlationId}</p>
@@ -378,7 +378,7 @@ const COMMERCIAL_FIELDS: FieldDef[] = [
   { key: 'name', label: 'Provider name' },
   { key: 'programmeName', label: 'Programme name' },
   { key: 'website', label: 'Official website', type: 'url' },
-  { key: 'businessOwner', label: 'Business owner at HogiCar' },
+  { key: 'businessOwner', label: 'Business owner at Hogicar' },
   { key: 'commercialStatus', label: 'Commercial status', type: 'select', options: [] },
   { key: 'contractStatus', label: 'Contract status / reference' },
   { key: 'applicationDate', label: 'Application date', type: 'date' },
@@ -394,7 +394,7 @@ const INTEGRATION_FIELDS: FieldDef[] = [
   { key: 'integrationType', label: 'Integration type', type: 'select', options: [] },
   { key: 'documentationUrl', label: 'Official documentation URL', type: 'url' },
   { key: 'implementationStatus', label: 'Implementation status', type: 'select', options: [] },
-  { key: 'validationStatus', label: 'Validation status', type: 'select', options: [], help: 'Mock tests run inside HogiCar; sandbox and provider validation need evidence on the checklist.' },
+  { key: 'validationStatus', label: 'Validation status', type: 'select', options: [], help: 'Mock tests run inside Hogicar; sandbox and provider validation need evidence on the checklist.' },
   { key: 'productionApproval', label: 'Production approval', type: 'select', options: [] },
   { key: 'technicalContactName', label: 'Technical contact' },
   { key: 'technicalContactEmail', label: 'Technical contact email', type: 'email' },
@@ -491,7 +491,7 @@ const IntegrationTab: React.FC<{ bundle: ChannelBundle; reload: () => Promise<un
         <DL items={[
           ['Official specification implemented', adapter.officialSpecImplemented ? 'Yes' : 'No'],
           ['Specification', adapter.specificationNote],
-          ['Needs location mapping', adapter.requiresLocationMapping ? 'Yes' : 'No (uses HogiCar codes)'],
+          ['Needs location mapping', adapter.requiresLocationMapping ? 'Yes' : 'No (uses Hogicar codes)'],
           ['Needs category mapping', adapter.requiresCategoryMapping ? 'Yes' : 'No (uses SIPP codes)'],
           ['Deeplink format', <code key="d" className="break-all text-xs">{deeplinkPattern}</code>],
           ...(adapter.key === 'HOGICAR_API' ? [['Partner API base URL', <code key="a" className="break-all text-xs">{apiBase}</code>] as [string, React.ReactNode],
@@ -536,7 +536,7 @@ const MarketsTab: React.FC<{ channel: Channel; reload: () => Promise<unknown> }>
         <label className="block"><span className="mb-1 block text-xs font-medium text-slate-600">Accepted currencies (ISO codes)</span>
           <input className={inputCls} disabled={!editable} value={currencies} onChange={e => setCurrencies(e.target.value.toUpperCase())} placeholder="USD, EUR" />
           <div className="mt-2 flex flex-wrap gap-1">{chips(currencies).map(m => <Badge key={m} tone="violet">{m}</Badge>)}</div>
-          <span className="mt-1 block text-[11px] text-slate-500">Rates are offered only in their own currency; HogiCar does not convert prices with estimated exchange rates.</span>
+          <span className="mt-1 block text-[11px] text-slate-500">Rates are offered only in their own currency; Hogicar does not convert prices with estimated exchange rates.</span>
         </label>
       </div>
       <label className="mt-4 flex items-start gap-3 rounded-xl bg-slate-50 p-3 ring-1 ring-inset ring-slate-200">

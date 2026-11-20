@@ -126,7 +126,7 @@ const BannersAdmin: React.FC = () => {
         </ul>
       )}
 
-      <p className="flex items-start gap-2 text-xs text-slate-500"><Info className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Only advertise offers HogiCar actually gives. Changes reach the website within a minute. Customers can hide a banner for the rest of their visit.</p>
+      <p className="flex items-start gap-2 text-xs text-slate-500"><Info className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Only advertise offers Hogicar actually gives. Changes reach the website within a minute. Customers can hide a banner for the rest of their visit.</p>
 
       <AnimatePresence>
         {editing && <BannerEditor initial={editing} onClose={() => setEditing(null)} onSaved={msg => { setEditing(null); notify(msg); load(); }} />}

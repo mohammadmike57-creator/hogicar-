@@ -321,7 +321,7 @@ const CreateChannelModal: React.FC<{ onClose: () => void; onCreated: (c: Channel
         <label><span className="mb-1 block text-xs font-medium text-slate-600">Documentation URL</span>
           <input className={inputCls} value={form.documentationUrl} onChange={set('documentationUrl')} placeholder="https://" /></label>
         <label className="sm:col-span-2"><span className="mb-1 block text-xs font-medium text-slate-600">Business owner</span>
-          <input className={inputCls} value={form.businessOwner} onChange={set('businessOwner')} placeholder="Who at HogiCar owns this partnership" /></label>
+          <input className={inputCls} value={form.businessOwner} onChange={set('businessOwner')} placeholder="Who at Hogicar owns this partnership" /></label>
       </div>
       {adapter && (
         <Callout className="mt-4" tone={adapter.officialSpecImplemented ? 'info' : 'warn'} title={adapter.name}>

@@ -38,7 +38,7 @@ export const PasswordField = ({ id, label, value, onChange, autoComplete, invali
   );
 };
 
-/** Joins HogiCar Rewards from Manage booking: the email comes from the booking, so only a password is needed. */
+/** Joins Hogicar Rewards from Manage booking: the email comes from the booking, so only a password is needed. */
 const CreateAccountSheet = ({ email, bookingRef, bookingPoints, welcomeBonus, onClose, onCreated }: {
   email: string; bookingRef: string; bookingPoints: number; welcomeBonus: number;
   onClose: () => void; onCreated: (dashboard: any) => void;
@@ -87,7 +87,7 @@ const CreateAccountSheet = ({ email, bookingRef, bookingPoints, welcomeBonus, on
         <div className="relative overflow-hidden bg-gradient-to-br from-[#00244f] via-[#003a7a] to-[#007ac2] px-6 pb-6 pt-6 text-white">
           <div aria-hidden="true" className="absolute -right-10 -top-12 h-40 w-40 rounded-full bg-amber-400/25 blur-2xl" />
           <button type="button" onClick={onClose} disabled={busy} aria-label="Close" className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full text-white/80 hover:bg-white/10"><X className="h-5 w-5" /></button>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/15"><Gift className="h-3.5 w-3.5 text-amber-300" /> HogiCar Rewards</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/15"><Gift className="h-3.5 w-3.5 text-amber-300" /> Hogicar Rewards</span>
           <h2 id="rewards-create-title" className="mt-3 text-2xl font-bold tracking-tight">Create your account</h2>
           <p className="mt-1 text-sm text-white/75">Just choose a password. We already have your details from this booking.</p>
           <div className="mt-4 grid grid-cols-2 gap-2">

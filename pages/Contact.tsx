@@ -33,7 +33,7 @@ const TOPICS: Topic[] = [
   { key: 'CHANGE_CANCEL', label: 'Change or cancel', hint: 'Dates, details or cancellation', icon: RefreshCw, needsBooking: true },
   { key: 'PAYMENT', label: 'Payment & refund', hint: 'Charges, refunds or deposits', icon: CreditCard, needsBooking: true },
   { key: 'PARTNERSHIP', label: 'Business & partnerships', hint: 'Affiliates, API and corporate', icon: Handshake },
-  { key: 'SUPPLIER', label: 'Rental suppliers', hint: 'List your fleet on HogiCar', icon: Building2 },
+  { key: 'SUPPLIER', label: 'Rental suppliers', hint: 'List your fleet on Hogicar', icon: Building2 },
   { key: 'PRESS', label: 'Press & media', hint: 'Interviews, data and assets', icon: Newspaper },
   { key: 'FEEDBACK', label: 'Feedback', hint: 'Compliments or complaints', icon: MessageSquare },
   { key: 'OTHER', label: 'Something else', hint: 'Anything we haven’t listed', icon: HelpCircle },
@@ -169,11 +169,11 @@ const Contact: React.FC = () => {
   const structuredData = JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'ContactPage',
-    name: 'Contact HogiCar',
+    name: 'Contact Hogicar',
     url: `${PUBLIC_BASE_URL}/contact`,
     mainEntity: {
       '@type': 'Organization',
-      name: 'HogiCar',
+      name: 'Hogicar',
       url: PUBLIC_BASE_URL,
       logo: `${PUBLIC_BASE_URL}/android-chrome-512x512.png`,
       email: CONTACT_EMAIL,
@@ -184,7 +184,7 @@ const Contact: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 pb-16">
       <SEOMetadata
-        title={isAbout ? 'About & Contact HogiCar' : 'Contact HogiCar | Customer & Business Enquiries'}
+        title={isAbout ? 'About & Contact Hogicar' : 'Contact Hogicar | Customer & Business Enquiries'}
         description={`Get help with a car rental booking, payments or partnerships. Email ${CONTACT_EMAIL} or send us a message and track your request online.`}
         canonicalUrl={`${PUBLIC_BASE_URL}/contact`}
         structuredData={structuredData}
@@ -200,7 +200,7 @@ const Contact: React.FC = () => {
           </p>
           <h1 className="mt-4 max-w-3xl text-4xl font-extrabold tracking-tight sm:text-5xl">How can we help?</h1>
           <p className="mt-3 max-w-2xl text-base text-white/80 sm:text-lg">
-            Questions about a booking, a payment or working with HogiCar – our team reads every message, and you can track your request online.
+            Questions about a booking, a payment or working with Hogicar – our team reads every message, and you can track your request online.
           </p>
           <div className="mt-6 inline-flex items-center gap-1 rounded-2xl bg-white/10 py-1 pl-4 pr-1 ring-1 ring-white/15 backdrop-blur">
             <a href={`mailto:${CONTACT_EMAIL}`} className="text-[15px] font-semibold text-white hover:underline">{CONTACT_EMAIL}</a>
@@ -397,7 +397,7 @@ const Contact: React.FC = () => {
 
             <div className="rounded-3xl bg-gradient-to-br from-[#003580] to-[#00224f] p-6 text-white shadow-sm">
               <Briefcase className="h-6 w-6 text-amber-300" />
-              <h2 className="mt-3 text-base font-bold">Working with HogiCar</h2>
+              <h2 className="mt-3 text-base font-bold">Working with Hogicar</h2>
               <p className="mt-1 text-sm text-white/75">Affiliates, rental suppliers, API partners and press – choose the matching topic and our business team will reply.</p>
               <div className="mt-4 flex flex-wrap gap-2 text-sm">
                 <Link to="/affiliate-program" className="rounded-full bg-white/10 px-3 py-1.5 font-medium ring-1 ring-white/20 hover:bg-white/20">Affiliate program</Link>

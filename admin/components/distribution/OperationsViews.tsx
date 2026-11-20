@@ -201,7 +201,7 @@ export const InventoryView: React.FC = () => {
   return (
     <div className="space-y-4">
       <Callout tone="info" icon={Boxes} title="One inventory for every channel">
-        These are HogiCar's contracted supplier cars and their real rates, plus cars from third-party API suppliers that have a redistribution contract. Without a fleet quantity a car is free sale: the supplier owns availability.
+        These are Hogicar's contracted supplier cars and their real rates, plus cars from third-party API suppliers that have a redistribution contract. Without a fleet quantity a car is free sale: the supplier owns availability.
       </Callout>
       <ApiInventoryCard />
       <Card title="Rules for all channels" subtitle="Stop sales and exclusions that apply to every channel" icon={Boxes} bodyClassName="p-0"
@@ -265,7 +265,7 @@ const CarProfileModal: React.FC<{ item: InventoryItem; onClose: () => void; onSa
       footer={<><button className={btnSecondary} onClick={onClose} disabled={busy}>Cancel</button><button className={btnPrimary} onClick={save} disabled={busy}>Save</button></>}>
       <label className="block"><span className="mb-1 block text-xs font-medium text-slate-600">Allocated fleet quantity</span>
         <input className={inputCls} inputMode="numeric" value={qty} onChange={e => setQty(e.target.value.replace(/\D/g, ''))} placeholder="Leave empty for free sale" />
-        <span className="mt-1 block text-[11px] text-slate-500">When set, HogiCar never sells more of this car for overlapping dates, on the website or any channel.</span></label>
+        <span className="mt-1 block text-[11px] text-slate-500">When set, Hogicar never sells more of this car for overlapping dates, on the website or any channel.</span></label>
       <label className="mt-4 flex items-start gap-2 text-sm text-slate-700"><input type="checkbox" className="mt-1" checked={guaranteed} onChange={e => setGuaranteed(e.target.checked)} />
         <span>The supplier guarantees this exact make and model. Leave unticked to advertise it as "or similar".</span></label>
       {error && <p className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}

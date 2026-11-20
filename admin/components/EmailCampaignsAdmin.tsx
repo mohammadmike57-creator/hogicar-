@@ -35,21 +35,21 @@ const TEMPLATES: { key: TemplateKey; name: string; description: string; swatch: 
   { key: 'FLASH', name: 'Flash sale', description: 'Bold orange header with the discount in huge type and the end date.', swatch: 'from-[#F57C00] to-[#ff9a3c]',
     preset: { subject: '⚡ {firstName}, flash sale: save with code {code}', eyebrow: 'Flash sale', headline: '',
       intro: 'For a short time only, save on your car hire with code {code}. Book now while the offer lasts.', ctaLabel: 'Grab the deal', showSteps: false, showRewards: false } },
-  { key: 'LETTER', name: 'Personal letter', description: 'A warm, simple note from the HogiCar team. No photo.', swatch: 'from-[#f8fafc] to-[#e2e8f0]',
-    preset: { subject: '{firstName}, a little thank-you from HogiCar', eyebrow: '', headline: '',
-      intro: 'Thank you for choosing HogiCar. As a small thank-you, here is a code that takes money off your next car hire.', ctaLabel: 'Find my next car', showSteps: false, showRewards: false } },
+  { key: 'LETTER', name: 'Personal letter', description: 'A warm, simple note from the Hogicar team. No photo.', swatch: 'from-[#f8fafc] to-[#e2e8f0]',
+    preset: { subject: '{firstName}, a little thank-you from Hogicar', eyebrow: '', headline: '',
+      intro: 'Thank you for choosing Hogicar. As a small thank-you, here is a code that takes money off your next car hire.', ctaLabel: 'Find my next car', showSteps: false, showRewards: false } },
   { key: 'DESTINATION', name: 'Destination', description: 'Big photo with the headline on top. Great with your own destination photo.', swatch: 'from-[#0f766e] to-[#0b2545]',
     preset: { subject: '{firstName}, your next road trip starts here', eyebrow: 'Your next road trip', headline: '',
       intro: 'Pick up your car at {place} and explore at your own pace. Use code {code} to pay less.', ctaLabel: 'Plan my trip', showSteps: true, showRewards: true } },
-  { key: 'REWARDS', name: 'Rewards', description: 'Navy and gold, puts HogiCar Rewards and welcome points first.', swatch: 'from-[#0b2545] to-[#E8B04B]',
-    preset: { subject: '{firstName}, earn points on every rental with HogiCar Rewards', eyebrow: 'HogiCar Rewards', headline: '',
+  { key: 'REWARDS', name: 'Rewards', description: 'Navy and gold, puts Hogicar Rewards and welcome points first.', swatch: 'from-[#0b2545] to-[#E8B04B]',
+    preset: { subject: '{firstName}, earn points on every rental with Hogicar Rewards', eyebrow: 'Hogicar Rewards', headline: '',
       intro: 'Create a free account and earn points every time you rent. Use code {code} on your next booking too.', ctaLabel: 'Join and book', showSteps: false, showRewards: true } },
   { key: 'EID_FITR', holiday: true, name: 'Eid al-Fitr', description: 'Emerald and gold with a crescent and “Eid Mubarak” in English and Arabic.', swatch: 'from-[#064E3B] to-[#0F766E]',
     preset: { subject: 'Eid Mubarak, {firstName}! Save on your Eid car hire with code {code}', eyebrow: 'Eid al-Fitr offer', headline: '',
       intro: 'Wishing you and your family a blessed Eid. Visit loved ones and enjoy the holiday with a car of your own, and save with code {code}.', ctaLabel: 'Book my Eid car', showSteps: false, showRewards: true } },
   { key: 'EID_ADHA', holiday: true, name: 'Eid al-Adha', description: 'Deep indigo and gold with a crescent and Arabic greeting.', swatch: 'from-[#1E1B4B] to-[#3730A3]',
     preset: { subject: 'Eid al-Adha Mubarak, {firstName}! A gift for your holiday travel', eyebrow: 'Eid al-Adha offer', headline: '',
-      intro: 'Eid al-Adha Mubarak from all of us at HogiCar. Travel to your family in comfort this Eid and save with code {code}.', ctaLabel: 'Book my Eid car', showSteps: false, showRewards: true } },
+      intro: 'Eid al-Adha Mubarak from all of us at Hogicar. Travel to your family in comfort this Eid and save with code {code}.', ctaLabel: 'Book my Eid car', showSteps: false, showRewards: true } },
   { key: 'CHRISTMAS', holiday: true, name: 'Christmas', description: 'Festive red with snowflakes, a green band and “Merry Christmas”.', swatch: 'from-[#7F1D1D] to-[#B91C1C]',
     preset: { subject: 'Merry Christmas, {firstName}! Your festive car hire offer is here', eyebrow: 'Christmas offer', headline: '',
       intro: 'Going home for the holidays or exploring somewhere new? Use code {code} and save on your Christmas car hire.', ctaLabel: 'Book my Christmas car', showSteps: false, showRewards: true } },
@@ -95,7 +95,7 @@ const AUDIENCES: { key: Audience; label: string; hint: string; count: (s: Summar
   { key: 'BOOKED', label: 'Customers who booked', hint: 'Booked at least one car.', count: s => s?.booked ?? null },
   { key: 'NOT_BOOKED', label: 'Haven’t booked yet', hint: 'Gave their email but never booked.', count: s => s?.notBooked ?? null },
   { key: 'PAYMENT', label: 'Reached payment, didn’t pay', hint: 'Got to the payment page and left.', count: s => s?.payment ?? null },
-  { key: 'MEMBERS', label: 'Rewards members', hint: 'Have a HogiCar account.', count: s => s?.members ?? null },
+  { key: 'MEMBERS', label: 'Rewards members', hint: 'Have a Hogicar account.', count: s => s?.members ?? null },
   { key: 'SELECTED', label: 'Chosen addresses', hint: 'Only the emails you list.', count: () => null },
 ];
 const audienceLabel = (a: string) => AUDIENCES.find(x => x.key === a)?.label || a;
@@ -185,7 +185,7 @@ const EmailCampaignsAdmin: React.FC = () => {
   return (
     <div className="space-y-5">
       <Hero eyebrow="Marketing" eyebrowIcon={Mails} title="Email campaigns"
-        subtitle="Send your discounts and promotions to the people who gave their email on HogiCar. Choose the codes, the message and who gets it, then send as often as you like."
+        subtitle="Send your discounts and promotions to the people who gave their email on Hogicar. Choose the codes, the message and who gets it, then send as often as you like."
         loading={loading && !summary}
         actions={<button className={heroPrimary} onClick={() => setEditing({ ...EMPTY })}><Plus className="h-4 w-4" /> New campaign</button>}
         kpis={[
@@ -445,7 +445,7 @@ const CampaignEditor = ({ initial, summary, options, onClose, onSaved, notify }:
             )}
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <Toggle checked={c.showSteps !== false} onChange={v => set('showSteps', v)} label="“How it works” steps" hint="Shown when there's a code." />
-              <Toggle checked={c.showRewards !== false} onChange={v => set('showRewards', v)} label="Rewards panel" hint="Invite to join HogiCar Rewards." />
+              <Toggle checked={c.showRewards !== false} onChange={v => set('showRewards', v)} label="Rewards panel" hint="Invite to join Hogicar Rewards." />
             </div>
           </section>
 

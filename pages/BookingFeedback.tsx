@@ -30,7 +30,7 @@ const BAD = [
   { id: 'FEW_CARS', label: 'Not enough choice' },
 ];
 
-/** "How was booking with HogiCar?" — opened from the email sent after booking. The score in the link is saved at once. */
+/** "How was booking with Hogicar?" — opened from the email sent after booking. The score in the link is saved at once. */
 const BookingFeedback: React.FC = () => {
   const { ref = '' } = useParams<{ ref: string }>();
   const [params] = useSearchParams();
@@ -99,12 +99,12 @@ const BookingFeedback: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <SEOMetadata title="Your booking experience | HogiCar" description="Tell us how booking with HogiCar went." noIndex={true} />
+      <SEOMetadata title="Your booking experience | Hogicar" description="Tell us how booking with Hogicar went." noIndex={true} />
       <div className="relative overflow-hidden bg-gradient-to-br from-[#00244f] via-[#00306a] to-[#005b96] pb-28 pt-10 text-white sm:pb-32 sm:pt-14">
         <div aria-hidden="true" className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
         <div className="relative mx-auto max-w-2xl px-4 text-center sm:px-6">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold ring-1 ring-white/15">Booking {ref}</span>
-          <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">How was booking with HogiCar?</h1>
+          <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">How was booking with Hogicar?</h1>
           <p className="mx-auto mt-3 max-w-md text-base text-white/70">{ctx?.firstName ? `Thanks, ${ctx.firstName}. ` : ''}Your answer goes straight to our team and shapes what we improve next.</p>
         </div>
       </div>

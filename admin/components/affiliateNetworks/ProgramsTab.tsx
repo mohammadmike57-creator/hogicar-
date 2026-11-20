@@ -62,7 +62,7 @@ const ProgramDrawer: React.FC<{ program: Program | null; defaultNetworkId: numbe
                 {['ACTIVE', 'PAUSED', 'ENDED'].map(s => <option key={s} value={s}>{humanize(s)}</option>)}
               </Select>
             </Field>
-            <Field label="Name"><input className={inputCls} value={d.name} onChange={e => set({ name: e.target.value })} placeholder="HogiCar Car Rental" /></Field>
+            <Field label="Name"><input className={inputCls} value={d.name} onChange={e => set({ name: e.target.value })} placeholder="Hogicar Car Rental" /></Field>
             <Field label="External program ID"><input className={`${inputCls} font-mono`} value={d.externalProgramId} onChange={e => set({ externalProgramId: e.target.value })} placeholder="Optional" /></Field>
           </div>
           <Field label="Description"><textarea className={`${inputCls} h-20 py-2.5`} value={d.description} onChange={e => set({ description: e.target.value })} /></Field>

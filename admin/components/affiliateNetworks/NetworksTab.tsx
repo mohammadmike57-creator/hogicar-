@@ -122,7 +122,7 @@ const NetworksTab: React.FC = () => {
         </TableCard>
       )}
 
-      <Card title="Available connectors" subtitle="Connectors are the code that talks to each network. New ones arrive with HogiCar updates." icon={Puzzle}>
+      <Card title="Available connectors" subtitle="Connectors are the code that talks to each network. New ones arrive with Hogicar updates." icon={Puzzle}>
         <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
           {connectors.map(c => {
             const count = networks.filter(n => n.connectorType === c.type).length;

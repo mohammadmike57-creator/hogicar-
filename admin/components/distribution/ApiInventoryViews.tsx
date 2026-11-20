@@ -40,7 +40,7 @@ export const ApiInventoryCard: React.FC = () => {
 
   return (
     <Card title="Third-party API inventory" icon={Plug} bodyClassName="p-0"
-      subtitle={rows ? `${ready} of ${rows.length} API suppliers can be resold to channels` : 'Cars HogiCar receives from the car-hire API'}>
+      subtitle={rows ? `${ready} of ${rows.length} API suppliers can be resold to channels` : 'Cars Hogicar receives from the car-hire API'}>
       <div className="p-4 pb-0 sm:px-5">
         <Callout tone="info" icon={FileSignature}>
           Cars from API suppliers are offered to a channel only when the supplier has a signed redistribution contract here, the API provider's terms are confirmed, and the channel has API inventory switched on. Prices always come live from the API, the same call hogicar.com makes.
@@ -142,7 +142,7 @@ const ContractModal: React.FC<{ supplier: ApiSupplier; onClose: () => void; onSa
       </div>
       <div className="mt-4 space-y-2 rounded-xl bg-slate-50 p-3 ring-1 ring-inset ring-slate-200">
         <label className="flex items-start gap-2 text-sm text-slate-700"><input type="checkbox" className="mt-1" checked={form.redistributionAllowed} onChange={e => setForm(f => ({ ...f, redistributionAllowed: e.target.checked }))} />
-          <span><b>{supplier.name} allows HogiCar to resell its cars</b> through third-party channels (as stated in the contract).</span></label>
+          <span><b>{supplier.name} allows Hogicar to resell its cars</b> through third-party channels (as stated in the contract).</span></label>
         <label className="flex items-start gap-2 text-sm text-slate-700"><input type="checkbox" className="mt-1" checked={form.sourceTermsConfirmed} onChange={e => setForm(f => ({ ...f, sourceTermsConfirmed: e.target.checked }))} />
           <span><b>The API data provider's terms allow this resale.</b> Tick only after checking the API agreement.</span></label>
         <label className="flex items-start gap-2 text-sm text-slate-700"><input type="checkbox" className="mt-1" checked={form.active} onChange={e => setForm(f => ({ ...f, active: e.target.checked }))} />
@@ -178,7 +178,7 @@ export const ApiInventoryToggle: React.FC<{ bundle: ChannelBundle; reload: () =>
   };
   return (
     <Card title="Third-party API inventory" icon={Plug}
-      subtitle={on ? `On · ${allowed.length} contracted API supplier(s) can be sent to ${c.name}` : 'Off · only HogiCar\'s own supplier cars are sent'}
+      subtitle={on ? `On · ${allowed.length} contracted API supplier(s) can be sent to ${c.name}` : 'Off · only Hogicar\'s own supplier cars are sent'}
       actions={can('EDIT_CHANNEL') ? <button className={on ? btnSecondary : btnPrimary} disabled={busy} onClick={toggle}>{on ? 'Switch off' : 'Switch on'}</button> : undefined}>
       {rows === null ? <SkeletonRows rows={1} height="h-8" /> : allowed.length === 0 ? (
         <p className="text-sm text-slate-600">No API supplier has a valid contract covering this channel yet. Add contracts under Distribution network → Inventory.</p>
@@ -195,11 +195,11 @@ const plusDays = (n: number) => { const d = new Date(); d.setDate(d.getDate() + 
 
 const STEPS: { title: string; text: string; who: string }[] = [
   { who: 'Partner', title: 'Customer searches on the partner site', text: 'Pickup location, pickup and return date and time, driver age, and the point-of-sale market.' },
-  { who: 'Partner → HogiCar', title: 'Partner asks HogiCar for prices', text: 'The location (HogiCar code or the partner\'s mapped id), dates, times, market and currency are sent to the HogiCar Distribution API or, once built, the provider\'s own protocol.' },
-  { who: 'HogiCar', title: 'HogiCar finds eligible cars and prices them', text: 'Own supplier cars and contracted API cars, checked against rates, stop sales, capacity and channel rules, priced like hogicar.com. Each result gets a deeplink with a random offer reference.' },
+  { who: 'Partner → Hogicar', title: 'Partner asks Hogicar for prices', text: 'The location (Hogicar code or the partner\'s mapped id), dates, times, market and currency are sent to the Hogicar Distribution API or, once built, the provider\'s own protocol.' },
+  { who: 'Hogicar', title: 'Hogicar finds eligible cars and prices them', text: 'Own supplier cars and contracted API cars, checked against rates, stop sales, capacity and channel rules, priced like hogicar.com. Each result gets a deeplink with a random offer reference.' },
   { who: 'Partner', title: 'Partner shows the results', text: 'Car, supplier, total price and conditions. When the customer clicks "Select", the partner sends them to the deeplink.' },
-  { who: 'HogiCar', title: 'hogicar.com restores the search', text: 'The offer is re-checked live. The customer lands on the HogiCar results page with the same location and dates and the chosen car opened; any price change is shown before they continue.' },
-  { who: 'HogiCar', title: 'Customer completes the booking on HogiCar', text: 'Normal HogiCar checkout and confirmation. The booking is linked to the partner\'s click for reporting and commission.' },
+  { who: 'Hogicar', title: 'hogicar.com restores the search', text: 'The offer is re-checked live. The customer lands on the Hogicar results page with the same location and dates and the chosen car opened; any price change is shown before they continue.' },
+  { who: 'Hogicar', title: 'Customer completes the booking on Hogicar', text: 'Normal Hogicar checkout and confirmation. The booking is linked to the partner\'s click for reporting and commission.' },
 ];
 
 export const ConnectionFlowTab: React.FC<{ bundle: ChannelBundle }> = ({ bundle }) => {
@@ -231,7 +231,7 @@ export const ConnectionFlowTab: React.FC<{ bundle: ChannelBundle }> = ({ bundle 
 
   return (
     <div className="space-y-4">
-      <Card title="How a search on the partner becomes a booking on HogiCar" icon={Route}>
+      <Card title="How a search on the partner becomes a booking on Hogicar" icon={Route}>
         <ol className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {STEPS.map((s, i) => (
             <li key={s.title} className="relative rounded-2xl bg-slate-50 p-4 ring-1 ring-inset ring-slate-200">
@@ -287,7 +287,7 @@ export const ConnectionFlowTab: React.FC<{ bundle: ChannelBundle }> = ({ bundle 
                     <div className="flex flex-wrap items-center gap-1.5">
                       <p className="font-semibold text-slate-900">{o.vehicle.description}</p>
                       {o.vehicle.sippCode && <Badge tone="grey">{o.vehicle.sippCode}</Badge>}
-                      <Badge tone={o.inventorySource === 'API_SUPPLIER' ? 'violet' : 'blue'}>{o.inventorySource === 'API_SUPPLIER' ? 'API supplier · contract' : 'HogiCar supplier'}</Badge>
+                      <Badge tone={o.inventorySource === 'API_SUPPLIER' ? 'violet' : 'blue'}>{o.inventorySource === 'API_SUPPLIER' ? 'API supplier · contract' : 'Hogicar supplier'}</Badge>
                     </div>
                     <p className="mt-0.5 text-xs text-slate-500">
                       {o.supplier.name} · {o.location.name} · {o.rental.days} days{o.vehicle.passengers ? ` · ${o.vehicle.passengers} seats` : ''}{o.vehicle.transmission ? ` · ${humanize(o.vehicle.transmission)}` : ''}
@@ -319,7 +319,7 @@ export const ConnectionFlowTab: React.FC<{ bundle: ChannelBundle }> = ({ bundle 
         </div>
       )}
 
-      <Card title="Example request" subtitle="What the partner calls (HogiCar Distribution API v1)" icon={Users}>
+      <Card title="Example request" subtitle="What the partner calls (Hogicar Distribution API v1)" icon={Users}>
         <pre className="overflow-x-auto whitespace-pre-wrap break-all rounded-xl bg-slate-900 p-3 text-xs text-emerald-300">{example}</pre>
         <p className="mt-2 text-xs text-slate-500">The response lists each car with its price, conditions and <code>deeplink</code>. The partner sends the customer to that deeplink unchanged; prices are never taken from the link.</p>
       </Card>

@@ -88,7 +88,7 @@ const MembershipCard = ({ tier, points, name, memberNumber, memberSince }: {
     <div className="mx-auto w-full max-w-[400px] [perspective:1400px]">
       <motion.div onPointerMove={onMove} onPointerLeave={reset} style={reduce ? undefined : { rotateX: rx, rotateY: ry, transformStyle: 'preserve-3d' }}
         className={`relative aspect-[1.586] select-none overflow-hidden rounded-[20px] p-5 shadow-[0_40px_70px_-25px_rgba(0,0,0,0.7),0_10px_20px_-10px_rgba(0,0,0,0.4)] ring-1 sm:p-6 ${look.edge} ${look.text}`}
-        role="img" aria-label={`HogiCar Rewards ${tier} card for ${name}, ${fmt(points)} points`}>
+        role="img" aria-label={`Hogicar Rewards ${tier} card for ${name}, ${fmt(points)} points`}>
         <div aria-hidden="true" className="absolute inset-0" style={{ background: look.base }} />
         {/* brushed-metal texture */}
         <div aria-hidden="true" className="absolute inset-0 opacity-[0.18] mix-blend-overlay" style={{ backgroundImage: 'repeating-linear-gradient(90deg, rgba(255,255,255,.18) 0 1px, transparent 1px 3px)' }} />

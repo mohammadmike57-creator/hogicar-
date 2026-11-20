@@ -72,7 +72,7 @@ const LinkDrawer: React.FC<{ link: TrackingLink | null; defaultNetworkId: number
         {link && (
           <Panel title="Generated links">
             <UrlBox label="Tracking URL – give this to the publisher" url={link.trackingUrl} note={link.trackingUrlNote} tone="primary" onCopied={() => notify('Tracking URL copied')} />
-            <UrlBox label="Landing URL – where visitors arrive on HogiCar" url={link.landingUrl} onCopied={() => notify('Landing URL copied')} />
+            <UrlBox label="Landing URL – where visitors arrive on Hogicar" url={link.landingUrl} onCopied={() => notify('Landing URL copied')} />
             <p className="text-xs text-slate-500">{new Intl.NumberFormat('en-GB').format(link.clicks)} clicks · {new Intl.NumberFormat('en-GB').format(link.bookings)} bookings</p>
           </Panel>
         )}
@@ -97,7 +97,7 @@ const LinkDrawer: React.FC<{ link: TrackingLink | null; defaultNetworkId: number
               </Select>
             </Field>
           </div>
-          <Field label="Destination on HogiCar" hint="Search deep links work best – see Feeds & live search for the format.">
+          <Field label="Destination on Hogicar" hint="Search deep links work best – see Feeds & live search for the format.">
             <input className={`${inputCls} font-mono text-sm`} value={d.destinationUrl} onChange={e => set({ destinationUrl: e.target.value.trim() })} placeholder="https://www.hogicar.com/search?pickup=AMM&dropoff=AMM" />
           </Field>
         </Panel>
@@ -144,7 +144,7 @@ const TrackingLinksTab: React.FC = () => {
   React.useEffect(() => { load(); }, [load]);
 
   const del = async (l: TrackingLink) => {
-    if (!(await confirm({ title: `Delete “${l.name}”?`, message: 'Clicks on this link still reach HogiCar but are no longer grouped under this campaign.', confirmLabel: 'Delete', danger: true }))) return;
+    if (!(await confirm({ title: `Delete “${l.name}”?`, message: 'Clicks on this link still reach Hogicar but are no longer grouped under this campaign.', confirmLabel: 'Delete', danger: true }))) return;
     try { await api.deleteLink(l.id); setItems(x => (x || []).filter(i => i.id !== l.id)); notify('Tracking link deleted'); }
     catch (e) { notify(apiError(e, 'Could not delete the link.'), 'err'); }
   };

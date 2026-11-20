@@ -90,7 +90,7 @@ const RewardsAdmin: React.FC = () => {
 
   return (
     <div className="space-y-5">
-      <Hero eyebrow="HogiCar Rewards" eyebrowIcon={Gift} title="Rewards programme"
+      <Hero eyebrow="Hogicar Rewards" eyebrowIcon={Gift} title="Rewards programme"
         subtitle="Members, points and reward codes. Customers join from Manage booking, with email or with Google."
         loading={loading && !summary}
         actions={<button className={heroButton} onClick={() => load()}><RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> Refresh</button>}

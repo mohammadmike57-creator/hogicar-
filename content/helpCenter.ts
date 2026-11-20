@@ -1,5 +1,5 @@
 /**
- * Help Center content. Each article is short, task-focused and written for HogiCar's real flows
+ * Help Center content. Each article is short, task-focused and written for Hogicar's real flows
  * (Manage booking, voucher, pay now / pay at desk, change requests). Terms that differ by rental
  * company – exact cancellation windows, deposit amounts, age fees – always point to the booking's
  * own rental conditions instead of quoting a number.
@@ -49,7 +49,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   // ---------------------------------------------------------------- booking
   {
     slug: 'how-to-book', category: 'booking', popular: true,
-    title: 'How do I book a car with HogiCar?',
+    title: 'How do I book a car with Hogicar?',
     summary: 'Search, compare and book in a few minutes – no account needed.',
     keywords: ['book', 'reserve', 'rent', 'how', 'search', 'start'],
     body: [
@@ -85,7 +85,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     summary: 'Most cars confirm instantly; some rental companies confirm shortly after.',
     keywords: ['pending', 'on request', 'instant', 'waiting', 'supplier confirmation', 'status'],
     body: [
-      { type: 'p', text: 'Most cars on HogiCar are confirmed instantly. Some rental companies check availability first – your booking then shows as pending until they confirm it, and we email you as soon as they do.' },
+      { type: 'p', text: 'Most cars on Hogicar are confirmed instantly. Some rental companies check availability first – your booking then shows as pending until they confirm it, and we email you as soon as they do.' },
       { type: 'note', tone: 'info', text: 'If a rental company can\'t confirm your request, the booking is cancelled, anything you paid online is refunded, and we\'ll help you find an alternative.' },
     ],
     related: ['booking-confirmation', 'find-my-booking'],
@@ -149,7 +149,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     summary: 'Most bookings include free cancellation – check your rental conditions.',
     keywords: ['free cancellation', 'cancellation fee', 'penalty', 'policy', 'charge'],
     body: [
-      { type: 'p', text: 'Most bookings on HogiCar include free cancellation. The exact cancellation terms depend on the rental company and are shown in the rental conditions before you book and on your voucher.' },
+      { type: 'p', text: 'Most bookings on Hogicar include free cancellation. The exact cancellation terms depend on the rental company and are shown in the rental conditions before you book and on your voucher.' },
       { type: 'p', text: 'If you paid part of your rental online, any refund due under those terms is made to the card you paid with.' },
     ],
     related: ['cancel-booking', 'refunds'],
@@ -312,7 +312,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
         'The main driver\'s full, valid driving licence.',
         'A passport or national ID card.',
         'A credit card in the main driver\'s name for the security deposit.',
-        'Your HogiCar voucher – printed, on your phone or in Apple / Google Wallet.',
+        'Your Hogicar voucher – printed, on your phone or in Apple / Google Wallet.',
         'An International Driving Permit if your licence isn\'t in the local alphabet or the country requires one.',
       ] },
       { type: 'note', tone: 'warning', text: 'Without these documents the rental company may refuse to hand over the car. Check the rental conditions for any extra requirements.' },
@@ -448,22 +448,22 @@ export const HELP_ARTICLES: HelpArticle[] = [
   // ---------------------------------------------------------------- business
   {
     slug: 'affiliate-program', category: 'business',
-    title: 'How do I join the HogiCar affiliate program?',
+    title: 'How do I join the Hogicar affiliate program?',
     summary: 'Earn commission on the bookings you refer.',
     keywords: ['affiliate', 'partner', 'commission', 'refer', 'blogger', 'awin', 'publisher'],
     body: [
-      { type: 'p', text: 'Websites, creators and travel businesses can earn commission on bookings they send to HogiCar. Apply on the affiliate program page – once approved you get your own tracking links and a dashboard. We also work with affiliate networks such as Awin.' },
+      { type: 'p', text: 'Websites, creators and travel businesses can earn commission on bookings they send to Hogicar. Apply on the affiliate program page – once approved you get your own tracking links and a dashboard. We also work with affiliate networks such as Awin.' },
       { type: 'actions', items: [{ label: 'Affiliate program', to: '/affiliate-program' }, contact] },
     ],
     related: ['partner-api', 'become-supplier'],
   },
   {
     slug: 'become-supplier', category: 'business',
-    title: 'How can my rental company list cars on HogiCar?',
+    title: 'How can my rental company list cars on Hogicar?',
     summary: 'Apply as a supplier and manage your fleet, rates and bookings online.',
     keywords: ['supplier', 'rental company', 'list cars', 'fleet', 'join', 'agency'],
     body: [
-      { type: 'p', text: 'Rental companies can apply to sell through HogiCar. Approved suppliers get a supplier dashboard to manage locations, cars, rates, promotions and bookings.' },
+      { type: 'p', text: 'Rental companies can apply to sell through Hogicar. Approved suppliers get a supplier dashboard to manage locations, cars, rates, promotions and bookings.' },
       { type: 'actions', items: [{ label: 'Become a supplier', to: '/become-supplier' }, contact] },
     ],
     related: ['affiliate-program', 'partner-api'],
@@ -474,7 +474,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     summary: 'Yes – live search, booking and product feeds for approved partners.',
     keywords: ['api', 'integration', 'xml', 'feed', 'b2b', 'developer', 'travel agency'],
     body: [
-      { type: 'p', text: 'Approved partners can search live availability and create bookings through the HogiCar Partner API, and affiliate networks can receive a product feed. Tell us about your business and we\'ll set up access.' },
+      { type: 'p', text: 'Approved partners can search live availability and create bookings through the Hogicar Partner API, and affiliate networks can receive a product feed. Tell us about your business and we\'ll set up access.' },
       { type: 'actions', items: [{ label: 'Contact our business team', to: '/contact?topic=PARTNERSHIP' }] },
     ],
     related: ['affiliate-program', 'become-supplier'],

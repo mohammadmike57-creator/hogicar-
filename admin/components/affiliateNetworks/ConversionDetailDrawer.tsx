@@ -169,7 +169,7 @@ const ConversionDetailDrawer: React.FC<{ id: number; onClose: () => void; onChan
           </Panel>
 
           <Panel title="Payload preview" actions={c.payloadPreview ? <CopyButton text={JSON.stringify(c.payloadPreview, null, 2)} label="Copy" className="h-8 bg-white px-2.5 text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50" onCopied={() => notify('Payload copied')} /> : undefined}>
-            <p className="text-xs text-slate-500">What HogiCar sends (or would send) to {c.networkName}. Secrets are never included.</p>
+            <p className="text-xs text-slate-500">What Hogicar sends (or would send) to {c.networkName}. Secrets are never included.</p>
             <JsonView value={c.payloadPreview} />
           </Panel>
 

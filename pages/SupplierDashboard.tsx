@@ -2018,7 +2018,7 @@ const RatesSection = ({ supplier, cars }: { supplier: Supplier, cars: CarType[] 
             const link = document.createElement('a');
             link.href = url;
             const filenameSuffix = selectedLocation || 'Default';
-            link.setAttribute('download', `HogiCar_Rates_${supplier.name.replace(/\s/g, '_')}_${filenameSuffix}.xlsx`);
+            link.setAttribute('download', `Hogicar_Rates_${supplier.name.replace(/\s/g, '_')}_${filenameSuffix}.xlsx`);
             document.body.appendChild(link);
             link.click();
             link.remove();

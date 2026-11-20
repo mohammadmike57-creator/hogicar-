@@ -195,7 +195,7 @@ const RewardsDashboard = ({ data, onChange, onOpenBooking, onSignOut, celebrate 
         <div className="mx-auto grid max-w-5xl items-center gap-8 lg:grid-cols-[1.05fr_1fr]">
           <motion.div {...rise(0)}>
             <p className="text-sm font-medium text-white/70">Welcome back{acc.firstName ? `, ${acc.firstName}` : ''}</p>
-            <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">Your HogiCar Rewards</h1>
+            <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">Your Hogicar Rewards</h1>
             <div className="mt-6 flex flex-wrap items-end gap-x-8 gap-y-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Available points</p>
@@ -313,7 +313,7 @@ const RewardsDashboard = ({ data, onChange, onOpenBooking, onSignOut, celebrate 
             </section>
 
             <section className="rounded-3xl bg-white p-5 ring-1 ring-slate-200 sm:p-6">
-              <h2 className="text-lg font-semibold text-slate-900">How HogiCar Rewards works</h2>
+              <h2 className="text-lg font-semibold text-slate-900">How Hogicar Rewards works</h2>
               <ol className="mt-4 grid gap-4 sm:grid-cols-3">
                 {[
                   { t: 'Book with your email', d: `Earn ${pts.pointsPerUsd || 10} points for every USD 1 you spend on a rental, with every booking made with ${acc.email}.` },

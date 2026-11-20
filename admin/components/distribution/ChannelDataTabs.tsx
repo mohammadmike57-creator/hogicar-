@@ -118,7 +118,7 @@ export const CredentialsTab: React.FC<{ bundle: ChannelBundle; reload: () => Pro
       {!editable && <ReadOnlyNote what="credentials" />}
 
       {adapter.key === 'HOGICAR_API' && (
-        <Card title="Partner API keys" subtitle="Keys HogiCar issues to this partner for the HogiCar Distribution API" icon={KeyRound}>
+        <Card title="Partner API keys" subtitle="Keys Hogicar issues to this partner for the Hogicar Distribution API" icon={KeyRound}>
           <div className="flex flex-wrap gap-2">
             <button className={btnSecondary} disabled={!editable || busy} onClick={() => issue('SANDBOX')}><KeyRound className="h-4 w-4" />Issue sandbox key</button>
             <button className={btnSecondary} disabled={!editable || busy} onClick={() => issue('PRODUCTION')}><KeyRound className="h-4 w-4" />Issue production key</button>
@@ -134,7 +134,7 @@ export const CredentialsTab: React.FC<{ bundle: ChannelBundle; reload: () => Pro
             <tr key={k.id}>
               <td className={td}><Badge tone={k.environment === 'PRODUCTION' ? 'red' : 'sky'}>{humanize(k.environment)}</Badge></td>
               <td className={`${td} font-mono text-xs`}>{k.keyName}</td>
-              <td className={td}>{k.kind === 'ISSUED_BY_HOGICAR' ? 'Issued by HogiCar (hashed)' : 'Provider secret (encrypted)'}</td>
+              <td className={td}>{k.kind === 'ISSUED_BY_HOGICAR' ? 'Issued by Hogicar (hashed)' : 'Provider secret (encrypted)'}</td>
               <td className={`${td} font-mono text-xs`}>{k.masked}</td>
               <td className={`${td} text-xs text-slate-500`}>{fmtDateTime(k.updatedAt)}<br />{k.updatedBy}</td>
               <td className={`${td} text-xs text-slate-500`}>{fmtDateTime(k.lastUsedAt)}</td>
@@ -146,7 +146,7 @@ export const CredentialsTab: React.FC<{ bundle: ChannelBundle; reload: () => Pro
       </TableCard>
 
       {editable && (
-        <Card title="Store a provider secret" subtitle="Credentials the provider gave HogiCar (for example an API key or password)" icon={KeyRound}>
+        <Card title="Store a provider secret" subtitle="Credentials the provider gave Hogicar (for example an API key or password)" icon={KeyRound}>
           <div className="grid gap-3 sm:grid-cols-3">
             <Field label="Environment"><select className={selectCls} value={form.environment} onChange={e => setForm(f => ({ ...f, environment: e.target.value }))}><option value="SANDBOX">Sandbox</option><option value="PRODUCTION">Production</option></select></Field>
             <Field label="Name"><input className={inputCls} value={form.keyName} placeholder="API_KEY" onChange={e => setForm(f => ({ ...f, keyName: e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, '') }))} /></Field>
@@ -379,7 +379,7 @@ export const MappingTab: React.FC<{ bundle: ChannelBundle; kind: 'locations' | '
 
   return (
     <div className="space-y-4">
-      {!required && <Callout tone="info">{bundle.adapter.name} uses HogiCar's own {isLoc ? 'location codes' : 'SIPP codes'}. Mappings are optional and are shown to the partner when present.</Callout>}
+      {!required && <Callout tone="info">{bundle.adapter.name} uses Hogicar's own {isLoc ? 'location codes' : 'SIPP codes'}. Mappings are optional and are shown to the partner when present.</Callout>}
       {required && missing.length > 0 && (
         <Callout tone="warn" title={`${missing.length} ${isLoc ? 'location(s)' : 'SIPP code(s)'} with otherwise eligible cars are not mapped`}>
           <div className="mt-1 flex flex-wrap gap-1">
@@ -389,13 +389,13 @@ export const MappingTab: React.FC<{ bundle: ChannelBundle; kind: 'locations' | '
         </Callout>
       )}
       <Card title={isLoc ? 'Location mapping' : 'Vehicle category mapping'}
-        subtitle={isLoc ? 'HogiCar pickup location code → provider location id' : 'SIPP/ACRISS code or prefix → provider category (longest prefix wins)'}
+        subtitle={isLoc ? 'Hogicar pickup location code → provider location id' : 'SIPP/ACRISS code or prefix → provider category (longest prefix wins)'}
         icon={isLoc ? MapPin : Car} bodyClassName="p-0"
         actions={editable ? <button className={btnPrimary} onClick={() => setEditing(null)}><Plus className="h-4 w-4" />Add mapping</button> : undefined}>
         {list.error && <div className="p-4"><Err text={list.error} /></div>}
         {!list.rows ? <div className="p-4"><SkeletonRows rows={2} /></div> : (
           <TableCard className="rounded-none shadow-none ring-0">
-            <thead className="bg-slate-50/70"><tr><th className={th}>{isLoc ? 'HogiCar code' : 'SIPP'}</th><th className={th}>Provider {isLoc ? 'location id' : 'category'}</th><th className={th}>Provider name</th><th className={th}>Status</th><th className={th}>Updated</th><th className={th} /></tr></thead>
+            <thead className="bg-slate-50/70"><tr><th className={th}>{isLoc ? 'Hogicar code' : 'SIPP'}</th><th className={th}>Provider {isLoc ? 'location id' : 'category'}</th><th className={th}>Provider name</th><th className={th}>Status</th><th className={th}>Updated</th><th className={th} /></tr></thead>
             <tbody className="divide-y divide-slate-100">
               {list.rows.map(m => (
                 <tr key={m.id}>
@@ -448,7 +448,7 @@ const MappingModal: React.FC<{ channelId: number; kind: 'locations' | 'categorie
       footer={<><button className={btnSecondary} onClick={onClose} disabled={busy}>Cancel</button><button className={btnPrimary} onClick={save} disabled={busy}>Save</button></>}>
       <div className="grid gap-3 sm:grid-cols-2">
         {isLoc ? <>
-          <Field label="HogiCar location code"><input className={inputCls} value={form.locationCode} onChange={e => setForm((f: any) => ({ ...f, locationCode: e.target.value.toUpperCase() }))} placeholder="AMM" /></Field>
+          <Field label="Hogicar location code"><input className={inputCls} value={form.locationCode} onChange={e => setForm((f: any) => ({ ...f, locationCode: e.target.value.toUpperCase() }))} placeholder="AMM" /></Field>
           <Field label="Provider location id"><input className={inputCls} value={form.externalId} onChange={e => setForm((f: any) => ({ ...f, externalId: e.target.value }))} /></Field>
         </> : <>
           <Field label="SIPP code or prefix"><input className={inputCls} maxLength={4} value={form.sippPattern} onChange={e => setForm((f: any) => ({ ...f, sippPattern: e.target.value.toUpperCase() }))} placeholder="CDAR or CD" /></Field>
@@ -493,7 +493,7 @@ export const PricingTab: React.FC<{ bundle: ChannelBundle }> = ({ bundle }) => {
   return (
     <div className="space-y-4">
       <Callout tone="info" icon={Percent} title="How a channel price is built">
-        Supplier cost + HogiCar markup = the hogicar.com price. A rule can adjust that price and sets how the channel is paid. ABSORBED commission keeps the customer price and comes out of HogiCar's margin; ADDED TO PRICE grosses the price up once so the margin is kept. Offers that break a minimum margin or maximum markup are not sent.
+        Supplier cost + Hogicar markup = the hogicar.com price. A rule can adjust that price and sets how the channel is paid. ABSORBED commission keeps the customer price and comes out of Hogicar's margin; ADDED TO PRICE grosses the price up once so the margin is kept. Offers that break a minimum margin or maximum markup are not sent.
       </Callout>
       {!editable && <ReadOnlyNote what="pricing rules" />}
       <Card title="Rate and markup rules" subtitle="The most specific matching rule wins, then the higher priority" icon={Percent} bodyClassName="p-0"
@@ -588,7 +588,7 @@ const PricingModal: React.FC<{ channelId: number; rule: any | null; onClose: () 
           </div>
           {preview ? (
             <dl className="space-y-1 text-sm">
-              {[['Supplier cost', preview.supplierCost], ['HogiCar markup', preview.hogicarMarkup], ['Website price', preview.websitePrice], ['Channel adjustment', preview.channelAdjustment],
+              {[['Supplier cost', preview.supplierCost], ['Hogicar markup', preview.hogicarMarkup], ['Website price', preview.websitePrice], ['Channel adjustment', preview.channelAdjustment],
                 ['Customer price', preview.customerPrice], ['Channel commission', preview.channelCommission], ['Net margin', preview.netMargin]].map(([k, v]) => (
                 <div key={k as string} className={`flex justify-between gap-2 ${k === 'Customer price' || k === 'Net margin' ? 'font-semibold text-slate-900' : 'text-slate-600'}`}><dt>{k}</dt><dd className="tabular-nums">{fmtMoney(v as number)}</dd></div>
               ))}
@@ -634,14 +634,14 @@ export const DeeplinksTab: React.FC<{ bundle: ChannelBundle }> = ({ bundle }) =>
 
   return (
     <div className="space-y-4">
-      <Card title="Deeplinks" subtitle="Every offer links to the HogiCar results page with the search restored. Prices are never read from the link." icon={Link}>
+      <Card title="Deeplinks" subtitle="Every offer links to the Hogicar results page with the search restored. Prices are never read from the link." icon={Link}>
         <p className="text-sm text-slate-600">Format: <code className="break-all rounded bg-slate-100 px-1.5 py-0.5 text-xs">{bundle.deeplinkPattern}</code></p>
         <p className="mt-1 text-xs text-slate-500">The reference is random and expires after {c.offerTtlMinutes} minutes. Opening it revalidates the car and price; if the price changed the customer sees a clear notice; if the car is gone, the rest of the search is shown.</p>
       </Card>
 
       <Card title="Test availability and offers" subtitle="Runs the live engine for this channel (recorded as an internal test). Open a deeplink to test search restoration." icon={Play}>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <Field label="Pickup (HogiCar code or provider id)"><input className={inputCls} value={form.pickup} onChange={set('pickup', true)} placeholder="AMM" /></Field>
+          <Field label="Pickup (Hogicar code or provider id)"><input className={inputCls} value={form.pickup} onChange={set('pickup', true)} placeholder="AMM" /></Field>
           <Field label="Market"><input className={inputCls} value={form.market} maxLength={2} onChange={set('market', true)} /></Field>
           <Field label="Pickup date"><input type="date" className={inputCls} value={form.pickupDate} onChange={set('pickupDate')} /></Field>
           <Field label="Pickup time"><input type="time" className={inputCls} value={form.pickupTime} onChange={set('pickupTime')} /></Field>
@@ -707,7 +707,7 @@ export const BookingsTab: React.FC<{ bundle: ChannelBundle }> = ({ bundle }) => 
   const list = useList<any>(() => distributionApi.bookings(bundle.channel.id), [bundle.channel.id]);
   return (
     <div className="space-y-4">
-      <Callout tone="info" icon={Receipt}>Customers from a channel book through the normal HogiCar checkout. Each booking is linked to its click after it is saved; its status is read live from HogiCar's bookings. Commission is an estimate from the pricing rules, not a provider statement.</Callout>
+      <Callout tone="info" icon={Receipt}>Customers from a channel book through the normal Hogicar checkout. Each booking is linked to its click after it is saved; its status is read live from Hogicar's bookings. Commission is an estimate from the pricing rules, not a provider statement.</Callout>
       {!list.rows ? <SkeletonRows rows={3} /> : list.rows.length === 0 ? <EmptyState icon={Receipt} title="No attributed bookings yet" compact /> : (
         <TableCard>
           <thead className="bg-slate-50/70"><tr><th className={th}>Booking</th><th className={th}>Status</th><th className={th}>Dates</th><th className={th}>Supplier</th><th className={thRight}>Offer price</th><th className={thRight}>Booked price</th><th className={thRight}>Est. commission</th><th className={th}>Matches offer</th><th className={th}>Attributed</th></tr></thead>
@@ -779,7 +779,7 @@ export const DocumentsTab: React.FC<{ bundle: ChannelBundle }> = ({ bundle }) =>
         </TableCard>
       )}
       {editable && (
-        <Card title="Record a document" subtitle="Store a link to the file in your secure storage; HogiCar keeps the reference and who added it" icon={FileText}>
+        <Card title="Record a document" subtitle="Store a link to the file in your secure storage; Hogicar keeps the reference and who added it" icon={FileText}>
           <div className="grid gap-3 sm:grid-cols-3">
             <Field label="Title"><input className={inputCls} value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} /></Field>
             <Field label="Type"><select className={selectCls} value={form.docType} onChange={e => setForm(f => ({ ...f, docType: e.target.value }))}>

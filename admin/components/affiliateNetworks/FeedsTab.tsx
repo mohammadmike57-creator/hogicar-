@@ -126,7 +126,7 @@ const FeedsTab: React.FC = () => {
         <div className="min-w-0 space-y-3">
           <Card title="Product feeds" subtitle="One private URL per network, in CSV, XML or JSON." icon={Rss}>
             <div className="space-y-2 text-sm text-slate-600">
-              <p>The feed lists HogiCar locations with their codes, a ready-made deep link and the current “from” price per day, limited to the network’s countries, locations and currencies.</p>
+              <p>The feed lists Hogicar locations with their codes, a ready-made deep link and the current “from” price per day, limited to the network’s countries, locations and currencies.</p>
               <p>Publishers load it into their site or the network’s product-feed tool. The token in the URL identifies the network – regenerate it if it leaks. Disabled feeds return nothing.</p>
             </div>
           </Card>
@@ -144,12 +144,12 @@ const FeedsTab: React.FC = () => {
                 <CopyButton text={`${base}${partnerPath}/search`} className="h-8 w-8 shrink-0 bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100" />
               </div>
               <p className="flex items-start gap-2"><KeyRound className="mt-0.5 h-4 w-4 shrink-0 text-[#007ac2]" /><span>API keys are created and revoked in the <b>Integrations</b> section of the admin. Each key has its own rate limit and usage log.</span></p>
-              <p className="flex items-start gap-2"><Link2 className="mt-0.5 h-4 w-4 shrink-0 text-[#007ac2]" /><span>Every result links back to HogiCar with a search deep link. Wrap it in the network tracking link (see <b>Tracking links</b>) so the booking is attributed.</span></p>
+              <p className="flex items-start gap-2"><Link2 className="mt-0.5 h-4 w-4 shrink-0 text-[#007ac2]" /><span>Every result links back to Hogicar with a search deep link. Wrap it in the network tracking link (see <b>Tracking links</b>) so the booking is attributed.</span></p>
               <div className="rounded-xl bg-[#0b1526] p-3 font-mono text-[11px] leading-relaxed text-sky-100">
                 <span className="text-slate-400">{base}</span>/search?<span className="text-amber-300">pickup</span>=AMM&amp;<span className="text-amber-300">dropoff</span>=AMM&amp;<span className="text-amber-300">pickupDate</span>=YYYY-MM-DD&amp;<span className="text-amber-300">dropoffDate</span>=YYYY-MM-DD&amp;<span className="text-amber-300">startTime</span>=10:00&amp;<span className="text-amber-300">endTime</span>=10:00
               </div>
               <ul className="list-disc space-y-1 pl-5 text-xs text-slate-500">
-                <li><code className="font-mono">pickup</code> / <code className="font-mono">dropoff</code>: HogiCar location codes (airport IATA codes such as AMM, AQJ).</li>
+                <li><code className="font-mono">pickup</code> / <code className="font-mono">dropoff</code>: Hogicar location codes (airport IATA codes such as AMM, AQJ).</li>
                 <li>Dates are <code className="font-mono">YYYY-MM-DD</code>; times are 24-hour <code className="font-mono">HH:MM</code>.</li>
                 <li>Network click parameters (e.g. <code className="font-mono">awc</code>) are added by the network redirect – don’t hard-code them.</li>
               </ul>

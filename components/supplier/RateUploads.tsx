@@ -84,7 +84,7 @@ export const RateUploadsSection = ({ refreshKey, autoOpenId }: { refreshKey?: nu
       <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
         <div>
           <h3 className="text-sm font-semibold text-slate-900">Uploaded sheets</h3>
-          <p className="text-xs text-slate-500">Click a sheet to see the prices live on HogiCar now and change them.</p>
+          <p className="text-xs text-slate-500">Click a sheet to see the prices live on Hogicar now and change them.</p>
         </div>
       </div>
       {rows === null ? (
@@ -234,8 +234,8 @@ export const RateUploadModal = ({ uploadId, onClose }: { uploadId: number | null
       setDetail(d => d ? { ...d, seasons: d.seasons.map((s, i) => (i === active ? { ...updated, name: s.name } : s)) } : d);
       setEdits(e => Object.fromEntries(Object.entries(e).filter(([k]) => !k.startsWith(`${active}|`))));
       setNotice(season.draft
-        ? `Saved. “${season.name}” is live on HogiCar with ${changes.length} price${changes.length === 1 ? '' : 's'} and added to your seasons.`
-        : `Saved. ${changes.length} price${changes.length === 1 ? '' : 's'} updated and live on HogiCar now.`);
+        ? `Saved. “${season.name}” is live on Hogicar with ${changes.length} price${changes.length === 1 ? '' : 's'} and added to your seasons.`
+        : `Saved. ${changes.length} price${changes.length === 1 ? '' : 's'} updated and live on Hogicar now.`);
     } catch (e: any) {
       setNotice(e?.response?.data?.message || 'Could not save. Please check the prices and try again.');
     } finally {
@@ -399,7 +399,7 @@ export const RateUploadModal = ({ uploadId, onClose }: { uploadId: number | null
                   ) : (
                   <p className="mt-4 flex items-start gap-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
                     <Pencil className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
-                    These are the prices live on HogiCar now (daily price, {season.currency}). Change any price and press Save; clear a price to stop offering that length. The uploaded file itself isn't changed.
+                    These are the prices live on Hogicar now (daily price, {season.currency}). Change any price and press Save; clear a price to stop offering that length. The uploaded file itself isn't changed.
                   </p>
                   )}
 

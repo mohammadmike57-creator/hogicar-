@@ -245,8 +245,8 @@ const HelpHome: React.FC = () => {
   return (
     <>
       <SEOMetadata
-        title="Help Center | HogiCar Car Rental Support"
-        description="Answers about booking, changing or cancelling, payments, deposits, insurance, pick-up and drop-off. Search the HogiCar Help Center or contact our team."
+        title="Help Center | Hogicar Car Rental Support"
+        description="Answers about booking, changing or cancelling, payments, deposits, insurance, pick-up and drop-off. Search the Hogicar Help Center or contact our team."
         canonicalUrl={`${PUBLIC_BASE_URL}/help`}
         noIndex={!!q}
         structuredData={faqLd}
@@ -257,7 +257,7 @@ const HelpHome: React.FC = () => {
           <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-[0.06]" />
         </div>
         <div className="relative mx-auto max-w-3xl px-4 pb-16 pt-14 text-center sm:px-6 sm:pb-20 sm:pt-20">
-          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-white/70">HogiCar Help Center</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-white/70">Hogicar Help Center</p>
           <h1 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">How can we help you?</h1>
           <p className="mx-auto mt-3 max-w-xl text-white/75">Search our guides or browse a topic below.</p>
           <div className="mx-auto mt-8 max-w-2xl"><HelpSearch /></div>
@@ -342,7 +342,7 @@ const HelpCategoryPage: React.FC<{ category: HelpCategory }> = ({ category }) =>
   return (
     <>
       <SEOMetadata
-        title={`${category.title} | HogiCar Help Center`}
+        title={`${category.title} | Hogicar Help Center`}
         description={`${category.description} ${list.slice(0, 3).map(a => a.title).join(' ')}`.slice(0, 158)}
         canonicalUrl={`${PUBLIC_BASE_URL}/help/${category.slug}`}
       />
@@ -488,7 +488,7 @@ const HelpArticlePage: React.FC<{ article: HelpArticle; category: HelpCategory }
 
   return (
     <>
-      <SEOMetadata title={`${article.title} | HogiCar Help`} description={`${article.summary} ${articleText(article)}`.slice(0, 158)} canonicalUrl={url} structuredData={ld} />
+      <SEOMetadata title={`${article.title} | Hogicar Help`} description={`${article.summary} ${articleText(article)}`.slice(0, 158)} canonicalUrl={url} structuredData={ld} />
       <HelpHeader crumbs={[{ label: 'Help Center', to: '/help' }, { label: category.title, to: `/help/${category.slug}` }, { label: article.title }]} />
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:px-8">
         <aside className="hidden lg:block"><div className="sticky top-24"><CategoryNav current={category.slug} /></div></aside>
@@ -537,7 +537,7 @@ const HelpHeader: React.FC<{ crumbs: { label: string; to?: string }[] }> = ({ cr
 
 const NotFound: React.FC = () => (
   <div className="mx-auto max-w-xl px-4 py-24 text-center">
-    <SEOMetadata title="Article not found | HogiCar Help" description="This Help Center page doesn't exist." noIndex />
+    <SEOMetadata title="Article not found | Hogicar Help" description="This Help Center page doesn't exist." noIndex />
     <h1 className="text-2xl font-bold text-slate-900">We couldn’t find that page</h1>
     <p className="mt-2 text-slate-500">It may have moved. Try searching the Help Center instead.</p>
     <div className="mt-6"><HelpSearch size="md" /></div>

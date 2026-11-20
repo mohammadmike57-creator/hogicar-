@@ -257,7 +257,7 @@ const WalletStrip: React.FC<{ booking: any }> = ({ booking }) => {
   );
 };
 
-/** Invites a guest to create a HogiCar Rewards account (or sign in if they have one). */
+/** Invites a guest to create a Hogicar Rewards account (or sign in if they have one). */
 const RewardsBanner = ({ email, bookingRef, onCreated, onSignIn }: { email: string; bookingRef: string; onCreated: (d: any) => void; onSignIn: () => void }) => {
   const [offer, setOffer] = React.useState<{ hasAccount: boolean; bookingPoints: number; welcomeBonus: number } | null>(null);
   const [open, setOpen] = React.useState(false);
@@ -277,7 +277,7 @@ const RewardsBanner = ({ email, bookingRef, onCreated, onSignIn }: { email: stri
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center">
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-400 text-[#00244f] shadow-lg shadow-amber-500/30"><Gift className="h-6 w-6" /></span>
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-300">HogiCar Rewards</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-300">Hogicar Rewards</p>
             {offer.hasAccount ? (
               <>
                 <h2 className="mt-0.5 text-lg font-semibold">You have a Rewards account</h2>

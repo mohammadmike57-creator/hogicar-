@@ -224,7 +224,7 @@ const CarLibraryAdmin: React.FC<{
     <div className="space-y-5">
       <Hero
         eyebrow="Fleet catalogue" eyebrowIcon={Library} title="Car library"
-        subtitle="The car models used across HogiCar: picture, car class and capacity. Suppliers pick from these when they add cars."
+        subtitle="The car models used across Hogicar: picture, car class and capacity. Suppliers pick from these when they add cars."
         loading={busy}
         actions={<>
           <button onClick={refresh} className={heroButton}><RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> Refresh</button>

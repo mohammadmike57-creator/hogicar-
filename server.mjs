@@ -90,12 +90,26 @@ function withScriptNonce(body, headers) {
   return Buffer.from(html);
 }
 
+// A test copy of the site (SITE_ENV=staging): never indexed, clearly marked, and without Google Tag Manager so
+// test visits do not mix with the live site's analytics and ads data.
+const STAGING = String(process.env.SITE_ENV || '').toLowerCase() === 'staging';
+const STAGING_BAR = '<div style="position:fixed;left:0;right:0;bottom:0;z-index:2147483647;background:#b91c1c;color:#fff;'
+  + 'font:600 13px/1.4 system-ui,sans-serif;text-align:center;padding:6px 12px;pointer-events:none">'
+  + 'TEST SITE: not the live Hogicar website. Bookings and emails here are for testing.</div>';
+
+function markStaging(html) {
+  return String(html)
+    .replace(/<head>/i, '<head><script>window.__hcStaging=true</script>')
+    .replace(/<\/body>/i, `${STAGING_BAR}</body>`);
+}
+
 function send(res, status, body, headers = {}, req = null, filePath = null) {
   let finalBody = body;
   const finalHeaders = { ...securityHeaders, ...headers };
   const isHtml = !!body && String(finalHeaders['Content-Type'] || '').startsWith('text/html');
+  if (STAGING) finalHeaders['X-Robots-Tag'] = 'noindex, nofollow';
   if (isHtml) {
-    finalBody = withScriptNonce(body, finalHeaders);
+    finalBody = withScriptNonce(STAGING ? markStaging(body) : body, finalHeaders);
   }
 
   if (req && body && body.length > 1024) {
@@ -383,6 +397,11 @@ createServer(async (req, res) => {
     const typoRedirect = sitemapTypoTarget(url.pathname, url.search);
     if (typoRedirect) {
       send(res, 301, '', { Location: typoRedirect });
+      return;
+    }
+
+    if (STAGING && url.pathname === '/robots.txt') {
+      send(res, 200, 'User-agent: *\nDisallow: /\n', { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' });
       return;
     }
 

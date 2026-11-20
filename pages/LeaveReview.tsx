@@ -49,14 +49,14 @@ const Stars = ({ value, onChange, size = 'h-7 w-7', label }: { value: number; on
 
 const Shell = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen bg-slate-50">
-    <SEOMetadata title="Review your rental | HogiCar" description="Rate your car and rental company." noIndex={true} />
+    <SEOMetadata title="Review your rental | Hogicar" description="Rate your car and rental company." noIndex={true} />
     <div className="relative overflow-hidden bg-[#00244f] pb-28 pt-10 text-white sm:pb-32 sm:pt-14">
       <div aria-hidden="true" className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#007ac2]/40 blur-3xl" />
       <div aria-hidden="true" className="absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-amber-400/10 blur-3xl" />
       <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold ring-1 ring-white/15"><ShieldCheck className="h-3.5 w-3.5 text-emerald-300" /> Verified booking review</span>
         <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">How was your rental?</h1>
-        <p className="mx-auto mt-3 max-w-lg text-base text-white/70">Your rating is added to the rental company’s score on HogiCar and helps other travellers choose with confidence.</p>
+        <p className="mx-auto mt-3 max-w-lg text-base text-white/70">Your rating is added to the rental company’s score on Hogicar and helps other travellers choose with confidence.</p>
       </div>
     </div>
     <div className="relative z-10 mx-auto -mt-20 max-w-3xl px-4 pb-16 sm:-mt-24 sm:px-6">{children}</div>
@@ -205,7 +205,7 @@ const LeaveReview: React.FC = () => {
                 <span className="ml-2 text-sm font-semibold text-slate-700">{Number(rating).toFixed(1)} / 5</span>
               </div>
             )}
-            <p className="mx-auto mt-3 max-w-md text-sm text-slate-600">Your rating is now part of {supplier}’s score on HogiCar. It helps other travellers, and helps the rental company keep standards high.</p>
+            <p className="mx-auto mt-3 max-w-md text-sm text-slate-600">Your rating is now part of {supplier}’s score on Hogicar. It helps other travellers, and helps the rental company keep standards high.</p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Link to="/" className="inline-flex h-11 items-center rounded-xl bg-accent px-5 text-sm font-semibold text-white hover:bg-accent-700">Plan your next trip</Link>
               <Link to="/my-bookings" className="inline-flex h-11 items-center rounded-xl bg-white px-5 text-sm font-semibold text-slate-700 ring-1 ring-slate-300 hover:bg-slate-50">Manage booking</Link>

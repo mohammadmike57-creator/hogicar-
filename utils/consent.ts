@@ -1,5 +1,5 @@
 /**
- * HogiCar cookie consent – the one consent source for the whole site.
+ * Hogicar cookie consent – the one consent source for the whole site.
  *
  * Categories: necessary (always on), analytics, marketing (advertising and affiliate partners).
  * The choice is stored in localStorage `hogicar_consent`, pushed to GTM's dataLayer as

@@ -68,7 +68,7 @@ const DistributionGo: React.FC = () => {
   if (failed) {
     return (
       <div className="px-4">
-        <SEOMetadata title="Your car hire search | HogiCar" description="Continue your car hire search on HogiCar." noIndex />
+        <SEOMetadata title="Your car hire search | Hogicar" description="Continue your car hire search on Hogicar." noIndex />
         <div className={card}>
           <TriangleAlert className="mx-auto h-10 w-10 text-amber-500" />
           <h1 className="mt-3 text-xl font-bold text-slate-900">We couldn't open this offer</h1>
@@ -82,7 +82,7 @@ const DistributionGo: React.FC = () => {
   if (!data) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 px-4 text-slate-600">
-        <SEOMetadata title="Checking your offer | HogiCar" description="Checking the latest price and availability." noIndex />
+        <SEOMetadata title="Checking your offer | Hogicar" description="Checking the latest price and availability." noIndex />
         <LoaderCircle className="h-8 w-8 animate-spin text-[#007ac2]" />
         <p className="text-sm">Checking the latest price and availability…</p>
       </div>
@@ -93,7 +93,7 @@ const DistributionGo: React.FC = () => {
   const unavailable = data.outcome === 'UNAVAILABLE';
   return (
     <div className="px-4">
-      <SEOMetadata title="Your car hire search | HogiCar" description="Continue your car hire search on HogiCar." noIndex />
+      <SEOMetadata title="Your car hire search | Hogicar" description="Continue your car hire search on Hogicar." noIndex />
       <div className={card}>
         {changed ? <Info className="mx-auto h-10 w-10 text-[#007ac2]" /> : <TriangleAlert className="mx-auto h-10 w-10 text-amber-500" />}
         <h1 className="mt-3 text-xl font-bold text-slate-900">

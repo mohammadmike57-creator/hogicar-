@@ -113,7 +113,7 @@
         // The page's nonce, passed on to Google Tag Manager so it may run under the strict script policy.
         var nonce = (document.currentScript && (document.currentScript.nonce || document.currentScript.getAttribute('nonce'))) || '';
         window.loadGTM = function() {
-          if (window.gtmLoaded) return;
+          if (window.gtmLoaded || window.__hcStaging) return; // a test copy of the site sends no analytics
           window.gtmLoaded = true;
           (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
           new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],

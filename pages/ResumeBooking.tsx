@@ -69,7 +69,7 @@ const ResumeBooking: React.FC = () => {
 
   return (
     <div className="min-h-[70vh] bg-slate-50 px-4 py-12 sm:py-16">
-      <SEOMetadata title="Continue your booking | HogiCar" description="Pick up your HogiCar booking where you left off." noIndex={true} />
+      <SEOMetadata title="Continue your booking | Hogicar" description="Pick up your Hogicar booking where you left off." noIndex={true} />
       <div className="mx-auto max-w-lg">
         {!data && !error && (
           <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm" role="status">

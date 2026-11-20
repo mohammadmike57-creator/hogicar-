@@ -167,7 +167,7 @@ export const getPublicLocations = async (): Promise<LocationSuggestion[]> => {
   }
 };
 
-// ---------- HogiCar Rewards (customer accounts) ----------
+// ---------- Hogicar Rewards (customer accounts) ----------
 
 const REWARDS_TOKEN_KEY = 'hogicar_rewards_token';
 export const rewardsSession = {
@@ -244,7 +244,7 @@ export const submitReview = async (ref: string, reviewData: any): Promise<any> =
   return response.data;
 };
 
-/** "How was booking with HogiCar?" survey. */
+/** "How was booking with Hogicar?" survey. */
 export const fetchExperienceContext = async (ref: string, auth: { token?: string | null; email?: string | null }): Promise<any> => {
   const response = await publicAxios.post(`${API_BASE_URL}/api/public/feedback/experience/${encodeURIComponent(ref)}/context`, auth);
   return response.data;

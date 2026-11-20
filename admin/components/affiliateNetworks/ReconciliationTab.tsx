@@ -140,7 +140,7 @@ const MarkDialog: React.FC<{ row: ReconciliationRow; onClose: () => void; onDone
     <Modal title={to ? 'Mark as reconciled' : 'Undo reconciliation'} eyebrow={row.bookingRef || row.transactionId || ''} onClose={onClose} busy={busy}
       footer={<><button className={btnSecondary} onClick={onClose}>Cancel</button><button className={btnPrimary} onClick={submit} disabled={busy}>{busy ? <Spinner light /> : <CheckCircle className="h-4 w-4" />}{to ? 'Mark reconciled' : 'Undo'}</button></>}>
       <div className="space-y-4">
-        <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600"><MatchBadge status={row.matchStatus} /> HogiCar {money(row.commission, row.currency)} vs network {money(row.networkCommission, row.currency)}</div>
+        <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600"><MatchBadge status={row.matchStatus} /> Hogicar {money(row.commission, row.currency)} vs network {money(row.networkCommission, row.currency)}</div>
         <Field label="Note" hint="Explain any difference – it’s kept with the row."><textarea className={`${inputCls} h-24 py-2.5`} value={note} onChange={e => setNote(e.target.value)} autoFocus /></Field>
       </div>
     </Modal>
@@ -178,7 +178,7 @@ const ReconciliationTab: React.FC = () => {
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h3 className="text-lg font-semibold text-slate-900">Reconciliation</h3>
-          <p className="text-sm text-slate-500">Match HogiCar conversions with what each network actually approved and paid.</p>
+          <p className="text-sm text-slate-500">Match Hogicar conversions with what each network actually approved and paid.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <button className={btnSecondary} onClick={exportCsv} disabled={!visible.length}><Download className="h-4 w-4" /> Export CSV</button>
@@ -217,11 +217,11 @@ const ReconciliationTab: React.FC = () => {
 
       {error && <ErrorBanner text={error} onRetry={load} />}
       {rows === null ? <SkeletonRows rows={5} height="h-12" /> : !visible.length ? (
-        <EmptyState icon={Scale} title="Nothing to reconcile" text="Import a settlement / transaction report from the network to compare it with HogiCar’s conversions." />
+        <EmptyState icon={Scale} title="Nothing to reconcile" text="Import a settlement / transaction report from the network to compare it with Hogicar’s conversions." />
       ) : (
         <TableCard>
           <thead className="border-b border-slate-100"><tr>
-            <th className={th}>Booking</th><th className={th}>Match</th><th className={th}>Statuses</th><th className={thRight}>HogiCar sale · comm.</th><th className={thRight}>Network sale · comm.</th>
+            <th className={th}>Booking</th><th className={th}>Match</th><th className={th}>Statuses</th><th className={thRight}>Hogicar sale · comm.</th><th className={thRight}>Network sale · comm.</th>
             <th className={thRight}>Refund</th><th className={thRight}>Net</th><th className={th}>Settled</th><th className={th}>Reconciled</th>
           </tr></thead>
           <tbody>
