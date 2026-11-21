@@ -27,6 +27,8 @@ import { Hero, heroButton, heroPrimary, ErrorBanner, Spinner, Toast, useToast, i
 import { Flag, flagOf, EmptyState, CountrySkeletons, LocationSkeletons, SupplierSkeletons } from '../components/external/media';
 import { SupplierCard } from '../components/external/SupplierCard';
 import { SupplierDrawer } from '../components/external/SupplierDrawer';
+import { ProviderCompanies } from '../components/external/ProviderCompanies';
+import { Segmented } from '../components/commercialUi';
 import type { Country, Location, SupplierConfig, SupplierSearchResponse } from '../components/external/types';
 
 type ViewMode = 'countries' | 'locations' | 'suppliers';
@@ -45,6 +47,7 @@ const extractSupplierList = (value: unknown): SupplierConfig[] => {
 const compact = (n: number) => (n >= 10000 ? `${(n / 1000).toFixed(1)}k` : num(n));
 
 const ExternalSuppliersPage: React.FC = () => {
+  const [mode, setMode] = useState<'providers' | 'locations'>('providers');
   const [view, setView] = useState<ViewMode>('countries');
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -471,6 +474,14 @@ const ExternalSuppliersPage: React.FC = () => {
         ]}
       />
 
+      <Segmented<'providers' | 'locations'>
+        value={mode}
+        onChange={setMode}
+        layoutId="external-mode"
+        items={[{ key: 'providers', label: 'By API provider' }, { key: 'locations', label: 'By location' }]}
+      />
+
+      {mode === 'providers' ? <ProviderCompanies notify={notify} /> : <>
       {/* Navigator: breadcrumb, title, filter and quick location finder */}
       <section className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -600,6 +611,7 @@ const ExternalSuppliersPage: React.FC = () => {
       {loadError && !loading && <ErrorBanner text={loadError} onRetry={() => (view === 'locations' && selectedCountry ? fetchLocations(selectedCountry.code) : fetchCountries())} />}
 
       {body}
+      </>}
 
       <AnimatePresence>
         {editingSupplier && (
