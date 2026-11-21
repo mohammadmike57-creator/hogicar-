@@ -2,12 +2,11 @@ import * as React from 'react';
 import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 import Calendar from 'lucide-react/dist/esm/icons/calendar';
 import Clock from 'lucide-react/dist/esm/icons/clock';
-import Plane from 'lucide-react/dist/esm/icons/plane';
-import Building from 'lucide-react/dist/esm/icons/building';
 import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
 import SearchIcon from 'lucide-react/dist/esm/icons/search';
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import { fetchLocations, LocationSuggestion } from '../api';
+import { LocationOption, LocationIcon } from './LocationOption';
 import { startCarSearchPrefetch } from '../utils/searchPrefetch';
 import { lazyRetry } from '../utils/lazyRetry';
 import { defaultPickupDate, defaultDropoffDate, todayIsoDate } from '../utils/dates';
@@ -21,17 +20,6 @@ const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
     const formattedHour = hour.toString().padStart(2, '0');
     return `${formattedHour}:${minute}`;
 });
-
-const getLocationIcon = (type: string, sizeClass = 'w-4 h-4') => {
-    const lowerType = (type || '').toLowerCase();
-    if (lowerType === 'airport') {
-        return <Plane className={`${sizeClass} text-green-600`} />;
-    }
-    if (lowerType === 'city') {
-         return <Building className={`${sizeClass} text-amber-700`} />;
-    }
-    return <MapPin className={`${sizeClass} text-slate-600`} />;
-};
 
 const formatDateForDisplay = (dateString: string) => {
     if (!dateString) return 'Select Date';
@@ -60,16 +48,7 @@ const renderSuggestions = (
       <ul role="listbox" className="py-2">
         {suggestions.map((suggestion) => (
           <li key={suggestion.value + suggestion.label} role="presentation">
-            <button
-              type="button"
-              role="option"
-              aria-selected="false"
-              onClick={() => handler(suggestion)}
-              className="flex w-full items-center gap-3 px-4 py-2.5 text-start text-sm text-slate-800 transition-colors hover:bg-slate-50"
-            >
-              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100">{getLocationIcon(suggestion.type)}</div>
-              <div><span className="font-medium">{suggestion.label}</span></div>
-            </button>
+            <LocationOption suggestion={suggestion} onSelect={() => handler(suggestion)} />
           </li>
         ))}
       </ul>
@@ -332,16 +311,7 @@ const SearchWidget: React.FC<SearchWidgetProps> = React.memo(({ initialValues, o
         });
     };
 
-    const getLocationIcon = (type: string, sizeClass = 'w-4 h-4') => {
-        const lowerType = (type || '').toLowerCase();
-        if (lowerType === 'airport') {
-            return <Plane className={`${sizeClass} text-green-600`} />;
-        }
-        if (lowerType === 'city') {
-             return <Building className={`${sizeClass} text-amber-700`} />;
-        }
-        return <MapPin className={`${sizeClass} text-slate-400`} />;
-    };
+    const getLocationIcon = (type: string, sizeClass = 'w-4 h-4') => <LocationIcon type={type} className={sizeClass} />;
 
     // --- Desktop suggestion handlers (unchanged) ---
     const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {

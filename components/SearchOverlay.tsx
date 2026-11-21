@@ -2,10 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
 import SearchIcon from 'lucide-react/dist/esm/icons/search';
-import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 import History from 'lucide-react/dist/esm/icons/history';
-import Plane from 'lucide-react/dist/esm/icons/plane';
-import Building from 'lucide-react/dist/esm/icons/building';
+import { LocationIcon, locationLines } from './LocationOption';
 import LoaderCircle from 'lucide-react/dist/esm/icons/loader-circle';
 import { getAllLocations } from '../utils/locations';
 import { LocationSuggestion } from '../api';
@@ -95,13 +93,6 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
     };
   }, [searchQuery, isOpen]);
-
-  const getLocationIcon = (type: string, sizeClass = 'w-5 h-5') => {
-    const lowerType = (type || '').toLowerCase();
-    if (lowerType === 'airport') return <Plane className={`${sizeClass} text-green-600`} />;
-    if (lowerType === 'city') return <Building className={`${sizeClass} text-amber-700`} />;
-    return <MapPin className={`${sizeClass} text-slate-600`} />;
-  };
 
   const handleSelect = (loc: LocationSuggestion) => {
     saveRecentLocation(loc);
@@ -211,7 +202,7 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
                   width: '100%',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '12px',
+                  gap: '16px',
                   padding: '12px 16px',
                   background: 'transparent',
                   border: 'none',
@@ -221,13 +212,13 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
-                <div style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {getLocationIcon(loc.type, 'w-5 h-5')}
-                </div>
-                <div>
-                  <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '14px' }}>{loc.label}</div>
-                  <div style={{ fontSize: '12px', color: '#475569' }}>{loc.iataCode}</div>
-                </div>
+                <span style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <LocationIcon type={loc.type} className="h-6 w-6" />
+                </span>
+                <span style={{ minWidth: 0, flex: 1 }}>
+                  <span style={{ display: 'block', fontWeight: 500, color: '#0f172a', fontSize: '15px', lineHeight: 1.35, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{locationLines(loc).title}</span>
+                  {locationLines(loc).subtitle && <span style={{ display: 'block', marginTop: '2px', fontSize: '13px', color: '#64748b', lineHeight: 1.35, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{locationLines(loc).subtitle}</span>}
+                </span>
               </button>
             ))}
           </div>
@@ -253,7 +244,7 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
                   width: '100%',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '12px',
+                  gap: '16px',
                   padding: '12px 16px',
                   background: 'transparent',
                   border: 'none',
@@ -263,13 +254,13 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
-                <div style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {getLocationIcon(loc.type, 'w-5 h-5')}
-                </div>
-                <div>
-                  <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '14px' }}>{loc.label}</div>
-                  <div style={{ fontSize: '12px', color: '#475569' }}>{loc.iataCode}</div>
-                </div>
+                <span style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <LocationIcon type={loc.type} className="h-6 w-6" />
+                </span>
+                <span style={{ minWidth: 0, flex: 1 }}>
+                  <span style={{ display: 'block', fontWeight: 500, color: '#0f172a', fontSize: '15px', lineHeight: 1.35, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{locationLines(loc).title}</span>
+                  {locationLines(loc).subtitle && <span style={{ display: 'block', marginTop: '2px', fontSize: '13px', color: '#64748b', lineHeight: 1.35, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{locationLines(loc).subtitle}</span>}
+                </span>
               </button>
             ))}
           </div>

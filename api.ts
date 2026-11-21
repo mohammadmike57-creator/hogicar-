@@ -13,6 +13,10 @@ export interface LocationSuggestion {
   municipality: string;
   countryCode: string;
   type: 'airport' | 'city';  // For icon selection
+  /** First line, e.g. "Queen Alia International Airport (AMM)". */
+  title?: string;
+  /** Second line, e.g. "Amman, Amman Governorate, Jordan". */
+  subtitle?: string;
 }
 
 export interface Booking {
@@ -114,17 +118,11 @@ export const fetchLocations = async (query: string, hint?: string): Promise<Loca
       const isAirport = (backendType && backendType.toLowerCase().includes('airport')) ||
                         (loc.name || '').toLowerCase().includes('airport');
 
-      let label = loc.name;
-      if (loc.municipality && loc.municipality !== loc.name) {
-        label += `, ${loc.municipality}`;
-      }
-      if (loc.iataCode) {
-        label += ` (${loc.iataCode})`;
-      }
       const country = loc.country || (loc.isoCountry && loc.isoCountry !== 'N/A' ? loc.isoCountry : '');
-      if (country) {
-        label += `, ${country}`;
-      }
+      const title: string = loc.title || `${loc.name}${loc.iataCode ? ` (${loc.iataCode})` : ''}`;
+      const subtitle: string = loc.subtitle ?? [loc.municipality, country].filter((p: string, i: number, a: string[]) => p && a.indexOf(p) === i).join(', ');
+      // What the search box shows once chosen: the airport with its code, or the place with its country.
+      const label = isAirport || !country || title.includes(country) ? title : `${title}, ${country}`;
       return {
         // An airport code, or the car feed's own place (a "lat,lng" position for cities, stations and hotels).
         value: loc.iataCode || loc.searchLocation || `LOC:${loc.id}`,
@@ -134,6 +132,8 @@ export const fetchLocations = async (query: string, hint?: string): Promise<Loca
         municipality: loc.municipality || '',
         countryCode: loc.isoCountry || '',
         type: isAirport ? 'airport' : 'city',
+        title,
+        subtitle,
       };
     });
 
