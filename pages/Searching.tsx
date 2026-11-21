@@ -281,6 +281,10 @@ const Searching: React.FC = () => {
     if (ro && fitRef.current) ro.observe(fitRef.current);
     window.addEventListener('resize', measure);
     window.visualViewport?.addEventListener('resize', measure);
+    // The header changes height with a short animation when arriving from the homepage: measure again once it settles.
+    const header = document.querySelector('header');
+    header?.addEventListener('transitionend', measure);
+    const settle = window.setTimeout(measure, 600);
     const html = document.documentElement;
     const prevHtml = html.style.overflow;
     const prevBody = document.body.style.overflow;
@@ -289,6 +293,8 @@ const Searching: React.FC = () => {
     window.scrollTo(0, 0);
     return () => {
       ro?.disconnect();
+      header?.removeEventListener('transitionend', measure);
+      window.clearTimeout(settle);
       window.removeEventListener('resize', measure);
       window.visualViewport?.removeEventListener('resize', measure);
       html.style.overflow = prevHtml;
@@ -393,9 +399,10 @@ const Searching: React.FC = () => {
         description="We're comparing hundreds of suppliers to find you the best car rental deal."
         noIndex={true}
       />
-      <div className="fixed inset-x-0 bottom-0 z-40 flex flex-col items-center justify-center overflow-hidden bg-slate-50 px-4 font-sans text-slate-900 sm:px-6" style={{ top: topOffset }}>
-        {/* Blue backdrop behind the top half */}
-        <div className="absolute inset-x-0 top-0 h-[46%] overflow-hidden bg-gradient-to-br from-[#003580] via-[#0047a6] to-[#0b5cc4]" aria-hidden="true">
+      {/* Starts at the very top, behind the site header (which sits above it), so no gap can show while the header settles. */}
+      <div className="fixed inset-0 z-40 flex flex-col items-center justify-center overflow-hidden bg-slate-50 px-4 font-sans text-slate-900 sm:px-6" style={{ paddingTop: topOffset }}>
+        {/* Blue backdrop behind the header and the top half */}
+        <div className="absolute inset-x-0 top-0 overflow-hidden bg-gradient-to-br from-[#003580] via-[#0047a6] to-[#0b5cc4]" style={{ height: `calc(${topOffset}px + 42%)` }} aria-hidden="true">
           <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10" />
         </div>
 
